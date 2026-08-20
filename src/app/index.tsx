@@ -1,98 +1,295 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import {
+  Dimensions,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+const { width, height } = Dimensions.get('window');
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+export default function LoginScreen() {
+  const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = () => {
+    setIsLoading(true);
+    // Simulate network request
+    setTimeout(() => {
+      setIsLoading(false);
+      // Navigate to the main dashboard layout
+      router.replace('/(tabs)/dashboard');
+    }, 1000);
+  };
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
-
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          {/* ================= BACKGROUND ================= */}
+          <LinearGradient
+            colors={['#E8F2FB', '#F5F7FA', '#FFFFFF']}
+            style={styles.backgroundGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
           />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+          <View style={styles.content}>
+
+            {/* ================= HEADER & LOGO ================= */}
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('../../assets/images/logo.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+
+              <Text style={styles.welcomeText}>IOCL</Text>
+              <Text style={styles.subtitleText}>Sign in to access your dashboard</Text>
+            </View>
+
+            {/* ================= FORM ================= */}
+            <View style={styles.formContainer}>
+
+              {/* Username Input */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Username / Email</Text>
+                <View style={styles.inputContainer}>
+                  <MaterialCommunityIcons name="email-outline" size={20} color="#7B8088" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your email"
+                    placeholderTextColor="#A0A5AC"
+                    value={username}
+                    onChangeText={setUsername}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                  />
+                </View>
+              </View>
+
+              {/* Password Input */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Password</Text>
+                <View style={styles.inputContainer}>
+                  <MaterialCommunityIcons name="lock-outline" size={20} color="#7B8088" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your password"
+                    placeholderTextColor="#A0A5AC"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    style={styles.eyeIcon}
+                  >
+                    <MaterialCommunityIcons
+                      name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                      size={20}
+                      color="#7B8088"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Forgot Password */}
+              <TouchableOpacity style={styles.forgotPasswordContainer}>
+                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              </TouchableOpacity>
+
+              {/* Login Button */}
+              <TouchableOpacity
+                style={[
+                  styles.loginButton,
+                  (isLoading || !username || !password) && styles.loginButtonDisabled
+                ]}
+                onPress={handleLogin}
+                disabled={isLoading || !username || !password}
+              >
+                <LinearGradient
+                  colors={['#1769AA', '#0F4D8A']}
+                  style={styles.loginButtonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                >
+                  <Text style={styles.loginButtonText}>
+                    {isLoading ? 'Signing In...' : 'Sign In'}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+            </View>
+
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: height * 0.4,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: height * 0.12,
+  },
+
+  /* ================= LOGO & HEADER ================= */
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  logo: {
+    width: 240,
+    height: 80,
+    marginBottom: 24,
+  },
+  logoPlaceholder: {
     flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 30,
+  },
+  logoTextBlue: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#3278B8', // matches the logo blue color approx
+    marginRight: 6,
+  },
+  logoTextBlack: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#000000',
+  },
+  welcomeText: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: '#1769AA',
+    marginBottom: 8,
+    letterSpacing: 1,
+  },
+  subtitleText: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
+
+  /* ================= FORM ================= */
+  formContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.05,
+    shadowRadius: 20,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  inputLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    height: 52,
+    paddingHorizontal: 16,
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  input: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+    fontSize: 15,
+    color: '#111827',
+    height: '100%',
   },
-  title: {
-    textAlign: 'center',
+  eyeIcon: {
+    padding: 8,
   },
-  code: {
-    textTransform: 'uppercase',
+  forgotPasswordContainer: {
+    alignSelf: 'flex-end',
+    marginBottom: 28,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  forgotPasswordText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1769AA',
+  },
+
+  /* ================= BUTTON ================= */
+  loginButton: {
+    height: 52,
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#1769AA',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  loginButtonDisabled: {
+    opacity: 0.6,
+  },
+  loginButtonGradient: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loginButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
   },
 });
