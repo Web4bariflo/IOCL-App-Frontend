@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {logoutUser} from '../../api/authApi'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function DashboardScreen() {
@@ -19,6 +21,19 @@ export default function DashboardScreen() {
       setIsMenuOpen(true);
     }
   }, [params.menu]);
+  
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      router.replace('/')
+
+      //clear tokens after Logout
+      await AsyncStorage.removeItem('accessToken');
+      await AsyncStorage.removeItem('refreshToken');
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -330,10 +345,7 @@ export default function DashboardScreen() {
             <View style={styles.drawerFooter}>
               <TouchableOpacity
                 style={styles.logoutButton}
-                onPress={() => {
-                  setIsMenuOpen(false);
-                  router.replace('/');
-                }}
+               onPress={handleLogout}
               >
                 <MaterialCommunityIcons name="logout" size={24} color="#EF4444" />
                 <Text style={styles.logoutText}>Log Out</Text>
