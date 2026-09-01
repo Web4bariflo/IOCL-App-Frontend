@@ -38,3 +38,60 @@ export const logoutUser = async () => {
         throw error;
     }
 }
+
+export const sendOtp = async (email: string) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/users/send-otp/`, { email }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
+    } catch (error: any) {
+        console.error("Error sending OTP:", error.response?.data || error.message);
+        throw error;
+    }
+}
+
+export const resendOtp = async (email: string) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/users/resend-otp/`, {email}, {
+            headers: {
+                'Content-Type': 'application/json'
+            
+            }
+        });
+        return response.data;
+    } catch (error: any) {
+        console.error("Error resending OTP:", error.response?.data || error.message);
+        throw error;
+    }
+}
+
+export const verifyOtp = async (email: string, otp: string) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/users/verify-otp/`, {email, otp}, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        return response.data;
+    } catch (error: any) {
+        console.error("Error verifying OTP:", error.response?.data || error.message);
+        throw error;
+    }
+}
+
+export const resetPassword = async (email: string, otp: string, new_password: string, confirm_password: string) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/users/reset-password/`, {email, otp, new_password, confirm_password}, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        return response.data;
+    } catch (error: any) {
+        console.error("Error resetting password:", error.response?.data || error.message);
+        throw error;
+    }
+}

@@ -335,39 +335,39 @@ export default function LoginScreen() {
   //   }, 1000);
   // };
 
-const handleLogin = async () => {
-  if (!username || !password) return;
+  const handleLogin = async () => {
+    if (!username || !password) return;
 
-  setIsLoading(true);
+    setIsLoading(true);
 
-  try {
-    const res = await loginUser({
-      email: username,
-      password: password,
-    });
+    try {
+      const res = await loginUser({
+        email: username,
+        password: password,
+      });
 
-    console.log('Login Success:', res);
+      console.log('Login Success:', res);
 
-    const accessToken = res.tokens?.access;
-    const refreshToken = res.tokens?.refresh;
+      const accessToken = res.tokens?.access;
+      const refreshToken = res.tokens?.refresh;
 
-    // ✅ Store both tokens
-    await AsyncStorage.setItem('accessToken', accessToken);
-    await AsyncStorage.setItem('refreshToken', refreshToken);
+      // ✅ Store both tokens
+      await AsyncStorage.setItem('accessToken', accessToken);
+      await AsyncStorage.setItem('refreshToken', refreshToken);
 
-    console.log('Access Token:', accessToken);
-    console.log('Refresh Token:', refreshToken);
+      console.log('Access Token:', accessToken);
+      console.log('Refresh Token:', refreshToken);
 
-    // Navigate
-    router.replace('/(tabs)/dashboard');
+      // Navigate
+      router.replace('/(tabs)/dashboard');
 
-  } catch (error: any) {
-    console.log('Login Failed:', error.response?.data || error.message);
-    alert('Invalid email or password');
-  } finally {
-    setIsLoading(false);
-  }
-};
+    } catch (error: any) {
+      console.log('Login Failed:', error.response?.data || error.message);
+      alert('Invalid email or password');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -450,7 +450,10 @@ const handleLogin = async () => {
               </View>
 
               {/* Forgot Password */}
-              <TouchableOpacity style={styles.forgotPasswordContainer}>
+              <TouchableOpacity
+                style={styles.forgotPasswordContainer}
+                onPress={() => router.push('/forgot-password')}
+              >
                 <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
               </TouchableOpacity>
 
