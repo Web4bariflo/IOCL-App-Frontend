@@ -1,4 +1,3 @@
-
 import { Tabs } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -117,6 +116,12 @@ export default function AutomaticLayout() {
       />
        <Tabs.Screen
         name="TimeHistory"
+        options={{
+          href: null,
+        }}
+      />
+       <Tabs.Screen
+        name="index"
         options={{
           href: null,
         }}

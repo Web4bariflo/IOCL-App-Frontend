@@ -235,43 +235,214 @@ export default function CoagulantAutomaticScreen() {
           onPress={() => router.push('/coagulant/automatic/asset-detail')}
         />
 
+        {/* ================= TIMING SUMMARY ================= */}
+
+<Text style={styles.summaryTitle}>
+  TIMING SUMMARY
+</Text>
+
+<View style={styles.summaryCard}>
+
+  {/* Circular Status */}
+  <View style={styles.statusCircle}>
+    <View style={styles.statusCircleInner}>
+      <Text style={styles.statusMainText}>
+        All Systems
+      </Text>
+
+      <Text style={styles.statusSubText}>
+        Normal
+      </Text>
+    </View>
+  </View>
+
+  {/* Status Counts */}
+  <View style={styles.statusCounts}>
+
+    <View style={styles.statusRow}>
+      <View
+        style={[
+          styles.statusDot,
+          { backgroundColor: '#20B765' },
+        ]}
+      />
+
+      <Text style={styles.statusLabel}>
+        Running
+      </Text>
+
+      <Text style={styles.statusCount}>
+        3
+      </Text>
+    </View>
+
+
+    <View style={styles.statusRow}>
+      <View
+        style={[
+          styles.statusDot,
+          { backgroundColor: '#EF5350' },
+        ]}
+      />
+
+      <Text style={styles.statusLabel}>
+        Stopped
+      </Text>
+
+      <Text style={styles.statusCount}>
+        0
+      </Text>
+    </View>
+
+
+    <View style={styles.statusRow}>
+      <View
+        style={[
+          styles.statusDot,
+          { backgroundColor: '#9CA3AF' },
+        ]}
+      />
+
+      <Text style={styles.statusLabel}>
+        Idle
+      </Text>
+
+      <Text style={styles.statusCount}>
+        0
+      </Text>
+    </View>
+
+  </View>
+
+</View>
+
+
+{/* ================= QUICK VIEW ================= */}
+
+<Text style={styles.quickViewTitle}>
+  QUICK VIEW
+</Text>
+
+<View style={styles.quickViewCard}>
+
+  {/* Powder Dosing */}
+  <View style={styles.quickItem}>
+
+    <View style={styles.quickItemContent}>
+
+      <View style={styles.quickTitleRow}>
+        <View style={styles.smallGreenDot} />
+
+        <Text style={styles.quickTitle}>
+          Powder Dosing (P1)
+        </Text>
+      </View>
+
+      <View style={styles.quickInfoRow}>
+
+        <Text style={styles.quickOnText}>
+          ON
+        </Text>
+
+        <Text style={styles.quickTime}>
+          00:02:35 / 00:05:00
+        </Text>
+
+      </View>
+
+    </View>
+
+    <View style={styles.quickStatusDot} />
+
+  </View>
+
+
+  {/* Water Dosing */}
+  <View style={styles.quickItem}>
+
+    <View style={styles.quickItemContent}>
+
+      <View style={styles.quickTitleRow}>
+        <View style={styles.smallGreenDot} />
+
+        <Text style={styles.quickTitle}>
+          Water Dosing (P2)
+        </Text>
+      </View>
+
+      <View style={styles.quickInfoRow}>
+
+        <Text style={styles.quickOnText}>
+          ON
+        </Text>
+
+        <Text style={styles.quickTime}>
+          00:02:05 / 00:06:00
+        </Text>
+
+      </View>
+
+    </View>
+
+    <View style={styles.quickStatusDot} />
+
+  </View>
+
+
+  {/* Transfer Pump */}
+  <View style={styles.quickItem}>
+
+    <View style={styles.quickItemContent}>
+
+      <View style={styles.quickTitleRow}>
+        <View style={styles.smallGreenDot} />
+
+        <Text style={styles.quickTitle}>
+          Transfer / Mix Pump (P3)
+        </Text>
+      </View>
+
+      <View style={styles.quickInfoRow}>
+
+        <Text style={styles.quickOnText}>
+          ON
+        </Text>
+
+        <Text style={styles.quickTime}>
+          00:01:35 / 00:10:00
+        </Text>
+
+      </View>
+
+    </View>
+
+    <View style={styles.quickStatusDot} />
+
+  </View>
+
+</View>
+
+
+{/* ================= DETAILED DASHBOARD BUTTON ================= */}
+
+<TouchableOpacity
+  style={styles.detailedDashboardButton}
+  onPress={() => {
+    // Add navigation later
+  }}
+>
+  <Text style={styles.detailedDashboardText}>
+    VIEW DETAILED DASHBOARD
+  </Text>
+</TouchableOpacity>
+
       </ScrollView>
+      
 
     </View>
   );
 }
 
-// /* ================================================= */
-// /* BOTTOM NAV ITEM */
-// /* ================================================= */
-
-// function BottomItem({
-//   icon,
-//   label,
-//   active = false,
-// }: any) {
-
-//   return (
-//     <TouchableOpacity style={styles.bottomItem}>
-
-//       <MaterialCommunityIcons
-//         name={icon}
-//         size={22}
-//         color={active ? '#1769D2' : '#7B8088'}
-//       />
-
-//       <Text
-//         style={[
-//           styles.bottomLabel,
-//           active && styles.bottomLabelActive,
-//         ]}
-//       >
-//         {label}
-//       </Text>
-
-//     </TouchableOpacity>
-//   );
-// }
 
 
 /* ================================================= */
@@ -463,5 +634,247 @@ const styles = StyleSheet.create({
 
     marginBottom: 14,
   },
+
+  /* ================= TIMING SUMMARY ================= */
+
+summaryTitle: {
+  color: '#1756A2',
+  fontSize: 12,
+  fontWeight: '800',
+  marginTop: 5,
+  marginBottom: 8,
+},
+
+summaryCard: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: '#E5E7EB',
+
+  minHeight: 145,
+
+  flexDirection: 'row',
+  alignItems: 'center',
+
+  paddingHorizontal: 18,
+  paddingVertical: 14,
+
+  marginBottom: 18,
+
+  shadowColor: '#000',
+  shadowOffset: {
+    width: 0,
+    height: 1,
+  },
+  shadowOpacity: 0.05,
+  shadowRadius: 3,
+
+  elevation: 2,
+},
+
+/* ================= CIRCLE ================= */
+
+statusCircle: {
+  width: 92,
+  height: 92,
+
+  borderRadius: 46,
+
+  borderWidth: 8,
+  borderColor: '#20B765',
+
+  alignItems: 'center',
+  justifyContent: 'center',
+
+  marginRight: 25,
+},
+
+statusCircleInner: {
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+statusMainText: {
+  color: '#333333',
+  fontSize: 11,
+  fontWeight: '700',
+  textAlign: 'center',
+},
+
+statusSubText: {
+  color: '#333333',
+  fontSize: 11,
+  fontWeight: '700',
+  textAlign: 'center',
+  marginTop: 2,
+},
+
+/* ================= STATUS COUNTS ================= */
+
+statusCounts: {
+  flex: 1,
+  gap: 12,
+},
+
+statusRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+
+statusDot: {
+  width: 8,
+  height: 8,
+  borderRadius: 4,
+  marginRight: 10,
+},
+
+statusLabel: {
+  flex: 1,
+  fontSize: 11,
+  color: '#333333',
+  fontWeight: '600',
+},
+
+statusCount: {
+  fontSize: 11,
+  color: '#333333',
+  fontWeight: '700',
+},
+
+
+/* ================= QUICK VIEW ================= */
+
+quickViewTitle: {
+  color: '#1756A2',
+  fontSize: 12,
+  fontWeight: '800',
+  marginBottom: 8,
+},
+
+quickViewCard: {
+  backgroundColor: '#FFFFFF',
+
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: '#E5E7EB',
+
+  paddingHorizontal: 10,
+  paddingVertical: 6,
+
+  marginBottom: 18,
+
+  shadowColor: '#000',
+  shadowOffset: {
+    width: 0,
+    height: 1,
+  },
+  shadowOpacity: 0.04,
+  shadowRadius: 3,
+
+  elevation: 2,
+},
+
+quickItem: {
+  minHeight: 52,
+
+  flexDirection: 'row',
+  alignItems: 'center',
+
+  borderBottomWidth: 1,
+  borderBottomColor: '#F1F1F1',
+},
+
+quickItemContent: {
+  flex: 1,
+},
+
+quickTitleRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+
+smallGreenDot: {
+  width: 5,
+  height: 5,
+
+  borderRadius: 3,
+
+  backgroundColor: '#20B765',
+
+  marginRight: 5,
+},
+
+quickTitle: {
+  fontSize: 11,
+  fontWeight: '700',
+  color: '#333333',
+},
+
+quickInfoRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+
+  marginTop: 2,
+},
+
+quickOnText: {
+  fontSize: 9,
+  fontWeight: '800',
+  color: '#20B765',
+
+  marginRight: 7,
+},
+
+quickTime: {
+  fontSize: 10,
+  color: '#777777',
+},
+
+quickStatusDot: {
+  width: 8,
+  height: 8,
+
+  borderRadius: 4,
+
+  backgroundColor: '#20B765',
+
+  marginRight: 2,
+},
+
+
+/* ================= DETAILED DASHBOARD ================= */
+
+detailedDashboardButton: {
+  height: 44,
+
+  backgroundColor: '#1769D2',
+
+  borderRadius: 6,
+
+  alignItems: 'center',
+  justifyContent: 'center',
+
+  marginTop: 2,
+  marginBottom: 10,
+
+  shadowColor: '#000',
+  shadowOffset: {
+    width: 0,
+    height: 1,
+  },
+  shadowOpacity: 0.08,
+  shadowRadius: 2,
+
+  elevation: 2,
+},
+
+detailedDashboardText: {
+  color: '#FFFFFF',
+
+  fontSize: 11,
+  fontWeight: '800',
+
+  letterSpacing: 0.2,
+},
 
 });

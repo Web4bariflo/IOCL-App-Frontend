@@ -325,6 +325,7 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+
   // const handleLogin = () => {
   //   setIsLoading(true);
   //   // Simulate network request
@@ -335,8 +336,10 @@ export default function LoginScreen() {
   //   }, 1000);
   // };
 
-  const handleLogin = async () => {
-    if (!username || !password) return;
+  
+
+const handleLogin = async () => {
+  if (!username || !password) return;
 
     setIsLoading(true);
 
@@ -449,13 +452,41 @@ export default function LoginScreen() {
                 </View>
               </View>
 
+
               {/* Forgot Password */}
-              <TouchableOpacity
+              {/* <TouchableOpacity
+                style={styles.forgotPasswordContainer}
+                onPress={() => router.push('/forgot-password')}
+              >
+                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              </TouchableOpacity> */}
+
+<View style={styles.accountRow}>
+
+  {/* Don't Have Account */}
+  <TouchableOpacity
+    style={styles.signupContainer}
+    onPress={() => router.push('/SignUp')}
+  >
+    <Text style={styles.accountText}>
+      Don't have an account?
+    </Text>
+
+    <Text style={styles.signupText}>
+      Sign Up
+    </Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
                 style={styles.forgotPasswordContainer}
                 onPress={() => router.push('/forgot-password')}
               >
                 <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
               </TouchableOpacity>
+
+  
+
+</View>
 
               {/* Login Button */}
               <TouchableOpacity
@@ -595,15 +626,42 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: 8,
   },
-  forgotPasswordContainer: {
-    alignSelf: 'flex-end',
-    marginBottom: 28,
-  },
-  forgotPasswordText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#1769AA',
-  },
+
+  accountRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: 28,
+},
+
+signupContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  flexShrink: 1,
+},
+
+accountText: {
+  fontSize: 12,
+  color: '#6B7280',
+  fontWeight: '500',
+},
+
+signupText: {
+  fontSize: 12,
+  color: '#1769AA',
+  fontWeight: '700',
+  marginLeft: 4,
+},
+
+forgotPasswordContainer: {
+  marginLeft: 10,
+},
+
+forgotPasswordText: {
+  fontSize: 12,
+  fontWeight: '600',
+  color: '#1769AA',
+},
 
   /* ================= BUTTON ================= */
   loginButton: {
