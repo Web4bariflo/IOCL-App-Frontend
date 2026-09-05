@@ -19,6 +19,8 @@ export default function DashboardScreen() {
   const params = useLocalSearchParams();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [expandedSystem, setExpandedSystem] = useState<string | null>(null);
+  const [expandedSubSystem, setExpandedSubSystem] = useState<string | null>(null);
 
   const [showCoagulantDropdown, setShowCoagulantDropdown] = useState(false);
   const [showMixingDropdown, setShowMixingDropdown] = useState(false);
@@ -48,6 +50,95 @@ export default function DashboardScreen() {
       router.replace('/');
     } catch (error) {
       console.error('Logout failed:', error);
+    }
+  };
+
+  // =========================================================
+  // SYSTEM CLICK
+  // =========================================================
+
+  const handleSystemPress = (systemName: string) => {
+    if (expandedSystem === systemName) {
+      // Close current system
+      setExpandedSystem(null);
+      setExpandedSubSystem(null);
+    } else {
+      // Open selected system
+      setExpandedSystem(systemName);
+      setExpandedSubSystem(null);
+    }
+  };
+
+  // =========================================================
+  // SUB SYSTEM CLICK
+  // =========================================================
+
+  const handleSubSystemPress = (subSystemName: string) => {
+    if (expandedSubSystem === subSystemName) {
+      setExpandedSubSystem(null);
+    } else {
+      setExpandedSubSystem(subSystemName);
+    }
+  };
+
+  // =========================================================
+  // SETTINGS CLICK
+  // =========================================================
+
+  const handleSettingsPress = (settingName: string) => {
+    setIsMenuOpen(false);
+    setExpandedSystem(null);
+    setExpandedSubSystem(null);
+
+    switch (settingName) {
+      // -----------------------------------------------------
+      // INLET SYSTEM
+      // -----------------------------------------------------
+      case 'Inlet System':
+        router.push('/(tabs)/settings');
+        break;
+
+      // -----------------------------------------------------
+      // COAGULANT DOSING
+      // -----------------------------------------------------
+      case 'Coagulant Dosing':
+        router.push('/coagulant/dosing/settings');
+        break;
+
+      // -----------------------------------------------------
+      // COAGULANT MIXING
+      // -----------------------------------------------------
+      case 'Coagulant Mixing':
+        router.push('/coagulant/mixing/settings');
+        break;
+
+      // -----------------------------------------------------
+      // MIXING TANK SYSTEM
+      // -----------------------------------------------------
+      case 'Mixing Tank System':
+        router.push('/mixingtank/settings');
+        break;
+
+      // -----------------------------------------------------
+      // FLOCULATION DOSING
+      // -----------------------------------------------------
+      case 'Flocculation Dosing':
+        // router.push('/flocculation/dosing/setting');
+        break;
+
+      // -----------------------------------------------------
+      // FLOCULATION MIXING
+      // -----------------------------------------------------
+      case 'Flocculation Mixing':
+        // router.push('/flocculation/mixing/setting');
+        break;
+
+      // -----------------------------------------------------
+      // DESLUDGING SYSTEM
+      // -----------------------------------------------------
+      case 'Desludging System':
+        // router.push('/settings/desludging');
+        break;
     }
   };
 
@@ -402,40 +493,6 @@ export default function DashboardScreen() {
 
       </ScrollView>
 
-      {/* ================= BOTTOM NAVIGATION ================= */}
-      {/* <View style={styles.bottomNav}>
-<BottomNavItem
-icon="home"
-label="Home"
-active
-onPress={() => {}}
-/>
-
-<BottomNavItem
-icon="tune-vertical"
-label="System"
-onPress={() => {}}
-/>
-
-<BottomNavItem
-icon="history"
-label="History"
-onPress={() => {}}
-/>
-
-<BottomNavItem
-icon="bell-outline"
-label="Alarms"
-onPress={() => {}}
-/>
-
-<BottomNavItem
-icon="cog-outline"
-label="Settings"
-onPress={() => router.push('/settings')}
-/>
-</View> */}
-
       {/* ================= SIDE DRAWER ================= */}
       <Modal
         visible={isMenuOpen}
@@ -482,22 +539,27 @@ onPress={() => router.push('/settings')}
                     style={styles.drawerMenuItem}
                     onPress={() => {
 
+                      // if (item === 'Coagulant System') {
+                      //   setShowCoagulantDropdown(
+                      //     !showCoagulantDropdown
+                      //   );
+                      //   setShowMixingDropdown(false);
+                      //   setShowFlocculationDropdown(false);
+                      //   setShowDesludgingDropdown(false);
+                      // }
+
                       if (item === 'Coagulant System') {
-                        setShowCoagulantDropdown(
-                          !showCoagulantDropdown
-                        );
+                        setShowCoagulantDropdown(!showCoagulantDropdown);
+                        setExpandedSubSystem(null);
+
                         setShowMixingDropdown(false);
                         setShowFlocculationDropdown(false);
                         setShowDesludgingDropdown(false);
                       }
 
+
                       else if (item === 'Mixing Tank System') {
-                        setShowMixingDropdown(
-                          !showMixingDropdown
-                        );
-                        setShowCoagulantDropdown(false);
-                        setShowFlocculationDropdown(false);
-                        setShowDesludgingDropdown(false);
+                        handleSystemPress('Mixing Tank System');
                       }
 
                       else if (item === 'Flocculation System') {
@@ -509,6 +571,8 @@ onPress={() => router.push('/settings')}
                         setShowDesludgingDropdown(false);
                       }
 
+
+
                       else if (item === 'Desludging System') {
                         setShowDesludgingDropdown(
                           !showDesludgingDropdown
@@ -518,8 +582,8 @@ onPress={() => router.push('/settings')}
                         setShowFlocculationDropdown(false);
                       }
 
-                      else {
-                        setIsMenuOpen(false);
+                      else if (item === 'Inlet System') {
+                        handleSystemPress('Inlet System');
                       }
 
                     }}
@@ -528,78 +592,153 @@ onPress={() => router.push('/settings')}
                       {item}
                     </Text>
 
-                    {item !== 'Inlet System' && (
-                      <MaterialCommunityIcons
-                        name="chevron-down"
-                        size={20}
-                        color="#6B7280"
-                      />
-                    )}
+                    <MaterialCommunityIcons
+                      name={
+                        expandedSystem === item
+                          ? 'chevron-up'
+                          : 'chevron-down'
+                      }
+                      size={20}
+                      color="#6B7280"
+                    />
                   </TouchableOpacity>
+
+                  {/* INLET SETTINGS */}
+                  {item === 'Inlet System' &&
+                    expandedSystem === 'Inlet System' && (
+                      <TouchableOpacity
+                        style={styles.settingsMenuItem}
+                        onPress={() =>
+                          handleSettingsPress('Inlet System')
+                        }
+                      >
+                        <MaterialCommunityIcons
+                          name="cog-outline"
+                          size={21}
+                          color="#159AA3"
+                        />
+
+                        <Text style={styles.settingsMenuText}>
+                          Settings
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+
+                  
 
                   {/* COAGULANT */}
                   {item === 'Coagulant System' &&
                     showCoagulantDropdown && (
                       <View style={styles.dropdownContainer}>
 
+                        {/* COAGULANT DOSING */}
                         <TouchableOpacity
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            setIsMenuOpen(false);
-                            router.push('/coagulant/manual');
-                          }}
+                          style={styles.subSystemMenuItem}
+                          onPress={() =>
+                            handleSubSystemPress('Coagulant Dosing')
+                          }
                         >
-                          <Text style={styles.dropdownText}>
-                            Manual Mode
+                          <Text style={styles.subSystemMenuText}>
+                            Coagulant Dosing
                           </Text>
+
+                          <MaterialCommunityIcons
+                            name={
+                              expandedSubSystem === 'Coagulant Dosing'
+                                ? 'chevron-up'
+                                : 'chevron-down'
+                            }
+                            size={19}
+                            color="#6B7280"
+                          />
                         </TouchableOpacity>
 
+                        {/* DOSING SETTINGS */}
+                        {expandedSubSystem === 'Coagulant Dosing' && (
+                          <TouchableOpacity
+                            style={styles.settingsMenuItem}
+                            onPress={() =>
+                              handleSettingsPress('Coagulant Dosing')
+                            }
+                          >
+                            <MaterialCommunityIcons
+                              name="cog-outline"
+                              size={21}
+                              color="#159AA3"
+                            />
+
+                            <Text style={styles.settingsMenuText}>
+                              Settings
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+
+                        {/* COAGULANT MIXING */}
                         <TouchableOpacity
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            setIsMenuOpen(false);
-                            router.push('/coagulant/automatic');
-                          }}
+                          style={styles.subSystemMenuItem}
+                          onPress={() =>
+                            handleSubSystemPress('Coagulant Mixing')
+                          }
                         >
-                          <Text style={styles.dropdownText}>
-                            Automatic Mode
+                          <Text style={styles.subSystemMenuText}>
+                            Coagulant Mixing
                           </Text>
+
+                          <MaterialCommunityIcons
+                            name={
+                              expandedSubSystem === 'Coagulant Mixing'
+                                ? 'chevron-up'
+                                : 'chevron-down'
+                            }
+                            size={19}
+                            color="#6B7280"
+                          />
                         </TouchableOpacity>
+
+                        {/* MIXING SETTINGS */}
+                        {expandedSubSystem === 'Coagulant Mixing' && (
+                          <TouchableOpacity
+                            style={styles.settingsMenuItem}
+                            onPress={() =>
+                              handleSettingsPress('Coagulant Mixing')
+                            }
+                          >
+                            <MaterialCommunityIcons
+                              name="cog-outline"
+                              size={21}
+                              color="#159AA3"
+                            />
+
+                            <Text style={styles.settingsMenuText}>
+                              Settings
+                            </Text>
+                          </TouchableOpacity>
+                        )}
 
                       </View>
                     )}
 
-                  {/* MIXING TANK */}
+                  {/* MIXING TANK SETTINGS */}
                   {item === 'Mixing Tank System' &&
-                    showMixingDropdown && (
-                      <View style={styles.dropdownContainer}>
+                    expandedSystem === 'Mixing Tank System' && (
+                      <TouchableOpacity
+                        style={styles.settingsMenuItem}
+                        onPress={() =>
+                          handleSettingsPress('Mixing Tank System')
+                        }
+                      >
+                        <MaterialCommunityIcons
+                          name="cog-outline"
+                          size={21}
+                          color="#159AA3"
+                        />
 
-                        <TouchableOpacity
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            setIsMenuOpen(false);
-                            router.push('/mixingtank/manual');
-                          }}
-                        >
-                          <Text style={styles.dropdownText}>
-                            Manual Mode
-                          </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            setIsMenuOpen(false);
-                            router.push('/mixingtank/automatic');
-                          }}
-                        >
-                          <Text style={styles.dropdownText}>
-                            Automatic Mode
-                          </Text>
-                        </TouchableOpacity>
-
-                      </View>
+                        <Text style={styles.settingsMenuText}>
+                          Settings
+                        </Text>
+                      </TouchableOpacity>
                     )}
+
 
                   {/* FLOCULATION */}
                   {item === 'Flocculation System' &&
@@ -1394,5 +1533,39 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#EF4444',
     marginLeft: 12,
+  },
+
+  settingsMenuItem: {
+    minHeight: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 24,
+    backgroundColor: '#F8FAFA',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+
+  settingsMenuText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#159AA3',
+    marginLeft: 12,
+  },
+
+  subSystemMenuItem: {
+    minHeight: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingLeft: 8,
+    paddingRight: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+
+  subSystemMenuText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#4B5563',
   },
 });
