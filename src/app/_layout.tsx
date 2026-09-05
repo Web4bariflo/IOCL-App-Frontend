@@ -65,6 +65,7 @@ export default function RootLayout() {
          <Stack.Screen name="flocculation/dosing" options={{ headerShown: false }} />
          <Stack.Screen name="flocculation/mixing" options={{ headerShown: false }} />
          <Stack.Screen name="flocculation" options={{ headerShown: false }} />
+         <Stack.Screen name="desludging/settings" options={{ headerShown: false }} />
     <Stack.Screen
           name="mixingtank"
           options={{

@@ -137,7 +137,7 @@ export default function DashboardScreen() {
       // DESLUDGING SYSTEM
       // -----------------------------------------------------
       case 'Desludging System':
-        // router.push('/settings/desludging');
+        router.push('/desludging/settings');
         break;
     }
   };
@@ -573,14 +573,23 @@ export default function DashboardScreen() {
 
 
 
+                      // else if (item === 'Desludging System') {
+                      //   setShowDesludgingDropdown(
+                      //     !showDesludgingDropdown
+                      //   );
+                      //   setShowCoagulantDropdown(false);
+                      //   setShowMixingDropdown(false);
+                      //   setShowFlocculationDropdown(false);
+                      // }
+
                       else if (item === 'Desludging System') {
-                        setShowDesludgingDropdown(
-                          !showDesludgingDropdown
-                        );
-                        setShowCoagulantDropdown(false);
-                        setShowMixingDropdown(false);
-                        setShowFlocculationDropdown(false);
-                      }
+  handleSystemPress('Desludging System');
+
+  setShowCoagulantDropdown(false);
+  setShowMixingDropdown(false);
+  setShowFlocculationDropdown(false);
+  setShowDesludgingDropdown(false);
+}
 
                       else if (item === 'Inlet System') {
                         handleSystemPress('Inlet System');
@@ -834,7 +843,7 @@ export default function DashboardScreen() {
   )}
 
                   {/* DESLUDGING */}
-                  {item === 'Desludging System' &&
+                  {/* {item === 'Desludging System' &&
                     showDesludgingDropdown && (
                       <View style={styles.dropdownContainer}>
 
@@ -863,8 +872,27 @@ export default function DashboardScreen() {
                         </TouchableOpacity>
 
                       </View>
-                    )}
+                    )} */}
+{/* ================= DESLUDGING SETTINGS ================= */}
+{item === 'Desludging System' &&
+  expandedSystem === 'Desludging System' && (
+    <TouchableOpacity
+      style={styles.settingsMenuItem}
+      onPress={() =>
+        handleSettingsPress('Desludging System')
+      }
+    >
+      <MaterialCommunityIcons
+        name="cog-outline"
+        size={21}
+        color="#159AA3"
+      />
 
+      <Text style={styles.settingsMenuText}>
+        Settings
+      </Text>
+    </TouchableOpacity>
+  )}
                 </View>
               ))}
 
