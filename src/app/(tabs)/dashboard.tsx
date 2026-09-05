@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
@@ -11,7 +12,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logoutUser } from '../../api/authApi';
 
 export default function DashboardScreen() {
@@ -20,7 +20,9 @@ export default function DashboardScreen() {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedSystem, setExpandedSystem] = useState<string | null>(null);
-  const [expandedSubSystem, setExpandedSubSystem] = useState<string | null>(null);
+  const [expandedSubSystem, setExpandedSubSystem] = useState<string | null>(
+    null
+  );
 
   const [showCoagulantDropdown, setShowCoagulantDropdown] = useState(false);
   const [showMixingDropdown, setShowMixingDropdown] = useState(false);
@@ -39,6 +41,10 @@ export default function DashboardScreen() {
       setIsMenuOpen(true);
     }
   }, [params.menu]);
+
+  // =========================================================
+  // LOGOUT
+  // =========================================================
 
   const handleLogout = async () => {
     try {
@@ -59,11 +65,9 @@ export default function DashboardScreen() {
 
   const handleSystemPress = (systemName: string) => {
     if (expandedSystem === systemName) {
-      // Close current system
       setExpandedSystem(null);
       setExpandedSubSystem(null);
     } else {
-      // Open selected system
       setExpandedSystem(systemName);
       setExpandedSubSystem(null);
     }
@@ -92,10 +96,27 @@ export default function DashboardScreen() {
 
     switch (settingName) {
       // -----------------------------------------------------
-      // INLET SYSTEM
+      // WASTE WATER
       // -----------------------------------------------------
-      case 'Inlet System':
-        router.push('/(tabs)/settings');
+      case 'Waste Water':
+        router.push({
+          pathname: '/settings',
+          params: {
+            module: 'Waste Water',
+          },
+        });
+        break;
+
+      // -----------------------------------------------------
+      // CLEAN WATER
+      // -----------------------------------------------------
+      case 'Clean Water':
+        router.push({
+          pathname: '/settings',
+          params: {
+            module: 'Clean Water',
+          },
+        });
         break;
 
       // -----------------------------------------------------
@@ -139,17 +160,38 @@ export default function DashboardScreen() {
       case 'Desludging System':
         router.push('/desludging/settings');
         break;
+
+      default:
+        break;
     }
   };
 
-  return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+  // =========================================================
+  // DRAWER MENU ITEMS
+  // =========================================================
 
-      {/* ================= HEADER ================= */}
+  const menuItems = [
+    'Inlet System',
+    'Coagulant System',
+    'Mixing Tank System',
+    'Flocculation System',
+    'Desludging System',
+  ];
+
+  return (
+    <SafeAreaView
+      style={styles.container}
+      edges={['top', 'bottom']}
+    >
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
+
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => setIsMenuOpen(true)}
           style={styles.headerButton}
+          activeOpacity={0.7}
         >
           <MaterialCommunityIcons
             name="menu"
@@ -159,23 +201,36 @@ export default function DashboardScreen() {
         </TouchableOpacity>
 
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Inlet / Sensors</Text>
-          <Text style={styles.headerSubtitle}>Automatic Mode</Text>
+          <Text style={styles.headerTitle}>
+            Inlet / Sensors
+          </Text>
+
+          <Text style={styles.headerSubtitle}>
+            Automatic Mode
+          </Text>
         </View>
 
         <View style={styles.offlineBadge}>
-          <Text style={styles.offlineText}>Offline</Text>
+          <Text style={styles.offlineText}>
+            Offline
+          </Text>
         </View>
       </View>
+
+      {/* =====================================================
+          MAIN CONTENT
+      ===================================================== */}
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        {/* SYSTEM OVERVIEW */}
 
-        {/* ================= SYSTEM OVERVIEW ================= */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>System Overview</Text>
+          <Text style={styles.sectionTitle}>
+            System Overview
+          </Text>
 
           <TouchableOpacity
             style={[
@@ -183,6 +238,7 @@ export default function DashboardScreen() {
               systemRunning && styles.startButtonRunning,
             ]}
             onPress={() => setSystemRunning(true)}
+            activeOpacity={0.8}
           >
             <MaterialCommunityIcons
               name="power"
@@ -191,13 +247,16 @@ export default function DashboardScreen() {
             />
 
             <Text style={styles.startButtonText}>
-              {systemRunning ? 'SYSTEM RUNNING' : 'START SYSTEM'}
+              {systemRunning
+                ? 'SYSTEM RUNNING'
+                : 'START SYSTEM'}
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.stopButton}
             onPress={() => setSystemRunning(false)}
+            activeOpacity={0.8}
           >
             <MaterialCommunityIcons
               name="stop"
@@ -205,11 +264,14 @@ export default function DashboardScreen() {
               color="#DC2626"
             />
 
-            <Text style={styles.stopButtonText}>STOP</Text>
+            <Text style={styles.stopButtonText}>
+              STOP
+            </Text>
           </TouchableOpacity>
         </View>
 
-        {/* ================= SOLENOID VALVES ================= */}
+        {/* SOLENOID VALVES */}
+
         <View style={styles.card}>
           <View style={styles.deviceHeader}>
             <View style={styles.deviceIconBox}>
@@ -221,8 +283,13 @@ export default function DashboardScreen() {
             </View>
 
             <View style={styles.deviceTitleContainer}>
-              <Text style={styles.deviceTitle}>Solenoid Valves</Text>
-              <Text style={styles.deviceSubtitle}>2 Valves</Text>
+              <Text style={styles.deviceTitle}>
+                Solenoid Valves
+              </Text>
+
+              <Text style={styles.deviceSubtitle}>
+                2 Valves
+              </Text>
             </View>
 
             <View style={styles.segmentContainer}>
@@ -232,11 +299,13 @@ export default function DashboardScreen() {
                   valvesActive && styles.segmentSelected,
                 ]}
                 onPress={() => setValvesActive(true)}
+                activeOpacity={0.8}
               >
                 <Text
                   style={[
                     styles.segmentActiveText,
-                    !valvesActive && styles.segmentNormalText,
+                    !valvesActive &&
+                      styles.segmentNormalText,
                   ]}
                 >
                   ACTIVE
@@ -246,11 +315,15 @@ export default function DashboardScreen() {
               <TouchableOpacity
                 style={[
                   styles.segmentInactive,
-                  !valvesActive && styles.segmentSelectedInactive,
+                  !valvesActive &&
+                    styles.segmentSelectedInactive,
                 ]}
                 onPress={() => setValvesActive(false)}
+                activeOpacity={0.8}
               >
-                <Text style={styles.segmentInactiveText}>DEACTIVE</Text>
+                <Text style={styles.segmentInactiveText}>
+                  DEACTIVE
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -270,7 +343,8 @@ export default function DashboardScreen() {
           />
         </View>
 
-        {/* ================= INLET PUMP ================= */}
+        {/* INLET PUMP */}
+
         <View style={styles.card}>
           <View style={styles.deviceHeader}>
             <View style={styles.deviceIconBox}>
@@ -282,7 +356,10 @@ export default function DashboardScreen() {
             </View>
 
             <View style={styles.deviceTitleContainer}>
-              <Text style={styles.deviceTitle}>Inlet Pump 1</Text>
+              <Text style={styles.deviceTitle}>
+                Inlet Pump 1
+              </Text>
+
               <Text style={styles.deviceSubtitle}>
                 {pumpActive ? 'Running' : 'Disabled'}
               </Text>
@@ -295,11 +372,13 @@ export default function DashboardScreen() {
                   pumpActive && styles.segmentSelected,
                 ]}
                 onPress={() => setPumpActive(true)}
+                activeOpacity={0.8}
               >
                 <Text
                   style={[
                     styles.segmentActiveText,
-                    !pumpActive && styles.segmentNormalText,
+                    !pumpActive &&
+                      styles.segmentNormalText,
                   ]}
                 >
                   ACTIVE
@@ -309,11 +388,15 @@ export default function DashboardScreen() {
               <TouchableOpacity
                 style={[
                   styles.segmentInactive,
-                  !pumpActive && styles.segmentSelectedInactive,
+                  !pumpActive &&
+                    styles.segmentSelectedInactive,
                 ]}
                 onPress={() => setPumpActive(false)}
+                activeOpacity={0.8}
               >
-                <Text style={styles.segmentInactiveText}>DEACTIVE</Text>
+                <Text style={styles.segmentInactiveText}>
+                  DEACTIVE
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -322,11 +405,18 @@ export default function DashboardScreen() {
 
           <View style={styles.pumpStatusRow}>
             <View>
-              <Text style={styles.smallLabel}>Status</Text>
+              <Text style={styles.smallLabel}>
+                Status
+              </Text>
+
               <Text
                 style={[
                   styles.statusValue,
-                  { color: pumpActive ? '#16A34A' : '#6B7280' },
+                  {
+                    color: pumpActive
+                      ? '#16A34A'
+                      : '#6B7280',
+                  },
                 ]}
               >
                 {pumpActive ? 'Running' : 'Disabled'}
@@ -334,13 +424,19 @@ export default function DashboardScreen() {
             </View>
 
             <View>
-              <Text style={styles.smallLabel}>Since</Text>
-              <Text style={styles.timeText}>08:15 AM</Text>
+              <Text style={styles.smallLabel}>
+                Since
+              </Text>
+
+              <Text style={styles.timeText}>
+                08:15 AM
+              </Text>
             </View>
           </View>
         </View>
 
-        {/* ================= CONTACTOR SENSORS ================= */}
+        {/* CONTACTOR SENSORS */}
+
         <View style={styles.card}>
           <View style={styles.deviceHeader}>
             <View style={styles.deviceIconBox}>
@@ -352,22 +448,30 @@ export default function DashboardScreen() {
             </View>
 
             <View style={styles.deviceTitleContainer}>
-              <Text style={styles.deviceTitle}>Contactor Sensors</Text>
-              <Text style={styles.deviceSubtitle}>2 Sensors</Text>
+              <Text style={styles.deviceTitle}>
+                Contactor Sensors
+              </Text>
+
+              <Text style={styles.deviceSubtitle}>
+                2 Sensors
+              </Text>
             </View>
 
             <View style={styles.segmentContainer}>
               <TouchableOpacity
                 style={[
                   styles.segmentActive,
-                  contactorsActive && styles.segmentSelected,
+                  contactorsActive &&
+                    styles.segmentSelected,
                 ]}
                 onPress={() => setContactorsActive(true)}
+                activeOpacity={0.8}
               >
                 <Text
                   style={[
                     styles.segmentActiveText,
-                    !contactorsActive && styles.segmentNormalText,
+                    !contactorsActive &&
+                      styles.segmentNormalText,
                   ]}
                 >
                   ACTIVE
@@ -377,11 +481,15 @@ export default function DashboardScreen() {
               <TouchableOpacity
                 style={[
                   styles.segmentInactive,
-                  !contactorsActive && styles.segmentSelectedInactive,
+                  !contactorsActive &&
+                    styles.segmentSelectedInactive,
                 ]}
                 onPress={() => setContactorsActive(false)}
+                activeOpacity={0.8}
               >
-                <Text style={styles.segmentInactiveText}>DEACTIVE</Text>
+                <Text style={styles.segmentInactiveText}>
+                  DEACTIVE
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -390,20 +498,31 @@ export default function DashboardScreen() {
 
           <StatusRow
             label="Contactor 1"
-            status={contactorsActive ? 'Active' : 'Inactive'}
+            status={
+              contactorsActive
+                ? 'Active'
+                : 'Inactive'
+            }
             active={contactorsActive}
           />
 
           <StatusRow
             label="Contactor 2"
-            status={contactorsActive ? 'Active' : 'Inactive'}
+            status={
+              contactorsActive
+                ? 'Active'
+                : 'Inactive'
+            }
             active={contactorsActive}
           />
         </View>
 
-        {/* ================= AUTOMATIC PROCESS ================= */}
+        {/* AUTOMATIC PROCESS */}
+
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Automatic Process</Text>
+          <Text style={styles.sectionTitle}>
+            Automatic Process
+          </Text>
 
           <ProcessRow
             number="01"
@@ -447,9 +566,12 @@ export default function DashboardScreen() {
           />
         </View>
 
-        {/* ================= TANK FILLING ================= */}
+        {/* TANK FILLING */}
+
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Tank Filling</Text>
+          <Text style={styles.sectionTitle}>
+            Tank Filling
+          </Text>
 
           <ProgressItem
             title="Wastewater Tank"
@@ -464,7 +586,8 @@ export default function DashboardScreen() {
           />
         </View>
 
-        {/* ================= LOG ================= */}
+        {/* LOG */}
+
         <View style={styles.card}>
           <View style={styles.logHeader}>
             <View style={styles.logTitleContainer}>
@@ -475,32 +598,48 @@ export default function DashboardScreen() {
               />
 
               <View>
-                <Text style={styles.deviceTitle}>Log</Text>
-                <Text style={styles.deviceSubtitle}>Recent Activity</Text>
+                <Text style={styles.deviceTitle}>
+                  Log
+                </Text>
+
+                <Text style={styles.deviceSubtitle}>
+                  Recent Activity
+                </Text>
               </View>
             </View>
 
-            <TouchableOpacity>
-              <Text style={styles.viewAllText}>View All ›</Text>
+            <TouchableOpacity activeOpacity={0.7}>
+              <Text style={styles.viewAllText}>
+                View All ›
+              </Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.divider} />
 
-          <LogRow time="9:15 AM" text="Inlet Pump 1 Started" />
-          <LogRow time="9:12 AM" text="Valve 1 Opened" />
-        </View>
+          <LogRow
+            time="9:15 AM"
+            text="Inlet Pump 1 Started"
+          />
 
+          <LogRow
+            time="9:12 AM"
+            text="Valve 1 Opened"
+          />
+        </View>
       </ScrollView>
 
-      {/* ================= SIDE DRAWER ================= */}
+      {/* =====================================================
+          SIDE DRAWER
+      ===================================================== */}
+
       <Modal
         visible={isMenuOpen}
         transparent
         animationType="fade"
+        onRequestClose={() => setIsMenuOpen(false)}
       >
         <View style={styles.modalOverlay}>
-
           <TouchableOpacity
             style={StyleSheet.absoluteFill}
             onPress={() => setIsMenuOpen(false)}
@@ -508,12 +647,16 @@ export default function DashboardScreen() {
           />
 
           <View style={styles.sideDrawer}>
+            {/* DRAWER HEADER */}
 
             <View style={styles.drawerHeader}>
-              <Text style={styles.drawerTitle}>Modules</Text>
+              <Text style={styles.drawerTitle}>
+                Modules
+              </Text>
 
               <TouchableOpacity
                 onPress={() => setIsMenuOpen(false)}
+                activeOpacity={0.7}
               >
                 <MaterialCommunityIcons
                   name="close"
@@ -523,79 +666,105 @@ export default function DashboardScreen() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.drawerContent}>
+            {/* DRAWER CONTENT */}
 
-              {[
-                'Inlet System',
-                'Coagulant System',
-                'Mixing Tank System',
-                'Flocculation System',
-                'Desludging System',
-              ].map((item, index) => (
-
-                <View key={index}>
+            <ScrollView
+              style={styles.drawerContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {menuItems.map((item) => (
+                <View key={item}>
+                  {/* MAIN MENU ITEM */}
 
                   <TouchableOpacity
                     style={styles.drawerMenuItem}
                     onPress={() => {
+                      // -------------------------------------------------
+                      // INLET SYSTEM
+                      // -------------------------------------------------
 
-                      // if (item === 'Coagulant System') {
-                      //   setShowCoagulantDropdown(
-                      //     !showCoagulantDropdown
-                      //   );
-                      //   setShowMixingDropdown(false);
-                      //   setShowFlocculationDropdown(false);
-                      //   setShowDesludgingDropdown(false);
-                      // }
+                      if (item === 'Inlet System') {
+                        handleSystemPress('Inlet System');
+
+                        setShowCoagulantDropdown(false);
+                        setShowMixingDropdown(false);
+                        setShowFlocculationDropdown(false);
+                        setShowDesludgingDropdown(false);
+
+                        return;
+                      }
+
+                      // -------------------------------------------------
+                      // COAGULANT SYSTEM
+                      // -------------------------------------------------
 
                       if (item === 'Coagulant System') {
-                        setShowCoagulantDropdown(!showCoagulantDropdown);
-                        setExpandedSubSystem(null);
+                        setShowCoagulantDropdown(
+                          !showCoagulantDropdown
+                        );
 
                         setShowMixingDropdown(false);
                         setShowFlocculationDropdown(false);
                         setShowDesludgingDropdown(false);
+
+                        setExpandedSystem(null);
+                        setExpandedSubSystem(null);
+
+                        return;
                       }
 
+                      // -------------------------------------------------
+                      // MIXING TANK SYSTEM
+                      // -------------------------------------------------
 
-                      else if (item === 'Mixing Tank System') {
-                        handleSystemPress('Mixing Tank System');
+                      if (item === 'Mixing Tank System') {
+                        handleSystemPress(
+                          'Mixing Tank System'
+                        );
+
+                        setShowCoagulantDropdown(false);
+                        setShowMixingDropdown(false);
+                        setShowFlocculationDropdown(false);
+                        setShowDesludgingDropdown(false);
+
+                        return;
                       }
 
-                      else if (item === 'Flocculation System') {
+                      // -------------------------------------------------
+                      // FLOCULATION SYSTEM
+                      // -------------------------------------------------
+
+                      if (item === 'Flocculation System') {
                         setShowFlocculationDropdown(
                           !showFlocculationDropdown
                         );
+
                         setShowCoagulantDropdown(false);
                         setShowMixingDropdown(false);
                         setShowDesludgingDropdown(false);
+
+                        setExpandedSystem(null);
+                        setExpandedSubSystem(null);
+
+                        return;
                       }
 
+                      // -------------------------------------------------
+                      // DESLUDGING SYSTEM
+                      // -------------------------------------------------
 
+                      if (item === 'Desludging System') {
+                        handleSystemPress(
+                          'Desludging System'
+                        );
 
-                      // else if (item === 'Desludging System') {
-                      //   setShowDesludgingDropdown(
-                      //     !showDesludgingDropdown
-                      //   );
-                      //   setShowCoagulantDropdown(false);
-                      //   setShowMixingDropdown(false);
-                      //   setShowFlocculationDropdown(false);
-                      // }
-
-                      else if (item === 'Desludging System') {
-  handleSystemPress('Desludging System');
-
-  setShowCoagulantDropdown(false);
-  setShowMixingDropdown(false);
-  setShowFlocculationDropdown(false);
-  setShowDesludgingDropdown(false);
-}
-
-                      else if (item === 'Inlet System') {
-                        handleSystemPress('Inlet System');
+                        setShowCoagulantDropdown(false);
+                        setShowMixingDropdown(false);
+                        setShowFlocculationDropdown(false);
+                        setShowDesludgingDropdown(false);
                       }
-
                     }}
+                    activeOpacity={0.7}
                   >
                     <Text style={styles.drawerMenuText}>
                       {item}
@@ -603,7 +772,15 @@ export default function DashboardScreen() {
 
                     <MaterialCommunityIcons
                       name={
-                        expandedSystem === item
+                        item === 'Coagulant System'
+                          ? showCoagulantDropdown
+                            ? 'chevron-up'
+                            : 'chevron-down'
+                          : item === 'Flocculation System'
+                          ? showFlocculationDropdown
+                            ? 'chevron-up'
+                            : 'chevron-down'
+                          : expandedSystem === item
                           ? 'chevron-up'
                           : 'chevron-down'
                       }
@@ -612,48 +789,34 @@ export default function DashboardScreen() {
                     />
                   </TouchableOpacity>
 
-                  {/* INLET SETTINGS */}
+                  {/* =================================================
+                      INLET SYSTEM
+                  ================================================= */}
+
                   {item === 'Inlet System' &&
                     expandedSystem === 'Inlet System' && (
-                      <TouchableOpacity
-                        style={styles.settingsMenuItem}
-                        onPress={() =>
-                          handleSettingsPress('Inlet System')
-                        }
-                      >
-                        <MaterialCommunityIcons
-                          name="cog-outline"
-                          size={21}
-                          color="#159AA3"
-                        />
-
-                        <Text style={styles.settingsMenuText}>
-                          Settings
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-
-                  
-
-                  {/* COAGULANT */}
-                  {item === 'Coagulant System' &&
-                    showCoagulantDropdown && (
                       <View style={styles.dropdownContainer}>
+                        {/* WASTE WATER */}
 
-                        {/* COAGULANT DOSING */}
                         <TouchableOpacity
                           style={styles.subSystemMenuItem}
                           onPress={() =>
-                            handleSubSystemPress('Coagulant Dosing')
+                            handleSubSystemPress(
+                              'Waste Water'
+                            )
                           }
+                          activeOpacity={0.7}
                         >
-                          <Text style={styles.subSystemMenuText}>
-                            Coagulant Dosing
+                          <Text
+                            style={styles.subSystemMenuText}
+                          >
+                            Waste Water
                           </Text>
 
                           <MaterialCommunityIcons
                             name={
-                              expandedSubSystem === 'Coagulant Dosing'
+                              expandedSubSystem ===
+                              'Waste Water'
                                 ? 'chevron-up'
                                 : 'chevron-down'
                             }
@@ -662,13 +825,18 @@ export default function DashboardScreen() {
                           />
                         </TouchableOpacity>
 
-                        {/* DOSING SETTINGS */}
-                        {expandedSubSystem === 'Coagulant Dosing' && (
+                        {/* WASTE WATER SETTINGS */}
+
+                        {expandedSubSystem ===
+                          'Waste Water' && (
                           <TouchableOpacity
                             style={styles.settingsMenuItem}
                             onPress={() =>
-                              handleSettingsPress('Coagulant Dosing')
+                              handleSettingsPress(
+                                'Waste Water'
+                              )
                             }
+                            activeOpacity={0.7}
                           >
                             <MaterialCommunityIcons
                               name="cog-outline"
@@ -676,26 +844,166 @@ export default function DashboardScreen() {
                               color="#159AA3"
                             />
 
-                            <Text style={styles.settingsMenuText}>
+                            <Text
+                              style={
+                                styles.settingsMenuText
+                              }
+                            >
+                              Settings
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+
+                        {/* CLEAN WATER */}
+
+                        <TouchableOpacity
+                          style={styles.subSystemMenuItem}
+                          onPress={() =>
+                            handleSubSystemPress(
+                              'Clean Water'
+                            )
+                          }
+                          activeOpacity={0.7}
+                        >
+                          <Text
+                            style={styles.subSystemMenuText}
+                          >
+                            Clean Water
+                          </Text>
+
+                          <MaterialCommunityIcons
+                            name={
+                              expandedSubSystem ===
+                              'Clean Water'
+                                ? 'chevron-up'
+                                : 'chevron-down'
+                            }
+                            size={19}
+                            color="#6B7280"
+                          />
+                        </TouchableOpacity>
+
+                        {/* CLEAN WATER SETTINGS */}
+
+                        {expandedSubSystem ===
+                          'Clean Water' && (
+                          <TouchableOpacity
+                            style={styles.settingsMenuItem}
+                            onPress={() =>
+                              handleSettingsPress(
+                                'Clean Water'
+                              )
+                            }
+                            activeOpacity={0.7}
+                          >
+                            <MaterialCommunityIcons
+                              name="cog-outline"
+                              size={21}
+                              color="#159AA3"
+                            />
+
+                            <Text
+                              style={
+                                styles.settingsMenuText
+                              }
+                            >
+                              Settings
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    )}
+
+                  {/* =================================================
+                      COAGULANT SYSTEM
+                  ================================================= */}
+
+                  {item === 'Coagulant System' &&
+                    showCoagulantDropdown && (
+                      <View
+                        style={styles.dropdownContainer}
+                      >
+                        {/* COAGULANT DOSING */}
+
+                        <TouchableOpacity
+                          style={styles.subSystemMenuItem}
+                          onPress={() =>
+                            handleSubSystemPress(
+                              'Coagulant Dosing'
+                            )
+                          }
+                          activeOpacity={0.7}
+                        >
+                          <Text
+                            style={
+                              styles.subSystemMenuText
+                            }
+                          >
+                            Coagulant Dosing
+                          </Text>
+
+                          <MaterialCommunityIcons
+                            name={
+                              expandedSubSystem ===
+                              'Coagulant Dosing'
+                                ? 'chevron-up'
+                                : 'chevron-down'
+                            }
+                            size={19}
+                            color="#6B7280"
+                          />
+                        </TouchableOpacity>
+
+                        {expandedSubSystem ===
+                          'Coagulant Dosing' && (
+                          <TouchableOpacity
+                            style={styles.settingsMenuItem}
+                            onPress={() =>
+                              handleSettingsPress(
+                                'Coagulant Dosing'
+                              )
+                            }
+                            activeOpacity={0.7}
+                          >
+                            <MaterialCommunityIcons
+                              name="cog-outline"
+                              size={21}
+                              color="#159AA3"
+                            />
+
+                            <Text
+                              style={
+                                styles.settingsMenuText
+                              }
+                            >
                               Settings
                             </Text>
                           </TouchableOpacity>
                         )}
 
                         {/* COAGULANT MIXING */}
+
                         <TouchableOpacity
                           style={styles.subSystemMenuItem}
                           onPress={() =>
-                            handleSubSystemPress('Coagulant Mixing')
+                            handleSubSystemPress(
+                              'Coagulant Mixing'
+                            )
                           }
+                          activeOpacity={0.7}
                         >
-                          <Text style={styles.subSystemMenuText}>
+                          <Text
+                            style={
+                              styles.subSystemMenuText
+                            }
+                          >
                             Coagulant Mixing
                           </Text>
 
                           <MaterialCommunityIcons
                             name={
-                              expandedSubSystem === 'Coagulant Mixing'
+                              expandedSubSystem ===
+                              'Coagulant Mixing'
                                 ? 'chevron-up'
                                 : 'chevron-down'
                             }
@@ -704,13 +1012,16 @@ export default function DashboardScreen() {
                           />
                         </TouchableOpacity>
 
-                        {/* MIXING SETTINGS */}
-                        {expandedSubSystem === 'Coagulant Mixing' && (
+                        {expandedSubSystem ===
+                          'Coagulant Mixing' && (
                           <TouchableOpacity
                             style={styles.settingsMenuItem}
                             onPress={() =>
-                              handleSettingsPress('Coagulant Mixing')
+                              handleSettingsPress(
+                                'Coagulant Mixing'
+                              )
                             }
+                            activeOpacity={0.7}
                           >
                             <MaterialCommunityIcons
                               name="cog-outline"
@@ -718,23 +1029,33 @@ export default function DashboardScreen() {
                               color="#159AA3"
                             />
 
-                            <Text style={styles.settingsMenuText}>
+                            <Text
+                              style={
+                                styles.settingsMenuText
+                              }
+                            >
                               Settings
                             </Text>
                           </TouchableOpacity>
                         )}
-
                       </View>
                     )}
 
-                  {/* MIXING TANK SETTINGS */}
+                  {/* =================================================
+                      MIXING TANK SETTINGS
+                  ================================================= */}
+
                   {item === 'Mixing Tank System' &&
-                    expandedSystem === 'Mixing Tank System' && (
+                    expandedSystem ===
+                      'Mixing Tank System' && (
                       <TouchableOpacity
                         style={styles.settingsMenuItem}
                         onPress={() =>
-                          handleSettingsPress('Mixing Tank System')
+                          handleSettingsPress(
+                            'Mixing Tank System'
+                          )
                         }
+                        activeOpacity={0.7}
                       >
                         <MaterialCommunityIcons
                           name="cog-outline"
@@ -742,166 +1063,181 @@ export default function DashboardScreen() {
                           color="#159AA3"
                         />
 
-                        <Text style={styles.settingsMenuText}>
+                        <Text
+                          style={styles.settingsMenuText}
+                        >
                           Settings
                         </Text>
                       </TouchableOpacity>
                     )}
 
+                  {/* =================================================
+                      FLOCULATION SYSTEM
+                  ================================================= */}
 
-                  {/* FLOCULATION */}
-                 {/* ================= FLOCULATION ================= */}
-{item === 'Flocculation System' &&
-  showFlocculationDropdown && (
-    <View style={styles.dropdownContainer}>
-
-      {/* FLOCULATION DOSING */}
-      <TouchableOpacity
-        style={styles.subSystemMenuItem}
-        onPress={() =>
-          handleSubSystemPress('Flocculation Dosing')
-        }
-      >
-        <Text style={styles.subSystemMenuText}>
-          Flocculation Dosing
-        </Text>
-
-        <MaterialCommunityIcons
-          name={
-            expandedSubSystem === 'Flocculation Dosing'
-              ? 'chevron-up'
-              : 'chevron-down'
-          }
-          size={19}
-          color="#6B7280"
-        />
-      </TouchableOpacity>
-
-      {/* DOSING SETTINGS */}
-      {expandedSubSystem === 'Flocculation Dosing' && (
-        <TouchableOpacity
-          style={styles.settingsMenuItem}
-          onPress={() =>
-            handleSettingsPress('Flocculation Dosing')
-          }
-        >
-          <MaterialCommunityIcons
-            name="cog-outline"
-            size={21}
-            color="#159AA3"
-          />
-
-          <Text style={styles.settingsMenuText}>
-            Settings
-          </Text>
-        </TouchableOpacity>
-      )}
-
-      {/* FLOCULATION MIXING */}
-      <TouchableOpacity
-        style={styles.subSystemMenuItem}
-        onPress={() =>
-          handleSubSystemPress('Flocculation Mixing')
-        }
-      >
-        <Text style={styles.subSystemMenuText}>
-          Flocculation Mixing
-        </Text>
-
-        <MaterialCommunityIcons
-          name={
-            expandedSubSystem === 'Flocculation Mixing'
-              ? 'chevron-up'
-              : 'chevron-down'
-          }
-          size={19}
-          color="#6B7280"
-        />
-      </TouchableOpacity>
-
-      {/* MIXING SETTINGS */}
-      {expandedSubSystem === 'Flocculation Mixing' && (
-        <TouchableOpacity
-          style={styles.settingsMenuItem}
-          onPress={() =>
-            handleSettingsPress('Flocculation Mixing')
-          }
-        >
-          <MaterialCommunityIcons
-            name="cog-outline"
-            size={21}
-            color="#159AA3"
-          />
-
-          <Text style={styles.settingsMenuText}>
-            Settings
-          </Text>
-        </TouchableOpacity>
-      )}
-
-    </View>
-  )}
-
-                  {/* DESLUDGING */}
-                  {/* {item === 'Desludging System' &&
-                    showDesludgingDropdown && (
-                      <View style={styles.dropdownContainer}>
+                  {item === 'Flocculation System' &&
+                    showFlocculationDropdown && (
+                      <View
+                        style={styles.dropdownContainer}
+                      >
+                        {/* FLOCULATION DOSING */}
 
                         <TouchableOpacity
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            setIsMenuOpen(false);
-                            router.push('/desludging/manual');
-                          }}
+                          style={styles.subSystemMenuItem}
+                          onPress={() =>
+                            handleSubSystemPress(
+                              'Flocculation Dosing'
+                            )
+                          }
+                          activeOpacity={0.7}
                         >
-                          <Text style={styles.dropdownText}>
-                            Manual Mode
+                          <Text
+                            style={
+                              styles.subSystemMenuText
+                            }
+                          >
+                            Flocculation Dosing
                           </Text>
+
+                          <MaterialCommunityIcons
+                            name={
+                              expandedSubSystem ===
+                              'Flocculation Dosing'
+                                ? 'chevron-up'
+                                : 'chevron-down'
+                            }
+                            size={19}
+                            color="#6B7280"
+                          />
                         </TouchableOpacity>
+
+                        {expandedSubSystem ===
+                          'Flocculation Dosing' && (
+                          <TouchableOpacity
+                            style={styles.settingsMenuItem}
+                            onPress={() =>
+                              handleSettingsPress(
+                                'Flocculation Dosing'
+                              )
+                            }
+                            activeOpacity={0.7}
+                          >
+                            <MaterialCommunityIcons
+                              name="cog-outline"
+                              size={21}
+                              color="#159AA3"
+                            />
+
+                            <Text
+                              style={
+                                styles.settingsMenuText
+                              }
+                            >
+                              Settings
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+
+                        {/* FLOCULATION MIXING */}
 
                         <TouchableOpacity
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            setIsMenuOpen(false);
-                            router.push('/desludging/automatic');
-                          }}
+                          style={styles.subSystemMenuItem}
+                          onPress={() =>
+                            handleSubSystemPress(
+                              'Flocculation Mixing'
+                            )
+                          }
+                          activeOpacity={0.7}
                         >
-                          <Text style={styles.dropdownText}>
-                            Automatic Mode
+                          <Text
+                            style={
+                              styles.subSystemMenuText
+                            }
+                          >
+                            Flocculation Mixing
                           </Text>
+
+                          <MaterialCommunityIcons
+                            name={
+                              expandedSubSystem ===
+                              'Flocculation Mixing'
+                                ? 'chevron-up'
+                                : 'chevron-down'
+                            }
+                            size={19}
+                            color="#6B7280"
+                          />
                         </TouchableOpacity>
 
+                        {expandedSubSystem ===
+                          'Flocculation Mixing' && (
+                          <TouchableOpacity
+                            style={styles.settingsMenuItem}
+                            onPress={() =>
+                              handleSettingsPress(
+                                'Flocculation Mixing'
+                              )
+                            }
+                            activeOpacity={0.7}
+                          >
+                            <MaterialCommunityIcons
+                              name="cog-outline"
+                              size={21}
+                              color="#159AA3"
+                            />
+
+                            <Text
+                              style={
+                                styles.settingsMenuText
+                              }
+                            >
+                              Settings
+                            </Text>
+                          </TouchableOpacity>
+                        )}
                       </View>
-                    )} */}
-{/* ================= DESLUDGING SETTINGS ================= */}
-{item === 'Desludging System' &&
-  expandedSystem === 'Desludging System' && (
-    <TouchableOpacity
-      style={styles.settingsMenuItem}
-      onPress={() =>
-        handleSettingsPress('Desludging System')
-      }
-    >
-      <MaterialCommunityIcons
-        name="cog-outline"
-        size={21}
-        color="#159AA3"
-      />
+                    )}
 
-      <Text style={styles.settingsMenuText}>
-        Settings
-      </Text>
-    </TouchableOpacity>
-  )}
+                  {/* =================================================
+                      DESLUDGING SETTINGS
+                  ================================================= */}
+
+                  {item === 'Desludging System' &&
+                    expandedSystem ===
+                      'Desludging System' && (
+                      <TouchableOpacity
+                        style={styles.settingsMenuItem}
+                        onPress={() =>
+                          handleSettingsPress(
+                            'Desludging System'
+                          )
+                        }
+                        activeOpacity={0.7}
+                      >
+                        <MaterialCommunityIcons
+                          name="cog-outline"
+                          size={21}
+                          color="#159AA3"
+                        />
+
+                        <Text
+                          style={styles.settingsMenuText}
+                        >
+                          Settings
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                 </View>
               ))}
-
             </ScrollView>
+
+            {/* DRAWER FOOTER */}
 
             <View style={styles.drawerFooter}>
               <TouchableOpacity
                 style={styles.logoutButton}
                 onPress={handleLogout}
+                activeOpacity={0.7}
               >
                 <MaterialCommunityIcons
                   name="logout"
@@ -914,18 +1250,16 @@ export default function DashboardScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
-
           </View>
         </View>
       </Modal>
-
     </SafeAreaView>
   );
 }
 
-/* ========================================================= */
-/* COMPONENTS */
-/* ========================================================= */
+// =============================================================
+// STATUS ROW
+// =============================================================
 
 function StatusRow({
   label,
@@ -938,13 +1272,19 @@ function StatusRow({
 }) {
   return (
     <View style={styles.statusRow}>
-      <Text style={styles.rowLabel}>{label}</Text>
+      <Text style={styles.rowLabel}>
+        {label}
+      </Text>
 
       <View style={styles.statusRight}>
         <Text
           style={[
             styles.statusText,
-            { color: active ? '#16A34A' : '#6B7280' },
+            {
+              color: active
+                ? '#16A34A'
+                : '#6B7280',
+            },
           ]}
         >
           {status}
@@ -955,7 +1295,7 @@ function StatusRow({
             styles.statusDot,
             {
               backgroundColor: active
-                ? '#6B7280'
+                ? '#16A34A'
                 : '#6B7280',
             },
           ]}
@@ -964,6 +1304,10 @@ function StatusRow({
     </View>
   );
 }
+
+// =============================================================
+// PROCESS ROW
+// =============================================================
 
 function ProcessRow({
   number,
@@ -981,13 +1325,19 @@ function ProcessRow({
   last?: boolean;
 }) {
   return (
-    <View style={styles.processRow}>
-
+    <View
+      style={[
+        styles.processRow,
+        last && styles.processRowLast,
+      ]}
+    >
       <View
         style={[
           styles.processNumber,
           {
-            borderColor: active ? '#20A464' : '#DC2626',
+            borderColor: active
+              ? '#20A464'
+              : '#DC2626',
           },
         ]}
       >
@@ -995,7 +1345,9 @@ function ProcessRow({
           style={[
             styles.processNumberText,
             {
-              color: active ? '#20A464' : '#DC2626',
+              color: active
+                ? '#20A464'
+                : '#DC2626',
             },
           ]}
         >
@@ -1011,14 +1363,18 @@ function ProcessRow({
         />
       </View>
 
-      <Text style={styles.processTitle}>{title}</Text>
+      <Text style={styles.processTitle}>
+        {title}
+      </Text>
 
       <View style={styles.processStatus}>
         <Text
           style={[
             styles.processStatusText,
             {
-              color: active ? '#16A34A' : '#DC2626',
+              color: active
+                ? '#16A34A'
+                : '#DC2626',
             },
           ]}
         >
@@ -1040,6 +1396,10 @@ function ProcessRow({
   );
 }
 
+// =============================================================
+// PROGRESS ITEM
+// =============================================================
+
 function ProgressItem({
   title,
   value,
@@ -1051,9 +1411,10 @@ function ProgressItem({
 }) {
   return (
     <View style={styles.progressItem}>
-
       <View style={styles.progressHeader}>
-        <Text style={styles.progressTitle}>{title}</Text>
+        <Text style={styles.progressTitle}>
+          {title}
+        </Text>
 
         <Text style={styles.progressPercentage}>
           {value}%
@@ -1071,10 +1432,13 @@ function ProgressItem({
           ]}
         />
       </View>
-
     </View>
   );
 }
+
+// =============================================================
+// LOG ROW
+// =============================================================
 
 function LogRow({
   time,
@@ -1084,67 +1448,38 @@ function LogRow({
   text: string;
 }) {
   return (
-    <TouchableOpacity style={styles.logRow}>
+    <TouchableOpacity
+      style={styles.logRow}
+      activeOpacity={0.7}
+    >
+      <Text style={styles.logTime}>
+        {time}
+      </Text>
 
-      <Text style={styles.logTime}>{time}</Text>
-
-      <Text style={styles.logText}>{text}</Text>
+      <Text style={styles.logText}>
+        {text}
+      </Text>
 
       <MaterialCommunityIcons
         name="chevron-right"
         size={20}
         color="#6B7280"
       />
-
     </TouchableOpacity>
   );
 }
 
-function BottomNavItem({
-  icon,
-  label,
-  active,
-  onPress,
-}: {
-  icon: any;
-  label: string;
-  active?: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity
-      style={styles.bottomNavItem}
-      onPress={onPress}
-    >
-      <MaterialCommunityIcons
-        name={icon}
-        size={24}
-        color={active ? '#159AA3' : '#4B5563'}
-      />
-
-      <Text
-        style={[
-          styles.bottomNavText,
-          {
-            color: active ? '#159AA3' : '#4B5563',
-          },
-        ]}
-      >
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
-}
-
-/* ========================================================= */
-/* STYLES */
-/* ========================================================= */
+// =============================================================
+// STYLES
+// =============================================================
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F7F8FA',
   },
+
+  // HEADER
 
   header: {
     height: 78,
@@ -1193,6 +1528,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
+  // CONTENT
+
   scrollContent: {
     padding: 18,
     paddingBottom: 100,
@@ -1213,6 +1550,8 @@ const styles = StyleSheet.create({
     color: '#172033',
     marginBottom: 12,
   },
+
+  // SYSTEM BUTTONS
 
   startButton: {
     height: 42,
@@ -1251,6 +1590,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginLeft: 8,
   },
+
+  // DEVICES
 
   deviceHeader: {
     flexDirection: 'row',
@@ -1336,6 +1677,8 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
 
+  // STATUS
+
   statusRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1388,12 +1731,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
+  // PROCESS
+
   processRow: {
     minHeight: 47,
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
+  },
+
+  processRowLast: {
+    borderBottomWidth: 0,
   },
 
   processNumber: {
@@ -1440,6 +1789,8 @@ const styles = StyleSheet.create({
     marginLeft: 7,
   },
 
+  // PROGRESS
+
   progressItem: {
     marginTop: 8,
     marginBottom: 12,
@@ -1474,6 +1825,8 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 5,
   },
+
+  // LOG
 
   logHeader: {
     flexDirection: 'row',
@@ -1513,34 +1866,7 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
 
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 72,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingBottom: 5,
-  },
-
-  bottomNavItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 55,
-  },
-
-  bottomNavText: {
-    fontSize: 10,
-    marginTop: 3,
-    fontWeight: '500',
-  },
-
-  /* ================= DRAWER ================= */
+  // DRAWER
 
   modalOverlay: {
     flex: 1,
@@ -1596,32 +1922,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
 
-  dropdownItem: {
-    paddingVertical: 13,
-  },
-
-  dropdownText: {
-    fontSize: 14,
-    color: '#4B5563',
-  },
-
-  drawerFooter: {
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-  },
-
-  logoutButton: {
+  subSystemMenuItem: {
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    justifyContent: 'space-between',
+    paddingLeft: 8,
+    paddingRight: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
   },
 
-  logoutText: {
-    fontSize: 16,
+  subSystemMenuText: {
+    fontSize: 14,
     fontWeight: '600',
-    color: '#EF4444',
-    marginLeft: 12,
+    color: '#4B5563',
   },
 
   settingsMenuItem: {
@@ -1641,20 +1956,24 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
 
-  subSystemMenuItem: {
-    minHeight: 48,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingLeft: 8,
-    paddingRight: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+  // FOOTER
+
+  drawerFooter: {
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
   },
 
-  subSystemMenuText: {
-    fontSize: 14,
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+
+  logoutText: {
+    fontSize: 16,
     fontWeight: '600',
-    color: '#4B5563',
+    color: '#EF4444',
+    marginLeft: 12,
   },
 });
