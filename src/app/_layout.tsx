@@ -62,6 +62,9 @@ export default function RootLayout() {
          <Stack.Screen name="coagulant/dosing" options={{ headerShown: false }} />
          <Stack.Screen name="coagulant/mixing" options={{ headerShown: false }} />
          <Stack.Screen name="coagulant" options={{ headerShown: false }} />
+         <Stack.Screen name="flocculation/dosing" options={{ headerShown: false }} />
+         <Stack.Screen name="flocculation/mixing" options={{ headerShown: false }} />
+         <Stack.Screen name="flocculation" options={{ headerShown: false }} />
     <Stack.Screen
           name="mixingtank"
           options={{

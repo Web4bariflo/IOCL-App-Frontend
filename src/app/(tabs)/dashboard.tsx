@@ -123,14 +123,14 @@ export default function DashboardScreen() {
       // FLOCULATION DOSING
       // -----------------------------------------------------
       case 'Flocculation Dosing':
-        // router.push('/flocculation/dosing/setting');
+        router.push('/flocculation/dosing/settings');
         break;
 
       // -----------------------------------------------------
       // FLOCULATION MIXING
       // -----------------------------------------------------
       case 'Flocculation Mixing':
-        // router.push('/flocculation/mixing/setting');
+        router.push('/flocculation/mixing/settings');
         break;
 
       // -----------------------------------------------------
@@ -741,36 +741,97 @@ export default function DashboardScreen() {
 
 
                   {/* FLOCULATION */}
-                  {item === 'Flocculation System' &&
-                    showFlocculationDropdown && (
-                      <View style={styles.dropdownContainer}>
+                 {/* ================= FLOCULATION ================= */}
+{item === 'Flocculation System' &&
+  showFlocculationDropdown && (
+    <View style={styles.dropdownContainer}>
 
-                        <TouchableOpacity
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            setIsMenuOpen(false);
-                            router.push('/flocculation/manual');
-                          }}
-                        >
-                          <Text style={styles.dropdownText}>
-                            Manual Mode
-                          </Text>
-                        </TouchableOpacity>
+      {/* FLOCULATION DOSING */}
+      <TouchableOpacity
+        style={styles.subSystemMenuItem}
+        onPress={() =>
+          handleSubSystemPress('Flocculation Dosing')
+        }
+      >
+        <Text style={styles.subSystemMenuText}>
+          Flocculation Dosing
+        </Text>
 
-                        <TouchableOpacity
-                          style={styles.dropdownItem}
-                          onPress={() => {
-                            setIsMenuOpen(false);
-                            router.push('/flocculation/automatic');
-                          }}
-                        >
-                          <Text style={styles.dropdownText}>
-                            Automatic Mode
-                          </Text>
-                        </TouchableOpacity>
+        <MaterialCommunityIcons
+          name={
+            expandedSubSystem === 'Flocculation Dosing'
+              ? 'chevron-up'
+              : 'chevron-down'
+          }
+          size={19}
+          color="#6B7280"
+        />
+      </TouchableOpacity>
 
-                      </View>
-                    )}
+      {/* DOSING SETTINGS */}
+      {expandedSubSystem === 'Flocculation Dosing' && (
+        <TouchableOpacity
+          style={styles.settingsMenuItem}
+          onPress={() =>
+            handleSettingsPress('Flocculation Dosing')
+          }
+        >
+          <MaterialCommunityIcons
+            name="cog-outline"
+            size={21}
+            color="#159AA3"
+          />
+
+          <Text style={styles.settingsMenuText}>
+            Settings
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {/* FLOCULATION MIXING */}
+      <TouchableOpacity
+        style={styles.subSystemMenuItem}
+        onPress={() =>
+          handleSubSystemPress('Flocculation Mixing')
+        }
+      >
+        <Text style={styles.subSystemMenuText}>
+          Flocculation Mixing
+        </Text>
+
+        <MaterialCommunityIcons
+          name={
+            expandedSubSystem === 'Flocculation Mixing'
+              ? 'chevron-up'
+              : 'chevron-down'
+          }
+          size={19}
+          color="#6B7280"
+        />
+      </TouchableOpacity>
+
+      {/* MIXING SETTINGS */}
+      {expandedSubSystem === 'Flocculation Mixing' && (
+        <TouchableOpacity
+          style={styles.settingsMenuItem}
+          onPress={() =>
+            handleSettingsPress('Flocculation Mixing')
+          }
+        >
+          <MaterialCommunityIcons
+            name="cog-outline"
+            size={21}
+            color="#159AA3"
+          />
+
+          <Text style={styles.settingsMenuText}>
+            Settings
+          </Text>
+        </TouchableOpacity>
+      )}
+
+    </View>
+  )}
 
                   {/* DESLUDGING */}
                   {item === 'Desludging System' &&
