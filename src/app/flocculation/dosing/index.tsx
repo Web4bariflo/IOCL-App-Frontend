@@ -34,7 +34,7 @@ export default function CoagulantSystemScreen() {
 
   {/* TITLE */}
   <View style={styles.headerCenter}>
-    <Text style={styles.headerTitle}>Coagulant System</Text>
+    <Text style={styles.headerTitle}> Flocculation System</Text>
     <Text style={styles.subtitle}>Automatic Mode</Text>
   </View>
 
