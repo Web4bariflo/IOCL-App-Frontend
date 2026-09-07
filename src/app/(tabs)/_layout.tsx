@@ -345,7 +345,11 @@ export default function TabLayout() {
           ),
         }}
       />
-
+<Tabs.Screen name="inlet/cleanwater" options={{ href: null }} />
+      <Tabs.Screen name="inlet/wastewater" options={{ href: null }} />
+      <Tabs.Screen name="inlet setting/solenoid" options={{ href: null }} />
+      <Tabs.Screen name="inlet setting/contactorsensor" options={{ href: null }} />
+      <Tabs.Screen name="inlet setting/inletpump" options={{ href: null }} />
       {/* Hide inlet folder from main tab bar */}
       <Tabs.Screen name="inlet" options={{ href: null }} />
     </Tabs>

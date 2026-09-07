@@ -605,7 +605,9 @@ export default function CleanwaterLayout() {
           ),
         }}
       />
-
+<Tabs.Screen name="inletroutes/inletpump" options={{ href: null }} />
+       <Tabs.Screen name="inletroutes/contactorsensor" options={{ href: null }} />
+       <Tabs.Screen name="inletroutes/solenoid" options={{ href: null }} />
       <Tabs.Screen name="inletroutes" options={{ href: null }} />
     </Tabs>
   );

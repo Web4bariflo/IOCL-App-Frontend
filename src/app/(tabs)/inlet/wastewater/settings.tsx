@@ -1,494 +1,575 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Switch,
-  Image,
+    View,
+    Text,
+    StyleSheet,
+    ScrollView,
+    TouchableOpacity,
+    Switch,
+    Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
+import { getStageEquipments } from '../../../../api/inletApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SettingsScreen() {
-  const { module } = useLocalSearchParams<{
-    module?: string;
-  }>();
+    const { module } = useLocalSearchParams<{
+        module?: string;
+    }>();
 
-  const selectedModule =
-    module === 'Clean Water' ? 'Clean Water' : 'Waste Water';
+    const selectedModule =
+        module === 'Clean Water' ? 'Clean Water' : 'Waste Water';
 
-  const [operatingMode, setOperatingMode] =
-    useState<'AUTO' | 'MANUAL'>('AUTO');
+    const [operatingMode, setOperatingMode] =
+        useState<'AUTO' | 'MANUAL'>('MANUAL');
 
-  const [notifications, setNotifications] = useState(true);
+    const [notifications, setNotifications] = useState(true);
+    const [equipmentTypes, setEquipmentTypes] = useState<any[]>([]);
 
-  return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-        >
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={24}
-            color="#111827"
-          />
-        </TouchableOpacity>
+    const [loading, setLoading] = useState(false);
 
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Settings</Text>
-          <Text style={styles.headerSubtitle}>
-            {selectedModule}
-          </Text>
-        </View>
+    useEffect(() => {
+        fetchStageEquipments();
+    }, []);
 
-        <View style={styles.backButton} />
-      </View>
+    const fetchStageEquipments = async () => {
+        try {
+            setLoading(true);
 
-      <View style={styles.headerBorder} />
+            const stageId = await AsyncStorage.getItem('selectedStageId');
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+            console.log('Selected Stage ID:', stageId);
 
-        {/* Merge Button */}
-        <TouchableOpacity
-          style={styles.mergeButton}
-          onPress={() => {
-            // Add merge action here
-          }}
-          activeOpacity={0.8}
-        >
-          <MaterialCommunityIcons
-            name="merge"
-            size={22}
-            color="#FFFFFF"
-          />
-          <Text style={styles.mergeButtonText}>MERGE</Text>
-        </TouchableOpacity>
-        {/* General */}
-        <Text style={styles.sectionTitle}>GENERAL</Text>
+            if (!stageId) {
+                console.log('No stage ID found in AsyncStorage');
+                return;
+            }
 
-        <View style={styles.card}>
-          <View style={styles.settingRow}>
-            <View style={styles.settingTextContainer}>
-              <Text style={styles.settingTitle}>
-                Operating Mode
-              </Text>
+            const response = await getStageEquipments(Number(stageId));
 
-              <Text style={styles.settingSubtitle}>
-                Select automatic or manual control
-              </Text>
-            </View>
+            console.log('Stage Equipment Response:', response);
 
-            <View style={styles.toggleContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.toggleButton,
-                  operatingMode === 'AUTO' &&
-                  styles.toggleButtonActive,
-                ]}
-                onPress={() => setOperatingMode('AUTO')}
-                activeOpacity={0.7}
-              >
-                <Text
-                  style={[
-                    styles.toggleText,
-                    operatingMode === 'AUTO' &&
-                    styles.toggleTextActive,
-                  ]}
+            if (response.success) {
+                // Store the stage ID from API response
+                await AsyncStorage.setItem(
+                    'selectedStageId',
+                    String(response.data.stage.id)
+                );
+
+                console.log(
+                    'Stored Stage ID:',
+                    response.data.stage.id
+                );
+
+                // Store equipment types
+                setEquipmentTypes(
+                    response.data.equipment_types || []
+                );
+            }
+        } catch (error) {
+            console.error('Failed to fetch stage equipments:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <SafeAreaView style={styles.container}>
+            {/* Header */}
+            <View style={styles.header}>
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => router.back()}
+                    activeOpacity={0.7}
                 >
-                  AUTO
-                </Text>
-              </TouchableOpacity>
+                    <MaterialCommunityIcons
+                        name="arrow-left"
+                        size={24}
+                        color="#111827"
+                    />
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[
-                  styles.toggleButton,
-                  operatingMode === 'MANUAL' &&
-                  styles.toggleButtonActive,
-                ]}
-                onPress={() => setOperatingMode('MANUAL')}
-                activeOpacity={0.7}
-              >
-                <Text
-                  style={[
-                    styles.toggleText,
-                    operatingMode === 'MANUAL' &&
-                    styles.toggleTextActive,
-                  ]}
+                <View style={styles.headerTitleContainer}>
+                    <Text style={styles.headerTitle}>Settings</Text>
+                    <Text style={styles.headerSubtitle}>
+                        {selectedModule}
+                    </Text>
+                </View>
+
+                <View style={styles.backButton} />
+            </View>
+
+            <View style={styles.headerBorder} />
+
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+            >
+
+                {/* Merge Button */}
+                <TouchableOpacity
+                    style={styles.mergeButton}
+                    onPress={() => {
+                        // Add merge action here
+                    }}
+                    activeOpacity={0.8}
                 >
-                  MANUAL
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
+                    <MaterialCommunityIcons
+                        name="merge"
+                        size={22}
+                        color="#FFFFFF"
+                    />
+                    <Text style={styles.mergeButtonText}>MERGE</Text>
+                </TouchableOpacity>
+                {/* General */}
+                <Text style={styles.sectionTitle}>GENERAL</Text>
 
-        {/* Devices */}
-        <Text style={styles.sectionTitle}>DEVICES</Text>
+                <View style={styles.card}>
+                    <View style={styles.settingRow}>
+                        <View style={styles.settingTextContainer}>
+                            <Text style={styles.settingTitle}>
+                                Operating Mode
+                            </Text>
 
-        <View style={styles.card}>
-          <TouchableOpacity
-            style={styles.deviceRow}
-            onPress={() =>
-              router.push('/inlet/wastewater/inletroutes/inletpump')
-            }
-            activeOpacity={0.7}
-          >
-            <Image
-              source={require('@/assets/images/inletpump.png')}
-              style={styles.deviceIcon}
-              resizeMode="contain"
-            />
+                            <Text style={styles.settingSubtitle}>
+                                Select automatic or manual control
+                            </Text>
+                        </View>
 
-            <View style={styles.settingTextContainer}>
-              <Text style={styles.settingTitle}>
-                Inlet Pump 1
-              </Text>
-            </View>
+                        <View style={styles.toggleContainer}>
+                            <TouchableOpacity
+                                style={[
+                                    styles.toggleButton,
+                                    operatingMode === 'AUTO' &&
+                                    styles.toggleButtonActive,
+                                ]}
+                                onPress={() => {
+                                    setOperatingMode('AUTO');
 
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color="#111827"
-            />
-          </TouchableOpacity>
+                                    router.push('/inlet/wastewater');
+                                }}
+                                activeOpacity={0.7}
+                            >
+                                <Text
+                                    style={[
+                                        styles.toggleText,
+                                        operatingMode === 'AUTO' &&
+                                        styles.toggleTextActive,
+                                    ]}
+                                >
+                                    AUTO
+                                </Text>
+                            </TouchableOpacity>
 
-          <View style={styles.divider} />
+                            <TouchableOpacity
+                                style={[
+                                    styles.toggleButton,
+                                    operatingMode === 'MANUAL' &&
+                                    styles.toggleButtonActive,
+                                ]}
+                                onPress={() => setOperatingMode('MANUAL')}
+                                activeOpacity={0.7}
+                            >
+                                <Text
+                                    style={[
+                                        styles.toggleText,
+                                        operatingMode === 'MANUAL' &&
+                                        styles.toggleTextActive,
+                                    ]}
+                                >
+                                    MANUAL
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
 
-          <TouchableOpacity
-            style={styles.deviceRow}
-            onPress={() =>
-              router.push(
-                '/inlet/wastewater/inletroutes/contactorsensor'
-              )
-            }
-            activeOpacity={0.7}
-          >
-            <Image
-              source={require('@/assets/images/contactor.png')}
-              style={styles.deviceIcon}
-              resizeMode="contain"
-            />
+                {/* Devices */}
+                <Text style={styles.sectionTitle}>DEVICES</Text>
 
-            <View style={styles.settingTextContainer}>
-              <Text style={styles.settingTitle}>
-                Contactor Sensors
-              </Text>
+                <View style={styles.card}>
 
-              <Text style={styles.settingSubtitle}>
-                2 Sensors
-              </Text>
-            </View>
+                    <TouchableOpacity
+                        style={styles.deviceRow}
+                        onPress={() =>
+                            router.push('/inlet/wastewater/inletroutes/solenoid')
+                        }
+                        activeOpacity={0.7}
+                    >
+                        <Image
+                            source={require('@/assets/images/solenoid.png')}
+                            style={styles.deviceIcon}
+                            resizeMode="contain"
+                        />
 
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color="#111827"
-            />
-          </TouchableOpacity>
-
-          <View style={styles.divider} />
-
-          <TouchableOpacity
-            style={styles.deviceRow}
-            onPress={() =>
-              router.push('/inlet/wastewater/inletroutes/solenoid')
-            }
-            activeOpacity={0.7}
-          >
-            <Image
-              source={require('@/assets/images/solenoid.png')}
-              style={styles.deviceIcon}
-              resizeMode="contain"
-            />
-
-            <View style={styles.settingTextContainer}>
-              <Text style={styles.settingTitle}>
+                        <View style={styles.settingTextContainer}>
+                            {/* <Text style={styles.settingTitle}>
                 Solenoid Valves
-              </Text>
+              </Text> */}
+                            <Text style={styles.settingTitle}>
+                                {equipmentTypes.find(
+                                    item => item.equipment_type?.name === 'Solenoid Valves'
+                                )?.equipment_type?.name || 'Solenoid Valves'}
+                            </Text>
 
-              <Text style={styles.settingSubtitle}>
-                2 Valves
-              </Text>
-            </View>
+                            <Text style={styles.settingSubtitle}>
+                                {equipmentTypes.find(
+                                    item => item.equipment_type?.name === 'Solenoid Valves'
+                                )?.count || 0} Valves
+                            </Text>
+                        </View>
 
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color="#111827"
-            />
-          </TouchableOpacity>
-        </View>
+                        <MaterialCommunityIcons
+                            name="chevron-right"
+                            size={24}
+                            color="#111827"
+                        />
+                    </TouchableOpacity>
 
-        {/* Alerts & Notifications */}
-        <Text style={styles.sectionTitle}>
-          ALERTS & NOTIFICATIONS
-        </Text>
+                    <View style={styles.divider} />
 
-        <View style={styles.card}>
-          <View style={styles.settingRow}>
-            <View style={styles.settingTextContainer}>
-              <Text style={styles.settingTitle}>
-                Enable Notifications
-              </Text>
+                    <TouchableOpacity
+                        style={styles.deviceRow}
+                        onPress={() =>
+                            router.push('/inlet/wastewater/inletroutes/inletpump')
+                        }
+                        activeOpacity={0.7}
+                    >
+                        <Image
+                            source={require('@/assets/images/inletpump.png')}
+                            style={styles.deviceIcon}
+                            resizeMode="contain"
+                        />
 
-              <Text style={styles.settingSubtitle}>
-                Receive alerts for status changes
-              </Text>
-            </View>
+                        <View style={styles.settingTextContainer}>
+                            {/* <Text style={styles.settingTitle}>
+                Inlet Pump 1
+              </Text> */}
+                            <Text style={styles.settingTitle}>
+                                {equipmentTypes.find(
+                                    item => item.equipment_type?.name === 'Inlet Pump 1'
+                                )?.equipment_type?.name || 'Inlet Pump 1'}
+                            </Text>
+                        </View>
 
-            <Switch
-              trackColor={{
-                false: '#E5E7EB',
-                true: '#14B8A6',
-              }}
-              thumbColor="#FFFFFF"
-              ios_backgroundColor="#E5E7EB"
-              onValueChange={setNotifications}
-              value={notifications}
-            />
-          </View>
-        </View>
+                        <MaterialCommunityIcons
+                            name="chevron-right"
+                            size={24}
+                            color="#111827"
+                        />
+                    </TouchableOpacity>
 
-        {/* About */}
-        <Text style={styles.sectionTitle}>ABOUT</Text>
+                    <View style={styles.divider} />
 
-        <View style={styles.card}>
-          <View style={styles.aboutRow}>
-            <Text style={styles.aboutLabel}>
-              App Version
-            </Text>
+                    <TouchableOpacity
+                        style={styles.deviceRow}
+                        onPress={() =>
+                            router.push(
+                                '/inlet/wastewater/inletroutes/contactorsensor'
+                            )
+                        }
+                        activeOpacity={0.7}
+                    >
+                        <Image
+                            source={require('@/assets/images/contactor.png')}
+                            style={styles.deviceIcon}
+                            resizeMode="contain"
+                        />
 
-            <Text style={styles.aboutValue}>
-              1.0.0
-            </Text>
-          </View>
+                        <View style={styles.settingTextContainer}>
+                            {/* <Text style={styles.settingTitle}>
+                Contactor Sensors
+              </Text> */}
+                            <Text style={styles.settingTitle}>
+                                {equipmentTypes.find(
+                                    item => item.equipment_type?.name === 'Contactor Sensors'
+                                )?.equipment_type?.name || 'Contactor Sensors'}
+                            </Text>
 
-          <View style={styles.divider} />
+                            <Text style={styles.settingSubtitle}>
+                                {equipmentTypes.find(
+                                    item => item.equipment_type?.name === 'Contactor Sensors'
+                                )?.count || 0} Sensors
+                            </Text>
+                        </View>
 
-          <View style={styles.aboutRow}>
-            <Text style={styles.aboutLabel}>
-              PLC / Controller
-            </Text>
+                        <MaterialCommunityIcons
+                            name="chevron-right"
+                            size={24}
+                            color="#111827"
+                        />
+                    </TouchableOpacity>
 
-            <View style={styles.statusRow}>
-              <Text style={styles.statusTextGreen}>
-                Connected
-              </Text>
+                    
 
-              <View style={styles.statusDotGreen} />
-            </View>
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+                    
+
+                    
+
+                </View>
+
+                {/* Alerts & Notifications */}
+                <Text style={styles.sectionTitle}>
+                    ALERTS & NOTIFICATIONS
+                </Text>
+
+                <View style={styles.card}>
+                    <View style={styles.settingRow}>
+                        <View style={styles.settingTextContainer}>
+                            <Text style={styles.settingTitle}>
+                                Enable Notifications
+                            </Text>
+
+                            <Text style={styles.settingSubtitle}>
+                                Receive alerts for status changes
+                            </Text>
+                        </View>
+
+                        <Switch
+                            trackColor={{
+                                false: '#E5E7EB',
+                                true: '#14B8A6',
+                            }}
+                            thumbColor="#FFFFFF"
+                            ios_backgroundColor="#E5E7EB"
+                            onValueChange={setNotifications}
+                            value={notifications}
+                        />
+                    </View>
+                </View>
+
+                {/* About */}
+                <Text style={styles.sectionTitle}>ABOUT</Text>
+
+                <View style={styles.card}>
+                    <View style={styles.aboutRow}>
+                        <Text style={styles.aboutLabel}>
+                            App Version
+                        </Text>
+
+                        <Text style={styles.aboutValue}>
+                            1.0.0
+                        </Text>
+                    </View>
+
+                    <View style={styles.divider} />
+
+                    <View style={styles.aboutRow}>
+                        <Text style={styles.aboutLabel}>
+                            PLC / Controller
+                        </Text>
+
+                        <View style={styles.statusRow}>
+                            <Text style={styles.statusTextGreen}>
+                                Connected
+                            </Text>
+
+                            <View style={styles.statusDotGreen} />
+                        </View>
+                    </View>
+                </View>
+            </ScrollView>
+        </SafeAreaView>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 16,
-    backgroundColor: '#FFFFFF',
-  },
-
-  headerBorder: {
-    height: 1,
-    backgroundColor: '#E5E7EB',
-  },
-
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-  },
-
-  headerTitleContainer: {
-    alignItems: 'center',
-  },
-
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-  },
-
-  headerSubtitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#159AA3',
-    marginTop: 3,
-  },
-
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#6B7280',
-    marginTop: 24,
-    marginBottom: 8,
-    marginLeft: 4,
-  },
-
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
+    container: {
+        flex: 1,
+        backgroundColor: '#F8F9FA',
     },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
 
-  settingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-  },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        paddingBottom: 16,
+        backgroundColor: '#FFFFFF',
+    },
 
-  settingTextContainer: {
-    flex: 1,
-    paddingRight: 16,
-  },
+    headerBorder: {
+        height: 1,
+        backgroundColor: '#E5E7EB',
+    },
 
-  settingTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-  },
+    backButton: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+    },
 
-  settingSubtitle: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginTop: 4,
-  },
+    headerTitleContainer: {
+        alignItems: 'center',
+    },
 
-  toggleContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    overflow: 'hidden',
-  },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#111827',
+    },
 
-  toggleButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: '#FFFFFF',
-  },
+    headerSubtitle: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#159AA3',
+        marginTop: 3,
+    },
 
-  toggleButtonActive: {
-    backgroundColor: '#14B8A6',
-  },
+    scrollContent: {
+        padding: 16,
+        paddingBottom: 40,
+    },
 
-  toggleText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#111827',
-  },
+    sectionTitle: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#6B7280',
+        marginTop: 24,
+        marginBottom: 8,
+        marginLeft: 4,
+    },
 
-  toggleTextActive: {
-    color: '#FFFFFF',
-  },
+    card: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        borderWidth: 1,
+        borderColor: '#F3F4F6',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        elevation: 2,
+    },
 
-  deviceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-  },
+    settingRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 16,
+    },
 
-  deviceIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 16,
-  },
+    settingTextContainer: {
+        flex: 1,
+        paddingRight: 16,
+    },
 
-  divider: {
-    height: 1,
-    backgroundColor: '#F3F4F6',
-    marginLeft: 40,
-  },
+    settingTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#111827',
+    },
 
-  aboutRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-  },
+    settingSubtitle: {
+        fontSize: 13,
+        color: '#6B7280',
+        marginTop: 4,
+    },
 
-  aboutLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#111827',
-  },
+    toggleContainer: {
+        flexDirection: 'row',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        overflow: 'hidden',
+    },
 
-  aboutValue: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
+    toggleButton: {
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        backgroundColor: '#FFFFFF',
+    },
 
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+    toggleButtonActive: {
+        backgroundColor: '#14B8A6',
+    },
 
-  statusTextGreen: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#10B981',
-  },
+    toggleText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#111827',
+    },
 
-  statusDotGreen: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#10B981',
-    marginLeft: 8,
-  },
-  mergeButton: {
-    backgroundColor: '#14B8A6',
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 13,
-    marginBottom: 8,
-  },
+    toggleTextActive: {
+        color: '#FFFFFF',
+    },
 
-  mergeButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
+    deviceRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 16,
+    },
+
+    deviceIcon: {
+        width: 24,
+        height: 24,
+        marginRight: 16,
+    },
+
+    divider: {
+        height: 1,
+        backgroundColor: '#F3F4F6',
+        marginLeft: 40,
+    },
+
+    aboutRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 16,
+    },
+
+    aboutLabel: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#111827',
+    },
+
+    aboutValue: {
+        fontSize: 14,
+        color: '#6B7280',
+    },
+
+    statusRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+
+    statusTextGreen: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: '#10B981',
+    },
+
+    statusDotGreen: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: '#10B981',
+        marginLeft: 8,
+    },
+    mergeButton: {
+        backgroundColor: '#14B8A6',
+        borderRadius: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 13,
+        marginBottom: 8,
+    },
+
+    mergeButtonText: {
+        color: '#FFFFFF',
+        fontSize: 14,
+        fontWeight: '600',
+        marginLeft: 8,
+    },
 });

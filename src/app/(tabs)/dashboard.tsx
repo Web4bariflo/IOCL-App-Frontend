@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { logoutUser } from '../../api/authApi';
+import {getTreatmentStages} from '../../api/inletApi';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -36,11 +37,17 @@ export default function DashboardScreen() {
   const [pumpActive, setPumpActive] = useState(false);
   const [contactorsActive, setContactorsActive] = useState(false);
 
+  const [treatmentStages, setTreatmentStages] = useState<any[]>([]);
+
   useEffect(() => {
     if (params.menu === 'open') {
       setIsMenuOpen(true);
     }
   }, [params.menu]);
+
+  useEffect(() => {
+  fetchTreatmentStages();
+}, []);
 
   // =========================================================
   // LOGOUT
@@ -58,6 +65,41 @@ export default function DashboardScreen() {
       console.error('Logout failed:', error);
     }
   };
+
+//   const fetchTreatmentStages = async () => {
+//   try {
+//     const response = await getTreatmentStages();
+
+//     console.log('Treatment Stages:', response);
+
+//     if (response.success) {
+//       setTreatmentStages(response.data);
+//     }
+//   } catch (error) {
+//     console.error('Failed to fetch treatment stages:', error);
+//   }
+// };
+
+const fetchTreatmentStages = async () => {
+  try {
+    const response = await getTreatmentStages();
+
+    console.log('Treatment Stages:', response);
+
+    if (response.success) {
+      setTreatmentStages(response.data);
+
+      await AsyncStorage.setItem(
+        'selectedStageId',
+        String(response.data[0].id)
+      );
+
+      console.log('Stored Stage ID:', response.data[0].id);
+    }
+  } catch (error) {
+    console.error('Failed to fetch treatment stages:', error);
+  }
+};
 
   // =========================================================
   // SYSTEM CLICK
@@ -798,61 +840,53 @@ export default function DashboardScreen() {
                       <View style={styles.dropdownContainer}>
                         {/* WASTE WATER */}
 
-                        <TouchableOpacity
-                          style={styles.subSystemMenuItem}
-                          onPress={() =>
-                            handleSubSystemPress(
-                              'Waste Water'
-                            )
-                          }
-                          activeOpacity={0.7}
-                        >
-                          <Text
-                            style={styles.subSystemMenuText}
-                          >
-                            Waste Water
-                          </Text>
+                        {treatmentStages.map((stage) => (
+  <React.Fragment key={stage.id}>
+    <TouchableOpacity
+      style={styles.subSystemMenuItem}
+      onPress={() =>
+        handleSubSystemPress(stage.name)
+      }
+      activeOpacity={0.7}
+    >
+      <Text style={styles.subSystemMenuText}>
+        {stage.name}
+      </Text>
 
-                          <MaterialCommunityIcons
-                            name={
-                              expandedSubSystem ===
-                              'Waste Water'
-                                ? 'chevron-up'
-                                : 'chevron-down'
-                            }
-                            size={19}
-                            color="#6B7280"
-                          />
-                        </TouchableOpacity>
+      <MaterialCommunityIcons
+        name={
+          expandedSubSystem === stage.name
+            ? 'chevron-up'
+            : 'chevron-down'
+        }
+        size={19}
+        color="#6B7280"
+      />
+    </TouchableOpacity>
 
-                        {/* WASTE WATER SETTINGS */}
+    {/* SETTINGS */}
 
-                        {expandedSubSystem ===
-                          'Waste Water' && (
-                          <TouchableOpacity
-                            style={styles.settingsMenuItem}
-                            onPress={() =>
-                              handleSettingsPress(
-                                'Waste Water'
-                              )
-                            }
-                            activeOpacity={0.7}
-                          >
-                            <MaterialCommunityIcons
-                              name="cog-outline"
-                              size={21}
-                              color="#159AA3"
-                            />
+    {expandedSubSystem === stage.name && (
+      <TouchableOpacity
+        style={styles.settingsMenuItem}
+        onPress={() =>
+          handleSettingsPress(stage.name)
+        }
+        activeOpacity={0.7}
+      >
+        <MaterialCommunityIcons
+          name="cog-outline"
+          size={21}
+          color="#159AA3"
+        />
 
-                            <Text
-                              style={
-                                styles.settingsMenuText
-                              }
-                            >
-                              Settings
-                            </Text>
-                          </TouchableOpacity>
-                        )}
+        <Text style={styles.settingsMenuText}>
+          Settings
+        </Text>
+      </TouchableOpacity>
+    )}
+  </React.Fragment>
+))}
 
                         {/* CLEAN WATER */}
 

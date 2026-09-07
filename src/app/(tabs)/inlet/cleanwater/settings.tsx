@@ -21,7 +21,7 @@ export default function SettingsScreen() {
     module === 'Clean Water' ? 'Clean Water' : 'Waste Water';
 
   const [operatingMode, setOperatingMode] =
-    useState<'AUTO' | 'MANUAL'>('AUTO');
+    useState<'AUTO' | 'MANUAL'>('MANUAL');
 
   const [notifications, setNotifications] = useState(true);
 
@@ -95,7 +95,11 @@ export default function SettingsScreen() {
                   operatingMode === 'AUTO' &&
                   styles.toggleButtonActive,
                 ]}
-                onPress={() => setOperatingMode('AUTO')}
+               onPress={() => {
+    setOperatingMode('AUTO');
+
+    router.push('/inlet/cleanwater');
+  }}
                 activeOpacity={0.7}
               >
                 <Text

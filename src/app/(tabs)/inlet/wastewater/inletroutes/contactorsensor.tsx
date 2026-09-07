@@ -474,6 +474,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { turnOnMotor } from '../../../../../api/inletApi';
 
 export default function ContactorSensorScreen() {
   const [activeTab, setActiveTab] = useState<'SENSOR 1' | 'SENSOR 2'>(
@@ -481,6 +483,57 @@ export default function ContactorSensorScreen() {
   );
 
   const [isPowerOn, setIsPowerOn] = useState(false);
+  const [sensor1Status, setSensor1Status] = useState('INACTIVE');
+const [sensor2Status, setSensor2Status] = useState('INACTIVE');
+
+const handlePowerOn = async () => {
+  try {
+    const stageId = await AsyncStorage.getItem('selectedStageId');
+
+    console.log('Selected Stage ID:', stageId);
+
+    if (!stageId) {
+      console.log('Stage ID not found');
+      return;
+    }
+
+    // Motor ID = 2
+    const motorId = 2;
+
+    const response = await turnOnMotor(
+      motorId,
+      Number(stageId)
+    );
+
+    console.log('Motor ON Response:', response);
+
+    if (response.status === 'ACTIVE') {
+      setIsPowerOn(true);
+
+      // Get sensor status from API response
+      const sensors = response.sensors || [];
+
+      const sensor1 = sensors.find(
+        (sensor: any) => sensor.id === 3
+      );
+
+      const sensor2 = sensors.find(
+        (sensor: any) => sensor.id === 4
+      );
+
+      setSensor1Status(
+        sensor1?.status || 'INACTIVE'
+      );
+
+      setSensor2Status(
+        sensor2?.status || 'INACTIVE'
+      );
+    }
+
+  } catch (error) {
+    console.error('Failed to power on:', error);
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>
