@@ -100,7 +100,7 @@ export default function DashboardScreen() {
       // -----------------------------------------------------
       case 'Waste Water':
         router.push({
-          pathname: '/settings',
+          pathname: '/inlet/wastewater/settings',
           params: {
             module: 'Waste Water',
           },
@@ -112,7 +112,7 @@ export default function DashboardScreen() {
       // -----------------------------------------------------
       case 'Clean Water':
         router.push({
-          pathname: '/settings',
+          pathname: '/inlet/cleanwater/settings',
           params: {
             module: 'Clean Water',
           },

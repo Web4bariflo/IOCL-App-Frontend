@@ -112,6 +112,13 @@ export default function RootLayout() {
   }}
 />
 
+<Stack.Screen
+  name="inlet/cleanwater/inletroutes/inletpump"
+  options={{
+    headerShown: false,
+  }}
+/>
+
     <Stack.Screen
           name="mixingtank"
           options={{
