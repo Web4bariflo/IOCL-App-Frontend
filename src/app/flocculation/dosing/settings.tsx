@@ -5,7 +5,9 @@ import { Image, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } f
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DosingSettingsScreen() {
-  const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('AUTO');
+  // const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('AUTO');
+  // const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('AUTO');
+  const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('MANUAL');
   const [notifications, setNotifications] = useState(true);
 
   return (
@@ -31,7 +33,7 @@ export default function DosingSettingsScreen() {
               <Text style={styles.settingTitle}>Operating Mode</Text>
               <Text style={styles.settingSubtitle}>Select automatic or manual control</Text>
             </View>
-            <View style={styles.toggleContainer}>
+            {/* <View style={styles.toggleContainer}>
               <TouchableOpacity
                 style={[styles.toggleButton, operatingMode === 'AUTO' && styles.toggleButtonActive]}
                 onPress={() => setOperatingMode('AUTO')}
@@ -44,81 +46,121 @@ export default function DosingSettingsScreen() {
               >
                 <Text style={[styles.toggleText, operatingMode === 'MANUAL' && styles.toggleTextActive]}>MANUAL</Text>
               </TouchableOpacity>
-            </View>
+            </View> */}
+        <View style={styles.toggleContainer}>
+  <TouchableOpacity
+    style={[
+      styles.toggleButton,
+      operatingMode === 'AUTO' && styles.toggleButtonActive,
+    ]}
+    onPress={() => {
+      setOperatingMode('AUTO');
+      router.push('/flocculation/dosing');
+    }}
+  >
+    <Text
+      style={[
+        styles.toggleText,
+        operatingMode === 'AUTO' && styles.toggleTextActive,
+      ]}
+    >
+      AUTO
+    </Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    style={[
+      styles.toggleButton,
+      operatingMode === 'MANUAL' && styles.toggleButtonActive,
+    ]}
+    onPress={() => {
+      setOperatingMode('MANUAL');
+    }}
+  >
+    <Text
+      style={[
+        styles.toggleText,
+        operatingMode === 'MANUAL' && styles.toggleTextActive,
+      ]}
+    >
+      MANUAL
+    </Text>
+  </TouchableOpacity>
+</View>
           </View>
         </View>
 
         {/* Devices */}
         <Text style={styles.sectionTitle}>DEVICES</Text>
         <View style={styles.card}>
-        <TouchableOpacity
-  style={styles.deviceRow}
-  onPress={() => router.push('/coagulant/dosing/inletpump')}
->
-  <Image
-    source={require('@/assets/images/inletpump.png')}
-    style={[styles.deviceIcon, { width: 24, height: 24 }]}
-    resizeMode="contain"
-  />
+          <TouchableOpacity
+            style={styles.deviceRow}
+            onPress={() => router.push('/flocculation/dosing/inletpump')}
+          >
+            <Image
+              source={require('@/assets/images/inletpump.png')}
+              style={[styles.deviceIcon, { width: 24, height: 24 }]}
+              resizeMode="contain"
+            />
 
-  <View style={styles.settingTextContainer}>
-    <Text style={styles.settingTitle}>Inlet Pump 1</Text>
-  </View>
+            <View style={styles.settingTextContainer}>
+              <Text style={styles.settingTitle}>Inlet Pump 1</Text>
+            </View>
 
-  <MaterialCommunityIcons
-    name="chevron-right"
-    size={24}
-    color="#111827"
-  />
-</TouchableOpacity>
-
-          <View style={styles.divider} />
-
-         <TouchableOpacity
-  style={styles.deviceRow}
-  onPress={() => router.push('/coagulant/dosing/contactorsensors')}
->
-  <Image
-    source={require('@/assets/images/contactor.png')}
-    style={[styles.deviceIcon, { width: 24, height: 24 }]}
-    resizeMode="contain"
-  />
-
-  <View style={styles.settingTextContainer}>
-    <Text style={styles.settingTitle}>Contactor Sensors</Text>
-    <Text style={styles.settingSubtitle}>2 Sensors</Text>
-  </View>
-
-  <MaterialCommunityIcons
-    name="chevron-right"
-    size={24}
-    color="#111827"
-  />
-</TouchableOpacity>
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={24}
+              color="#111827"
+            />
+          </TouchableOpacity>
 
           <View style={styles.divider} />
 
-        <TouchableOpacity
-  style={styles.deviceRow}
-  onPress={() => router.push('/coagulant/dosing/solenoid')}
->
-  <Image
-    source={require('@/assets/images/solenoid.png')}
-    style={[styles.deviceIcon, { width: 24, height: 24 }]}
-    resizeMode="contain"
-  />
+          <TouchableOpacity
+            style={styles.deviceRow}
+            onPress={() => router.push('/flocculation/dosing/contactorsensors')}
+          >
+            <Image
+              source={require('@/assets/images/contactor.png')}
+              style={[styles.deviceIcon, { width: 24, height: 24 }]}
+              resizeMode="contain"
+            />
 
-  <View style={styles.settingTextContainer}>
-    <Text style={styles.settingTitle}>Solenoid Valves</Text>
-    <Text style={styles.settingSubtitle}>2 Valves</Text>
-  </View>
+            <View style={styles.settingTextContainer}>
+              <Text style={styles.settingTitle}>Contactor Sensors</Text>
+              <Text style={styles.settingSubtitle}>2 Sensors</Text>
+            </View>
 
-  <MaterialCommunityIcons
-    name="chevron-right"
-    size={24}
-    color="#111827"
-  />
-</TouchableOpacity>
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={24}
+              color="#111827"
+            />
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          <TouchableOpacity
+            style={styles.deviceRow}
+            onPress={() => router.push('/flocculation/dosing/solenoid')}
+          >
+            <Image
+              source={require('@/assets/images/solenoid.png')}
+              style={[styles.deviceIcon, { width: 24, height: 24 }]}
+              resizeMode="contain"
+            />
+
+            <View style={styles.settingTextContainer}>
+              <Text style={styles.settingTitle}>Solenoid Valves</Text>
+              <Text style={styles.settingSubtitle}>2 Valves</Text>
+            </View>
+
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={24}
+              color="#111827"
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Alerts & Notifications */}

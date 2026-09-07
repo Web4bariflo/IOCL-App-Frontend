@@ -117,7 +117,7 @@ export default function Auto(): React.JSX.Element {
         >
 
           {/* MENU BUTTON */}
-
+{/* 
           <Pressable
             style={styles.menuButton}
             onPress={() => {}}
@@ -125,7 +125,18 @@ export default function Auto(): React.JSX.Element {
             <View style={styles.menuLine} />
             <View style={styles.menuLine} />
             <View style={styles.menuLine} />
-          </Pressable>
+          </Pressable> */}
+
+          <Pressable
+  style={styles.backButton}
+  onPress={() => router.push("/(tabs)/dashboard")}
+>
+  <Ionicons
+    name="arrow-back"
+    size={s(32)}
+    color="#0B1D3A"
+  />
+</Pressable>
 
 
           {/* HEADER CENTER */}
@@ -1933,5 +1944,12 @@ const styles = StyleSheet.create({
 
     fontWeight: "500",
   },
+
+  backButton: {
+  width: 42,
+  height: 42,
+  alignItems: "center",
+  justifyContent: "center",
+},
 
 });

@@ -5,15 +5,15 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 export default function SettingsScreen() {
-  const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('AUTO');
+  const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('MANUAL');
   const [notifications, setNotifications] = useState(true);
 
   const handleModeSelect = (mode: 'AUTO' | 'MANUAL') => {
     setOperatingMode(mode);
     if (mode === 'AUTO') {
-      router.push('/flocculation/automatic');
+      router.push('/flocculation/dosing');
     } else {
-      router.push('/flocculation/manual');
+      router.push('/flocculation/mixing/settings');
     }
   };
 

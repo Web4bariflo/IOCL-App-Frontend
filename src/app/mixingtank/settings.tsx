@@ -5,7 +5,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 export default function SettingsScreen() {
-  const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('AUTO');
+  // const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('AUTO');
+  const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('MANUAL');
   const [notifications, setNotifications] = useState(true);
 
   return (
@@ -31,7 +32,7 @@ export default function SettingsScreen() {
               <Text style={styles.settingTitle}>Operating Mode</Text>
               <Text style={styles.settingSubtitle}>Select automatic or manual control</Text>
             </View>
-            <View style={styles.toggleContainer}>
+            {/* <View style={styles.toggleContainer}>
               <TouchableOpacity
                 style={[styles.toggleButton, operatingMode === 'AUTO' && styles.toggleButtonActive]}
                 onPress={() => setOperatingMode('AUTO')}
@@ -44,6 +45,47 @@ export default function SettingsScreen() {
               >
                 <Text style={[styles.toggleText, operatingMode === 'MANUAL' && styles.toggleTextActive]}>MANUAL</Text>
               </TouchableOpacity>
+            </View> */}
+
+            <View style={styles.toggleContainer}>
+              {/* AUTO */}
+              <TouchableOpacity
+                style={[
+                  styles.toggleButton,
+                  operatingMode === 'AUTO' && styles.toggleButtonActive,
+                ]}
+                onPress={() => {
+                  setOperatingMode('AUTO');
+                  router.push('/mixingtank');
+                }}
+              >
+                <Text
+                  style={[
+                    styles.toggleText,
+                    operatingMode === 'AUTO' && styles.toggleTextActive,
+                  ]}
+                >
+                  AUTO
+                </Text>
+              </TouchableOpacity>
+
+              {/* MANUAL */}
+              <TouchableOpacity
+                style={[
+                  styles.toggleButton,
+                  operatingMode === 'MANUAL' && styles.toggleButtonActive,
+                ]}
+                onPress={() => setOperatingMode('MANUAL')}
+              >
+                <Text
+                  style={[
+                    styles.toggleText,
+                    operatingMode === 'MANUAL' && styles.toggleTextActive,
+                  ]}
+                >
+                  MANUAL
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -51,7 +93,7 @@ export default function SettingsScreen() {
         {/* Devices */}
         <Text style={styles.sectionTitle}>DEVICES</Text>
         <View style={styles.card}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.deviceRow}
             onPress={() => router.push('/mixingtank/mixingtank-setting/inletpump')}
           >
@@ -64,7 +106,7 @@ export default function SettingsScreen() {
 
           <View style={styles.divider} />
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.deviceRow}
             onPress={() => router.push('/mixingtank/mixingtank-setting/contactorsensor')}
           >
@@ -78,7 +120,7 @@ export default function SettingsScreen() {
 
           <View style={styles.divider} />
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.deviceRow}
             onPress={() => router.push('/mixingtank/mixingtank-setting/solenoid')}
           >
@@ -92,7 +134,7 @@ export default function SettingsScreen() {
 
           <View style={styles.divider} />
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.deviceRow}
             onPress={() => router.push('/mixingtank/mixingtank-setting/steppermotor')}
           >
@@ -129,7 +171,7 @@ export default function SettingsScreen() {
             <Text style={styles.aboutLabel}>App Version</Text>
             <Text style={styles.aboutValue}>1.0.0</Text>
           </View>
-          
+
           <View style={styles.divider} />
 
           <View style={styles.aboutRow}>

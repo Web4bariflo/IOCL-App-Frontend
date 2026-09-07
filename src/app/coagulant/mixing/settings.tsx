@@ -5,15 +5,25 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 export default function SettingsScreen() {
-  const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('AUTO');
+  // const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('AUTO');
+  const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('MANUAL');
   const [notifications, setNotifications] = useState(true);
+
+  // const handleModeSelect = (mode: 'AUTO' | 'MANUAL') => {
+  //   setOperatingMode(mode);
+  //   if (mode === 'AUTO') {
+  //     router.push('/coagulant/automatic');
+  //   } else {
+  //     router.push('/coagulant/manual');
+  //   }
+  // };
 
   const handleModeSelect = (mode: 'AUTO' | 'MANUAL') => {
     setOperatingMode(mode);
     if (mode === 'AUTO') {
-      router.push('/coagulant/automatic');
+      router.push('/coagulant/dosing');
     } else {
-      router.push('/coagulant/manual');
+      router.push('/coagulant/mixing/settings');
     }
   };
 

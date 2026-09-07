@@ -66,6 +66,52 @@ export default function RootLayout() {
          <Stack.Screen name="flocculation/mixing" options={{ headerShown: false }} />
          <Stack.Screen name="flocculation" options={{ headerShown: false }} />
          <Stack.Screen name="desludging/settings" options={{ headerShown: false }} />
+         <Stack.Screen
+  name="desludging/solenoid"
+  options={{
+    headerShown: false,
+  }}
+/>
+<Stack.Screen
+  name="desludging/inletpump"
+  options={{
+    headerShown: false,
+  }}
+/>
+<Stack.Screen
+  name="desludging/contactorsensors"
+  options={{
+    headerShown: false,
+  }}
+/>
+<Stack.Screen
+  name="desludging/blower"
+  options={{
+    headerShown: false,
+  }}
+/>
+
+<Stack.Screen
+  name="desludging/motor1"
+  options={{
+    headerShown: false,
+  }}
+/>
+
+<Stack.Screen
+  name="desludging/motor2"
+  options={{
+    headerShown: false,
+  }}
+/>
+
+<Stack.Screen
+  name="desludging/auto"
+  options={{
+    headerShown: false,
+  }}
+/>
+
     <Stack.Screen
           name="mixingtank"
           options={{
