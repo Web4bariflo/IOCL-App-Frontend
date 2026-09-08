@@ -109,7 +109,7 @@ export default function ContactorSensorScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.navigate('/settings')}
+          onPress={() => router.navigate('/inlet/wastewater/settings')}
         >
           <MaterialCommunityIcons
             name="arrow-left"

@@ -161,7 +161,7 @@ const handleStopPump = async () => {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.navigate('/settings')}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.navigate('/inlet/wastewater/settings')}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="#1E3A8A" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>

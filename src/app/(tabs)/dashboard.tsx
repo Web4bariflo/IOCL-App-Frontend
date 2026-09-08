@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { logoutUser } from '../../api/authApi';
-import {getTreatmentStages} from '../../api/inletApi';
+import { getTreatmentStages } from '../../api/inletApi';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -46,8 +46,8 @@ export default function DashboardScreen() {
   }, [params.menu]);
 
   useEffect(() => {
-  fetchTreatmentStages();
-}, []);
+    fetchTreatmentStages();
+  }, []);
 
   // =========================================================
   // LOGOUT
@@ -66,21 +66,42 @@ export default function DashboardScreen() {
     }
   };
 
-//   const fetchTreatmentStages = async () => {
-//   try {
-//     const response = await getTreatmentStages();
+  //   const fetchTreatmentStages = async () => {
+  //   try {
+  //     const response = await getTreatmentStages();
 
-//     console.log('Treatment Stages:', response);
+  //     console.log('Treatment Stages:', response);
 
-//     if (response.success) {
-//       setTreatmentStages(response.data);
-//     }
-//   } catch (error) {
-//     console.error('Failed to fetch treatment stages:', error);
-//   }
-// };
+  //     if (response.success) {
+  //       setTreatmentStages(response.data);
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to fetch treatment stages:', error);
+  //   }
+  // };
 
-const fetchTreatmentStages = async () => {
+  // const fetchTreatmentStages = async () => {
+  //   try {
+  //     const response = await getTreatmentStages();
+
+  //     console.log('Treatment Stages:', response);
+
+  //     if (response.success) {
+  //       setTreatmentStages(response.data);
+
+  //       await AsyncStorage.setItem(
+  //         'selectedStageId',
+  //         String(response.data[0].id)
+  //       );
+
+  //       console.log('Stored Stage ID:', response.data[0].id);
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to fetch treatment stages:', error);
+  //   }
+  // };
+
+  const fetchTreatmentStages = async () => {
   try {
     const response = await getTreatmentStages();
 
@@ -89,12 +110,41 @@ const fetchTreatmentStages = async () => {
     if (response.success) {
       setTreatmentStages(response.data);
 
-      await AsyncStorage.setItem(
-        'selectedStageId',
-        String(response.data[0].id)
+      // Find Waste Water
+      const wasteWaterStage = response.data.find(
+        (stage: any) => stage.name === 'Waste Water'
       );
 
-      console.log('Stored Stage ID:', response.data[0].id);
+      // Find Clean Water
+      const cleanWaterStage = response.data.find(
+        (stage: any) => stage.name === 'Clean Water'
+      );
+
+      // Store Waste Water ID as selectedStageId
+      if (wasteWaterStage) {
+        await AsyncStorage.setItem(
+          'selectedStageId',
+          String(wasteWaterStage.id)
+        );
+
+        console.log(
+          'Waste Water ID stored as selectedStageId:',
+          wasteWaterStage.id
+        );
+      }
+
+      // Store Clean Water ID
+      if (cleanWaterStage) {
+        await AsyncStorage.setItem(
+          'cleanWaterStageId',
+          String(cleanWaterStage.id)
+        );
+
+        console.log(
+          'Clean Water ID stored as cleanWaterStageId:',
+          cleanWaterStage.id
+        );
+      }
     }
   } catch (error) {
     console.error('Failed to fetch treatment stages:', error);
@@ -347,7 +397,7 @@ const fetchTreatmentStages = async () => {
                   style={[
                     styles.segmentActiveText,
                     !valvesActive &&
-                      styles.segmentNormalText,
+                    styles.segmentNormalText,
                   ]}
                 >
                   ACTIVE
@@ -358,7 +408,7 @@ const fetchTreatmentStages = async () => {
                 style={[
                   styles.segmentInactive,
                   !valvesActive &&
-                    styles.segmentSelectedInactive,
+                  styles.segmentSelectedInactive,
                 ]}
                 onPress={() => setValvesActive(false)}
                 activeOpacity={0.8}
@@ -420,7 +470,7 @@ const fetchTreatmentStages = async () => {
                   style={[
                     styles.segmentActiveText,
                     !pumpActive &&
-                      styles.segmentNormalText,
+                    styles.segmentNormalText,
                   ]}
                 >
                   ACTIVE
@@ -431,7 +481,7 @@ const fetchTreatmentStages = async () => {
                 style={[
                   styles.segmentInactive,
                   !pumpActive &&
-                    styles.segmentSelectedInactive,
+                  styles.segmentSelectedInactive,
                 ]}
                 onPress={() => setPumpActive(false)}
                 activeOpacity={0.8}
@@ -504,7 +554,7 @@ const fetchTreatmentStages = async () => {
                 style={[
                   styles.segmentActive,
                   contactorsActive &&
-                    styles.segmentSelected,
+                  styles.segmentSelected,
                 ]}
                 onPress={() => setContactorsActive(true)}
                 activeOpacity={0.8}
@@ -513,7 +563,7 @@ const fetchTreatmentStages = async () => {
                   style={[
                     styles.segmentActiveText,
                     !contactorsActive &&
-                      styles.segmentNormalText,
+                    styles.segmentNormalText,
                   ]}
                 >
                   ACTIVE
@@ -524,7 +574,7 @@ const fetchTreatmentStages = async () => {
                 style={[
                   styles.segmentInactive,
                   !contactorsActive &&
-                    styles.segmentSelectedInactive,
+                  styles.segmentSelectedInactive,
                 ]}
                 onPress={() => setContactorsActive(false)}
                 activeOpacity={0.8}
@@ -819,12 +869,12 @@ const fetchTreatmentStages = async () => {
                             ? 'chevron-up'
                             : 'chevron-down'
                           : item === 'Flocculation System'
-                          ? showFlocculationDropdown
-                            ? 'chevron-up'
-                            : 'chevron-down'
-                          : expandedSystem === item
-                          ? 'chevron-up'
-                          : 'chevron-down'
+                            ? showFlocculationDropdown
+                              ? 'chevron-up'
+                              : 'chevron-down'
+                            : expandedSystem === item
+                              ? 'chevron-up'
+                              : 'chevron-down'
                       }
                       size={20}
                       color="#6B7280"
@@ -841,56 +891,56 @@ const fetchTreatmentStages = async () => {
                         {/* WASTE WATER */}
 
                         {treatmentStages.map((stage) => (
-  <React.Fragment key={stage.id}>
-    <TouchableOpacity
-      style={styles.subSystemMenuItem}
-      onPress={() =>
-        handleSubSystemPress(stage.name)
-      }
-      activeOpacity={0.7}
-    >
-      <Text style={styles.subSystemMenuText}>
-        {stage.name}
-      </Text>
+                          <React.Fragment key={stage.id}>
+                            <TouchableOpacity
+                              style={styles.subSystemMenuItem}
+                              onPress={() =>
+                                handleSubSystemPress(stage.name)
+                              }
+                              activeOpacity={0.7}
+                            >
+                              <Text style={styles.subSystemMenuText}>
+                                {stage.name}
+                              </Text>
 
-      <MaterialCommunityIcons
-        name={
-          expandedSubSystem === stage.name
-            ? 'chevron-up'
-            : 'chevron-down'
-        }
-        size={19}
-        color="#6B7280"
-      />
-    </TouchableOpacity>
+                              <MaterialCommunityIcons
+                                name={
+                                  expandedSubSystem === stage.name
+                                    ? 'chevron-up'
+                                    : 'chevron-down'
+                                }
+                                size={19}
+                                color="#6B7280"
+                              />
+                            </TouchableOpacity>
 
-    {/* SETTINGS */}
+                            {/* SETTINGS */}
 
-    {expandedSubSystem === stage.name && (
-      <TouchableOpacity
-        style={styles.settingsMenuItem}
-        onPress={() =>
-          handleSettingsPress(stage.name)
-        }
-        activeOpacity={0.7}
-      >
-        <MaterialCommunityIcons
-          name="cog-outline"
-          size={21}
-          color="#159AA3"
-        />
+                            {expandedSubSystem === stage.name && (
+                              <TouchableOpacity
+                                style={styles.settingsMenuItem}
+                                onPress={() =>
+                                  handleSettingsPress(stage.name)
+                                }
+                                activeOpacity={0.7}
+                              >
+                                <MaterialCommunityIcons
+                                  name="cog-outline"
+                                  size={21}
+                                  color="#159AA3"
+                                />
 
-        <Text style={styles.settingsMenuText}>
-          Settings
-        </Text>
-      </TouchableOpacity>
-    )}
-  </React.Fragment>
-))}
+                                <Text style={styles.settingsMenuText}>
+                                  Settings
+                                </Text>
+                              </TouchableOpacity>
+                            )}
+                          </React.Fragment>
+                        ))}
 
                         {/* CLEAN WATER */}
 
-                        <TouchableOpacity
+                        {/* <TouchableOpacity
                           style={styles.subSystemMenuItem}
                           onPress={() =>
                             handleSubSystemPress(
@@ -908,43 +958,43 @@ const fetchTreatmentStages = async () => {
                           <MaterialCommunityIcons
                             name={
                               expandedSubSystem ===
-                              'Clean Water'
+                                'Clean Water'
                                 ? 'chevron-up'
                                 : 'chevron-down'
                             }
                             size={19}
                             color="#6B7280"
                           />
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
                         {/* CLEAN WATER SETTINGS */}
 
-                        {expandedSubSystem ===
+                        {/* {expandedSubSystem ===
                           'Clean Water' && (
-                          <TouchableOpacity
-                            style={styles.settingsMenuItem}
-                            onPress={() =>
-                              handleSettingsPress(
-                                'Clean Water'
-                              )
-                            }
-                            activeOpacity={0.7}
-                          >
-                            <MaterialCommunityIcons
-                              name="cog-outline"
-                              size={21}
-                              color="#159AA3"
-                            />
-
-                            <Text
-                              style={
-                                styles.settingsMenuText
+                            <TouchableOpacity
+                              style={styles.settingsMenuItem}
+                              onPress={() =>
+                                handleSettingsPress(
+                                  'Clean Water'
+                                )
                               }
+                              activeOpacity={0.7}
                             >
-                              Settings
-                            </Text>
-                          </TouchableOpacity>
-                        )}
+                              <MaterialCommunityIcons
+                                name="cog-outline"
+                                size={21}
+                                color="#159AA3"
+                              />
+
+                              <Text
+                                style={
+                                  styles.settingsMenuText
+                                }
+                              >
+                                Settings
+                              </Text>
+                            </TouchableOpacity>
+                          )} */}
                       </View>
                     )}
 
@@ -979,7 +1029,7 @@ const fetchTreatmentStages = async () => {
                           <MaterialCommunityIcons
                             name={
                               expandedSubSystem ===
-                              'Coagulant Dosing'
+                                'Coagulant Dosing'
                                 ? 'chevron-up'
                                 : 'chevron-down'
                             }
@@ -990,30 +1040,30 @@ const fetchTreatmentStages = async () => {
 
                         {expandedSubSystem ===
                           'Coagulant Dosing' && (
-                          <TouchableOpacity
-                            style={styles.settingsMenuItem}
-                            onPress={() =>
-                              handleSettingsPress(
-                                'Coagulant Dosing'
-                              )
-                            }
-                            activeOpacity={0.7}
-                          >
-                            <MaterialCommunityIcons
-                              name="cog-outline"
-                              size={21}
-                              color="#159AA3"
-                            />
-
-                            <Text
-                              style={
-                                styles.settingsMenuText
+                            <TouchableOpacity
+                              style={styles.settingsMenuItem}
+                              onPress={() =>
+                                handleSettingsPress(
+                                  'Coagulant Dosing'
+                                )
                               }
+                              activeOpacity={0.7}
                             >
-                              Settings
-                            </Text>
-                          </TouchableOpacity>
-                        )}
+                              <MaterialCommunityIcons
+                                name="cog-outline"
+                                size={21}
+                                color="#159AA3"
+                              />
+
+                              <Text
+                                style={
+                                  styles.settingsMenuText
+                                }
+                              >
+                                Settings
+                              </Text>
+                            </TouchableOpacity>
+                          )}
 
                         {/* COAGULANT MIXING */}
 
@@ -1037,7 +1087,7 @@ const fetchTreatmentStages = async () => {
                           <MaterialCommunityIcons
                             name={
                               expandedSubSystem ===
-                              'Coagulant Mixing'
+                                'Coagulant Mixing'
                                 ? 'chevron-up'
                                 : 'chevron-down'
                             }
@@ -1048,30 +1098,30 @@ const fetchTreatmentStages = async () => {
 
                         {expandedSubSystem ===
                           'Coagulant Mixing' && (
-                          <TouchableOpacity
-                            style={styles.settingsMenuItem}
-                            onPress={() =>
-                              handleSettingsPress(
-                                'Coagulant Mixing'
-                              )
-                            }
-                            activeOpacity={0.7}
-                          >
-                            <MaterialCommunityIcons
-                              name="cog-outline"
-                              size={21}
-                              color="#159AA3"
-                            />
-
-                            <Text
-                              style={
-                                styles.settingsMenuText
+                            <TouchableOpacity
+                              style={styles.settingsMenuItem}
+                              onPress={() =>
+                                handleSettingsPress(
+                                  'Coagulant Mixing'
+                                )
                               }
+                              activeOpacity={0.7}
                             >
-                              Settings
-                            </Text>
-                          </TouchableOpacity>
-                        )}
+                              <MaterialCommunityIcons
+                                name="cog-outline"
+                                size={21}
+                                color="#159AA3"
+                              />
+
+                              <Text
+                                style={
+                                  styles.settingsMenuText
+                                }
+                              >
+                                Settings
+                              </Text>
+                            </TouchableOpacity>
+                          )}
                       </View>
                     )}
 
@@ -1081,7 +1131,7 @@ const fetchTreatmentStages = async () => {
 
                   {item === 'Mixing Tank System' &&
                     expandedSystem ===
-                      'Mixing Tank System' && (
+                    'Mixing Tank System' && (
                       <TouchableOpacity
                         style={styles.settingsMenuItem}
                         onPress={() =>
@@ -1136,7 +1186,7 @@ const fetchTreatmentStages = async () => {
                           <MaterialCommunityIcons
                             name={
                               expandedSubSystem ===
-                              'Flocculation Dosing'
+                                'Flocculation Dosing'
                                 ? 'chevron-up'
                                 : 'chevron-down'
                             }
@@ -1147,30 +1197,30 @@ const fetchTreatmentStages = async () => {
 
                         {expandedSubSystem ===
                           'Flocculation Dosing' && (
-                          <TouchableOpacity
-                            style={styles.settingsMenuItem}
-                            onPress={() =>
-                              handleSettingsPress(
-                                'Flocculation Dosing'
-                              )
-                            }
-                            activeOpacity={0.7}
-                          >
-                            <MaterialCommunityIcons
-                              name="cog-outline"
-                              size={21}
-                              color="#159AA3"
-                            />
-
-                            <Text
-                              style={
-                                styles.settingsMenuText
+                            <TouchableOpacity
+                              style={styles.settingsMenuItem}
+                              onPress={() =>
+                                handleSettingsPress(
+                                  'Flocculation Dosing'
+                                )
                               }
+                              activeOpacity={0.7}
                             >
-                              Settings
-                            </Text>
-                          </TouchableOpacity>
-                        )}
+                              <MaterialCommunityIcons
+                                name="cog-outline"
+                                size={21}
+                                color="#159AA3"
+                              />
+
+                              <Text
+                                style={
+                                  styles.settingsMenuText
+                                }
+                              >
+                                Settings
+                              </Text>
+                            </TouchableOpacity>
+                          )}
 
                         {/* FLOCULATION MIXING */}
 
@@ -1194,7 +1244,7 @@ const fetchTreatmentStages = async () => {
                           <MaterialCommunityIcons
                             name={
                               expandedSubSystem ===
-                              'Flocculation Mixing'
+                                'Flocculation Mixing'
                                 ? 'chevron-up'
                                 : 'chevron-down'
                             }
@@ -1205,30 +1255,30 @@ const fetchTreatmentStages = async () => {
 
                         {expandedSubSystem ===
                           'Flocculation Mixing' && (
-                          <TouchableOpacity
-                            style={styles.settingsMenuItem}
-                            onPress={() =>
-                              handleSettingsPress(
-                                'Flocculation Mixing'
-                              )
-                            }
-                            activeOpacity={0.7}
-                          >
-                            <MaterialCommunityIcons
-                              name="cog-outline"
-                              size={21}
-                              color="#159AA3"
-                            />
-
-                            <Text
-                              style={
-                                styles.settingsMenuText
+                            <TouchableOpacity
+                              style={styles.settingsMenuItem}
+                              onPress={() =>
+                                handleSettingsPress(
+                                  'Flocculation Mixing'
+                                )
                               }
+                              activeOpacity={0.7}
                             >
-                              Settings
-                            </Text>
-                          </TouchableOpacity>
-                        )}
+                              <MaterialCommunityIcons
+                                name="cog-outline"
+                                size={21}
+                                color="#159AA3"
+                              />
+
+                              <Text
+                                style={
+                                  styles.settingsMenuText
+                                }
+                              >
+                                Settings
+                              </Text>
+                            </TouchableOpacity>
+                          )}
                       </View>
                     )}
 
@@ -1238,7 +1288,7 @@ const fetchTreatmentStages = async () => {
 
                   {item === 'Desludging System' &&
                     expandedSystem ===
-                      'Desludging System' && (
+                    'Desludging System' && (
                       <TouchableOpacity
                         style={styles.settingsMenuItem}
                         onPress={() =>
