@@ -10,7 +10,44 @@ export default function InletPumpScreen() {
     const [pumpStartTime, setPumpStartTime] = useState<string | null>(null);
 const [pumpEndTime, setPumpEndTime] = useState<string | null>(null);
 const [pumpDuration, setPumpDuration] = useState<number | null>(null);
-   const handleStartPump = async () => {
+//    const handleStartPump = async () => {
+//   try {
+//     const stageId = await AsyncStorage.getItem('selectedStageId');
+
+//     console.log('Selected Stage ID:', stageId);
+
+//     if (!stageId) {
+//       console.log('Stage ID not found');
+//       return;
+//     }
+
+//     const motorId = 2;
+
+//     console.log('Motor ID:', motorId);
+//     console.log('Stage ID:', Number(stageId));
+
+//     const response = await turnOnMotor(
+//       motorId,
+//       Number(stageId)
+//     );
+
+//     console.log('Motor ON Response:', response);
+
+//     if (response.status === 'ACTIVE') {
+//       // Show only Start Time
+//       setPumpStartTime(response.started_at);
+
+//       // Hide End Time and Running Time
+//       setPumpEndTime(null);
+//       setPumpDuration(null);
+//     }
+
+//   } catch (error) {
+//     console.error('Failed to start pump:', error);
+//   }
+// };
+
+const handleStartPump = async () => {
   try {
     const stageId = await AsyncStorage.getItem('selectedStageId');
 
@@ -32,14 +69,49 @@ const [pumpDuration, setPumpDuration] = useState<number | null>(null);
     );
 
     console.log('Motor ON Response:', response);
+    console.log('Sensors from response:', response.sensors);
 
     if (response.status === 'ACTIVE') {
-      // Show only Start Time
+      // Show Start Time
       setPumpStartTime(response.started_at);
 
       // Hide End Time and Running Time
       setPumpEndTime(null);
       setPumpDuration(null);
+
+      // ================= SENSOR STATUS =================
+
+      const sensors = response.sensors || [];
+
+      const sensor1 = sensors.find(
+        (sensor: any) => sensor.id === 3
+      );
+
+      const sensor2 = sensors.find(
+        (sensor: any) => sensor.id === 4
+      );
+
+      // Store Sensor 1 status
+      await AsyncStorage.setItem(
+        'sensor1Status',
+        sensor1?.status || 'INACTIVE'
+      );
+
+      // Store Sensor 2 status
+      await AsyncStorage.setItem(
+        'sensor2Status',
+        sensor2?.status || 'INACTIVE'
+      );
+
+      console.log(
+        'Sensor 1 Status:',
+        sensor1?.status
+      );
+
+      console.log(
+        'Sensor 2 Status:',
+        sensor2?.status
+      );
     }
 
   } catch (error) {

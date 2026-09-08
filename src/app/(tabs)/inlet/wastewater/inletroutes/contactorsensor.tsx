@@ -1,468 +1,4 @@
-// import React, { useState } from 'react';
-// import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
-// import { SafeAreaView } from 'react-native-safe-area-context';
-// import { MaterialCommunityIcons } from '@expo/vector-icons';
-// import { router } from 'expo-router';
-
-// export default function ContactorSensorScreen() {
-//   const [activeTab, setActiveTab] = useState<'SENSOR 1' | 'SENSOR 2'>('SENSOR 1');
-
-//   return (
-//     <SafeAreaView style={styles.container}>
-//       {/* Header */}
-//       <View style={styles.header}>
-//         <TouchableOpacity style={styles.backButton} onPress={() => router.navigate('/settings')}>
-//           <MaterialCommunityIcons name="arrow-left" size={24} color="#1E3A8A" />
-//         </TouchableOpacity>
-//         <View style={styles.headerTitleContainer}>
-//           <Text style={styles.headerTitle}>Contactless Sensors</Text>
-//           <Text style={styles.headerSubtitle}>Manual Control</Text>
-//         </View>
-//         <View style={styles.backButton} />
-//       </View>
-//       <View style={styles.headerBorder} />
-
-//       <ScrollView contentContainerStyle={styles.scrollContent}>
-        
-//         {/* Sensor Status Card */}
-//         <View style={styles.card}>
-//           <View style={styles.statusCardContent}>
-//             <Image 
-//               source={require('@/assets/images/contactor.png')} 
-//               style={styles.sensorLargeIcon} 
-//               resizeMode="contain" 
-//             />
-//             <View style={styles.statusTextContainer}>
-//               <Text style={styles.statusTitle}>Sensor Status</Text>
-//               <View style={styles.statusRow}>
-//                 <View style={styles.statusDotGreen} />
-//                 <Text style={styles.statusTextGreen}>Connected</Text>
-//               </View>
-//               <Text style={styles.statusSubtitle}>2 sensors online</Text>
-//             </View>
-//             <View style={styles.activeBadge}>
-//               <Text style={styles.activeBadgeText}>ACTIVE</Text>
-//             </View>
-//           </View>
-//         </View>
-
-//         {/* Tabs */}
-//         <View style={styles.tabsContainer}>
-//           <TouchableOpacity 
-//             style={[styles.tabButton, activeTab === 'SENSOR 1' && styles.tabButtonActive]}
-//             onPress={() => setActiveTab('SENSOR 1')}
-//           >
-//             <Text style={[styles.tabButtonText, activeTab === 'SENSOR 1' && styles.tabButtonTextActive]}>
-//               SENSOR 1
-//             </Text>
-//           </TouchableOpacity>
-//           <TouchableOpacity 
-//             style={[styles.tabButton, activeTab === 'SENSOR 2' && styles.tabButtonActive]}
-//             onPress={() => setActiveTab('SENSOR 2')}
-//           >
-//             <Text style={[styles.tabButtonText, activeTab === 'SENSOR 2' && styles.tabButtonTextActive]}>
-//               SENSOR 2
-//             </Text>
-//           </TouchableOpacity>
-//         </View>
-
-//         {/* Manual Control Card */}
-//         <View style={styles.card}>
-//           <Text style={styles.cardTitle}>Contactless Sensor {activeTab === 'SENSOR 1' ? '1' : '2'}</Text>
-//           <Text style={styles.cardSubtitle}>Manual monitoring control</Text>
-//           <View style={styles.actionButtonsContainer}>
-//             <TouchableOpacity style={styles.startButton}>
-//               <MaterialCommunityIcons name="access-point" size={24} color="#FFFFFF" />
-//               <Text style={styles.startButtonText}>START MONITORING</Text>
-//             </TouchableOpacity>
-            
-//             <TouchableOpacity style={styles.stopButton}>
-//               <MaterialCommunityIcons name="stop-circle-outline" size={24} color="#DC2626" />
-//               <Text style={styles.stopButtonText}>STOP MONITORING</Text>
-//             </TouchableOpacity>
-//           </View>
-//         </View>
-
-//         {/* Monitoring Schedule Card */}
-//         <View style={styles.card}>
-//           <Text style={styles.cardTitle}>Monitoring Schedule</Text>
-//           <Text style={styles.cardSubtitle}>Set the sensor detection window</Text>
-          
-//           <View style={styles.scheduleRow}>
-//             <View style={styles.scheduleLabelContainer}>
-//               <MaterialCommunityIcons name="clock-outline" size={22} color="#1A5B9C" />
-//               <Text style={styles.scheduleLabel}>Start Time</Text>
-//             </View>
-//             <View style={styles.timeInputBox}>
-//               <Text style={styles.timeInputText}>08:15 AM</Text>
-//             </View>
-//           </View>
-
-//           <View style={styles.divider} />
-
-//           <View style={styles.scheduleRow}>
-//             <View style={styles.scheduleLabelContainer}>
-//               <MaterialCommunityIcons name="clock-outline" size={22} color="#1A5B9C" />
-//               <Text style={styles.scheduleLabel}>End Time</Text>
-//             </View>
-//             <View style={styles.timeInputBox}>
-//               <Text style={styles.timeInputText}>06:15 PM</Text>
-//             </View>
-//           </View>
-
-//           <View style={styles.divider} />
-
-//           <View style={styles.scheduleRow}>
-//             <View style={styles.scheduleLabelContainer}>
-//               <MaterialCommunityIcons name="clock-outline" size={22} color="#1A5B9C" />
-//               <Text style={styles.scheduleLabel}>Running Time</Text>
-//             </View>
-//             <View style={styles.timeInputBox}>
-//               <Text style={styles.timeInputText}>10 hr</Text>
-//             </View>
-//           </View>
-
-//           <TouchableOpacity style={styles.saveButton}>
-//             <Text style={styles.saveButtonText}>SAVE SCHEDULE</Text>
-//           </TouchableOpacity>
-//         </View>
-
-//         <View style={styles.infoRow}>
-//           <MaterialCommunityIcons name="information-outline" size={16} color="#6B7280" />
-//           <Text style={styles.infoText}>Switch to Sensor 2 to view its schedule and history.</Text>
-//         </View>
-
-//         {/* Detection Log Card */}
-//         <View style={styles.card}>
-//           <View style={styles.logHeader}>
-//             <Text style={styles.cardTitle}>Detection Log</Text>
-//             <TouchableOpacity style={styles.viewAllRow}>
-//               <Text style={styles.viewAllText}>View All</Text>
-//               <MaterialCommunityIcons name="chevron-right" size={20} color="#0D9488" />
-//             </TouchableOpacity>
-//           </View>
-
-//           <View style={styles.logRow}>
-//             <Text style={styles.logTime}>Today, 09:42 AM</Text>
-//             <View style={styles.logStatusContainer}>
-//               <Text style={styles.logStatusText}>Object Detected</Text>
-//               <View style={[styles.logStatusDot, { backgroundColor: '#10B981' }]} />
-//             </View>
-//           </View>
-
-//           <View style={styles.logDivider} />
-
-//           <View style={styles.logRow}>
-//             <Text style={styles.logTime}>Today, 08:15 AM</Text>
-//             <View style={styles.logStatusContainer}>
-//               <Text style={styles.logStatusText}>Monitoring Started</Text>
-//               <View style={[styles.logStatusDot, { backgroundColor: '#10B981' }]} />
-//             </View>
-//           </View>
-
-//           <View style={styles.logDivider} />
-
-//           <View style={styles.logRow}>
-//             <Text style={styles.logTime}>Yesterday, 06:15 PM</Text>
-//             <View style={styles.logStatusContainer}>
-//               <Text style={styles.logStatusText}>Monitoring Stopped</Text>
-//               <View style={[styles.logStatusDot, { backgroundColor: '#6B7280' }]} />
-//             </View>
-//           </View>
-
-//         </View>
-
-//       </ScrollView>
-//     </SafeAreaView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#F8F9FA',
-//   },
-//   header: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     justifyContent: 'space-between',
-//     paddingHorizontal: 16,
-//     paddingTop: 16,
-//     paddingBottom: 16,
-//     backgroundColor: '#FFFFFF',
-//   },
-//   headerBorder: {
-//     height: 1,
-//     backgroundColor: '#E5E7EB',
-//   },
-//   backButton: {
-//     width: 40,
-//     height: 40,
-//     justifyContent: 'center',
-//   },
-//   headerTitleContainer: {
-//     alignItems: 'center',
-//   },
-//   headerTitle: {
-//     fontSize: 18,
-//     fontWeight: '700',
-//     color: '#1E3A8A',
-//   },
-//   headerSubtitle: {
-//     fontSize: 13,
-//     color: '#6B7280',
-//     marginTop: 2,
-//   },
-//   scrollContent: {
-//     padding: 16,
-//     paddingBottom: 40,
-//   },
-//   card: {
-//     backgroundColor: '#FFFFFF',
-//     borderRadius: 12,
-//     padding: 16,
-//     borderWidth: 1,
-//     borderColor: '#F3F4F6',
-//     marginBottom: 16,
-//     shadowColor: '#000',
-//     shadowOffset: {
-//       width: 0,
-//       height: 2,
-//     },
-//     shadowOpacity: 0.05,
-//     shadowRadius: 3,
-//     elevation: 2,
-//   },
-//   statusCardContent: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//   },
-//   sensorLargeIcon: {
-//     width: 50,
-//     height: 50,
-//     marginRight: 16,
-//   },
-//   statusTextContainer: {
-//     flex: 1,
-//   },
-//   statusTitle: {
-//     fontSize: 16,
-//     fontWeight: '700',
-//     color: '#111827',
-//   },
-//   statusRow: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     marginTop: 4,
-//     marginBottom: 2,
-//   },
-//   statusDotGreen: {
-//     width: 8,
-//     height: 8,
-//     borderRadius: 4,
-//     backgroundColor: '#10B981',
-//     marginRight: 6,
-//   },
-//   statusTextGreen: {
-//     fontSize: 14,
-//     color: '#10B981',
-//     fontWeight: '500',
-//   },
-//   statusSubtitle: {
-//     fontSize: 12,
-//     color: '#6B7280',
-//   },
-//   activeBadge: {
-//     backgroundColor: '#0D9488',
-//     paddingHorizontal: 12,
-//     paddingVertical: 6,
-//     borderRadius: 4,
-//   },
-//   activeBadgeText: {
-//     fontSize: 13,
-//     fontWeight: '600',
-//     color: '#FFFFFF',
-//   },
-//   tabsContainer: {
-//     flexDirection: 'row',
-//     backgroundColor: '#FFFFFF',
-//     borderRadius: 8,
-//     borderWidth: 1,
-//     borderColor: '#E5E7EB',
-//     marginBottom: 16,
-//     overflow: 'hidden',
-//   },
-//   tabButton: {
-//     flex: 1,
-//     paddingVertical: 12,
-//     alignItems: 'center',
-//     backgroundColor: '#FFFFFF',
-//   },
-//   tabButtonActive: {
-//     backgroundColor: '#0D9488',
-//   },
-//   tabButtonText: {
-//     fontSize: 14,
-//     fontWeight: '600',
-//     color: '#111827',
-//   },
-//   tabButtonTextActive: {
-//     color: '#FFFFFF',
-//   },
-//   cardTitle: {
-//     fontSize: 16,
-//     fontWeight: '700',
-//     color: '#111827',
-//     marginBottom: 4,
-//   },
-//   cardSubtitle: {
-//     fontSize: 13,
-//     color: '#6B7280',
-//     marginBottom: 16,
-//   },
-//   actionButtonsContainer: {
-//     flexDirection: 'row',
-//     gap: 12,
-//     marginTop: 8,
-//   },
-//   startButton: {
-//     flex: 1,
-//     backgroundColor: '#0D9488',
-//     borderRadius: 8,
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     paddingVertical: 14,
-//   },
-//   startButtonText: {
-//     color: '#FFFFFF',
-//     fontWeight: '600',
-//     fontSize: 13,
-//     marginLeft: 6,
-//   },
-//   stopButton: {
-//     flex: 1,
-//     backgroundColor: '#FFFFFF',
-//     borderWidth: 1,
-//     borderColor: '#DC2626',
-//     borderRadius: 8,
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     paddingVertical: 14,
-//   },
-//   stopButtonText: {
-//     color: '#DC2626',
-//     fontWeight: '600',
-//     fontSize: 13,
-//     marginLeft: 6,
-//   },
-//   scheduleRow: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     justifyContent: 'space-between',
-//     paddingVertical: 8,
-//   },
-//   scheduleLabelContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//   },
-//   scheduleLabel: {
-//     fontSize: 15,
-//     fontWeight: '600',
-//     color: '#111827',
-//     marginLeft: 12,
-//   },
-//   timeInputBox: {
-//     borderWidth: 1,
-//     borderColor: '#E5E7EB',
-//     borderRadius: 6,
-//     paddingHorizontal: 16,
-//     paddingVertical: 8,
-//     minWidth: 100,
-//     alignItems: 'center',
-//   },
-//   timeInputText: {
-//     fontSize: 14,
-//     color: '#4B5563',
-//     fontWeight: '500',
-//   },
-//   divider: {
-//     height: 1,
-//     backgroundColor: '#F3F4F6',
-//     marginVertical: 4,
-//   },
-//   saveButton: {
-//     backgroundColor: '#0D9488',
-//     borderRadius: 8,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     paddingVertical: 14,
-//     marginTop: 16,
-//   },
-//   saveButtonText: {
-//     color: '#FFFFFF',
-//     fontWeight: '600',
-//     fontSize: 14,
-//   },
-//   infoRow: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     marginBottom: 16,
-//     paddingHorizontal: 4,
-//   },
-//   infoText: {
-//     fontSize: 13,
-//     color: '#6B7280',
-//     marginLeft: 6,
-//   },
-//   logHeader: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     marginBottom: 16,
-//   },
-//   viewAllRow: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//   },
-//   viewAllText: {
-//     fontSize: 13,
-//     color: '#0D9488',
-//     fontWeight: '500',
-//   },
-//   logRow: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     paddingVertical: 10,
-//   },
-//   logTime: {
-//     fontSize: 14,
-//     color: '#4B5563',
-//   },
-//   logStatusContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//   },
-//   logStatusText: {
-//     fontSize: 14,
-//     color: '#4B5563',
-//     marginRight: 8,
-//   },
-//   logStatusDot: {
-//     width: 8,
-//     height: 8,
-//     borderRadius: 4,
-//   },
-//   logDivider: {
-//     height: 1,
-//     backgroundColor: '#F3F4F6',
-//     marginVertical: 4,
-//   },
-// });
-
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -475,65 +11,96 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { turnOnMotor } from '../../../../../api/inletApi';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function ContactorSensorScreen() {
   const [activeTab, setActiveTab] = useState<'SENSOR 1' | 'SENSOR 2'>(
     'SENSOR 1'
   );
 
-  const [isPowerOn, setIsPowerOn] = useState(false);
+  //   const [isPowerOn, setIsPowerOn] = useState(false);
+  //   const [sensor1Status, setSensor1Status] = useState('INACTIVE');
+  // const [sensor2Status, setSensor2Status] = useState('INACTIVE');
   const [sensor1Status, setSensor1Status] = useState('INACTIVE');
-const [sensor2Status, setSensor2Status] = useState('INACTIVE');
+  const [sensor2Status, setSensor2Status] = useState('INACTIVE')
 
-const handlePowerOn = async () => {
-  try {
-    const stageId = await AsyncStorage.getItem('selectedStageId');
+  // const handlePowerOn = async () => {
+  //   try {
+  //     const stageId = await AsyncStorage.getItem('selectedStageId');
 
-    console.log('Selected Stage ID:', stageId);
+  //     console.log('Selected Stage ID:', stageId);
 
-    if (!stageId) {
-      console.log('Stage ID not found');
-      return;
-    }
+  //     if (!stageId) {
+  //       console.log('Stage ID not found');
+  //       return;
+  //     }
 
-    // Motor ID = 2
-    const motorId = 2;
+  //     const motorId = 2;
 
-    const response = await turnOnMotor(
-      motorId,
-      Number(stageId)
-    );
+  //     const response = await turnOnMotor(
+  //       motorId,
+  //       Number(stageId)
+  //     );
 
-    console.log('Motor ON Response:', response);
+  //     console.log('Motor ON Response:', response);
 
-    if (response.status === 'ACTIVE') {
-      setIsPowerOn(true);
+  //     if (response.status === 'ACTIVE') {
+  //       setIsPowerOn(true);
 
-      // Get sensor status from API response
-      const sensors = response.sensors || [];
+  //       const sensors = response.sensors || [];
 
-      const sensor1 = sensors.find(
-        (sensor: any) => sensor.id === 3
-      );
+  //       const sensor1 = sensors.find(
+  //         (sensor: any) => sensor.id === 3
+  //       );
 
-      const sensor2 = sensors.find(
-        (sensor: any) => sensor.id === 4
-      );
+  //       const sensor2 = sensors.find(
+  //         (sensor: any) => sensor.id === 4
+  //       );
 
-      setSensor1Status(
-        sensor1?.status || 'INACTIVE'
-      );
+  //       setSensor1Status(
+  //         sensor1?.status || 'INACTIVE'
+  //       );
 
-      setSensor2Status(
-        sensor2?.status || 'INACTIVE'
-      );
-    }
+  //       setSensor2Status(
+  //         sensor2?.status || 'INACTIVE'
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to power on:', error);
+  //   }
+  // };
 
-  } catch (error) {
-    console.error('Failed to power on:', error);
-  }
-};
+  useFocusEffect(
+    useCallback(() => {
+      const loadSensorStatus = async () => {
+        try {
+          const sensor1 = await AsyncStorage.getItem('sensor1Status');
+          const sensor2 = await AsyncStorage.getItem('sensor2Status');
+
+          console.log('Sensor 1 Status:', sensor1);
+          console.log('Sensor 2 Status:', sensor2);
+
+          setSensor1Status(sensor1 || 'INACTIVE');
+          setSensor2Status(sensor2 || 'INACTIVE');
+        } catch (error) {
+          console.error('Error loading sensor status:', error);
+        }
+      };
+
+      loadSensorStatus();
+    }, [])
+  );
+
+  const activeSensorCount = [
+    sensor1Status,
+    sensor2Status,
+  ].filter(status => status === 'ACTIVE').length;
+
+  const selectedSensorStatus =
+    activeTab === 'SENSOR 1'
+      ? sensor1Status
+      : sensor2Status;
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -584,7 +151,7 @@ const handlePowerOn = async () => {
                 Sensor Status
               </Text>
 
-              <View style={styles.statusRow}>
+              {/* <View style={styles.statusRow}>
                 <View
                   style={[
                     styles.statusDotGreen,
@@ -614,9 +181,45 @@ const handlePowerOn = async () => {
                 {isPowerOn
                   ? '2 sensors online'
                   : '2 sensors offline'}
+              </Text> */}
+
+              <View style={styles.statusRow}>
+                <View
+                  style={[
+                    styles.statusDotGreen,
+                    {
+                      backgroundColor:
+                        activeSensorCount > 0
+                          ? '#10B981'
+                          : '#9CA3AF',
+                    },
+                  ]}
+                />
+
+                <Text
+                  style={[
+                    styles.statusTextGreen,
+                    {
+                      color:
+                        activeSensorCount > 0
+                          ? '#10B981'
+                          : '#6B7280',
+                    },
+                  ]}
+                >
+                  {activeSensorCount > 0 ? 'Connected' : 'Offline'}
+                </Text>
+              </View>
+
+              <Text style={styles.statusSubtitle}>
+                {activeSensorCount === 2
+                  ? '2 sensors online'
+                  : activeSensorCount === 1
+                    ? '1 sensor online'
+                    : '2 sensors offline'}
               </Text>
             </View>
-
+            {/* 
             <View
               style={[
                 styles.statusBadge,
@@ -639,6 +242,32 @@ const handlePowerOn = async () => {
               >
                 {isPowerOn ? 'ACTIVE' : 'OFF'}
               </Text>
+            </View> */}
+
+            <View
+              style={[
+                styles.statusBadge,
+                {
+                  backgroundColor:
+                    activeSensorCount > 0
+                      ? '#0D9488'
+                      : '#F3F4F6',
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.statusBadgeText,
+                  {
+                    color:
+                      activeSensorCount > 0
+                        ? '#FFFFFF'
+                        : '#6B7280',
+                  },
+                ]}
+              >
+                {activeSensorCount > 0 ? 'ACTIVE' : 'OFF'}
+              </Text>
             </View>
 
           </View>
@@ -651,7 +280,7 @@ const handlePowerOn = async () => {
             style={[
               styles.tabButton,
               activeTab === 'SENSOR 1' &&
-                styles.tabButtonActive,
+              styles.tabButtonActive,
             ]}
             onPress={() => setActiveTab('SENSOR 1')}
           >
@@ -659,7 +288,7 @@ const handlePowerOn = async () => {
               style={[
                 styles.tabButtonText,
                 activeTab === 'SENSOR 1' &&
-                  styles.tabButtonTextActive,
+                styles.tabButtonTextActive,
               ]}
             >
               SENSOR 1
@@ -670,7 +299,7 @@ const handlePowerOn = async () => {
             style={[
               styles.tabButton,
               activeTab === 'SENSOR 2' &&
-                styles.tabButtonActive,
+              styles.tabButtonActive,
             ]}
             onPress={() => setActiveTab('SENSOR 2')}
           >
@@ -678,7 +307,7 @@ const handlePowerOn = async () => {
               style={[
                 styles.tabButtonText,
                 activeTab === 'SENSOR 2' &&
-                  styles.tabButtonTextActive,
+                styles.tabButtonTextActive,
               ]}
             >
               SENSOR 2
@@ -688,7 +317,7 @@ const handlePowerOn = async () => {
         </View>
 
         {/* ================= POWER CONTROL ================= */}
-        <View style={styles.card}>
+        {/* <View style={styles.card}>
 
           <Text style={styles.cardTitle}>
             Sensor Power Control
@@ -717,7 +346,7 @@ const handlePowerOn = async () => {
             </Text>
           </TouchableOpacity>
 
-        </View>
+        </View> */}
 
         {/* ================= DETECTION LOG ================= */}
         <View style={styles.card}>
