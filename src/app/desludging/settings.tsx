@@ -11,7 +11,7 @@ import {
   ImageSourcePropType,
   Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
@@ -64,6 +64,7 @@ export default function Settings(): React.JSX.Element {
   const router = useRouter();
 
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   /* ==========================================================
      MANUAL SELECTED BY DEFAULT
@@ -771,69 +772,55 @@ export default function Settings(): React.JSX.Element {
             BOTTOM NAVIGATION
         ================================================== */}
 
-        <View
-          style={[
-            styles.bottomNav,
-            {
-              height:
-                Platform.OS === "ios"
-                  ? s(93)
-                  : s(78),
+        {/* ==================================================
+    BOTTOM NAVIGATION
+================================================== */}
 
-              paddingBottom:
-                Platform.OS === "ios"
-                  ? s(8)
-                  : 0,
-            },
-          ]}
-        >
+<View
+  style={[
+    styles.bottomNav,
+    {
+      height: (Platform.OS === "ios" ? s(93) : s(78)) + insets.bottom,
+      paddingBottom: (Platform.OS === "ios" ? s(8) : 0) + insets.bottom,
+    },
+  ]}
+>
+  {/* DASHBOARD */}
+  <BottomNavItem
+    icon="home-outline"
+    label="Dashboard"
+    size={s(31)}
+  />
 
-          {/* DASHBOARD */}
+  {/* CONTROL */}
+  <BottomNavItem
+    icon="options-outline"
+    label="Control"
+    size={s(31)}
+  />
 
-          <BottomNavItem
-            icon="home-outline"
-            label="Dashboard"
-            size={s(31)}
-          />
+  {/* TIMING */}
+  <BottomNavItem
+    icon="time-outline"
+    label="Timing"
+    size={s(31)}
+  />
 
+  {/* ALARMS */}
+  <BottomNavItem
+    icon="notifications-outline"
+    label="Alarms"
+    size={s(31)}
+  />
 
-          {/* CONTROL */}
-
-          <BottomNavItem
-            icon="options-outline"
-            label="Control"
-            size={s(31)}
-          />
-
-
-          {/* TIMING */}
-
-          <BottomNavItem
-            icon="time-outline"
-            label="Timing"
-            size={s(31)}
-          />
-
-
-          {/* ALARMS */}
-
-          <BottomNavItem
-            icon="notifications-outline"
-            label="Alarms"
-            size={s(31)}
-          />
-
-
-          {/* SETTINGS */}
-
-          <BottomNavItem
-            icon="settings"
-            label="Settings"
-            active
-            size={s(31)}
-          />
-
-        </View>
+  {/* SETTINGS */}
+  <BottomNavItem
+    icon="settings"
+    label="Settings"
+    active
+    size={s(31)}
+  />
+</View>
 
       </View>
     </SafeAreaView>

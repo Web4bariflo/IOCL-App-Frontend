@@ -18,34 +18,34 @@ export default function ContactorSensorScreen() {
     'SENSOR 1'
   );
 
-  const [sensor1Status, setSensor1Status] = useState('INACTIVE');
-const [sensor2Status, setSensor2Status] = useState('INACTIVE');
+  const [sensor3Status, setSensor3Status] = useState('INACTIVE');
+  const [sensor4Status, setSensor4Status] = useState('INACTIVE');
 
-useFocusEffect(
-  useCallback(() => {
-    const loadSensorStatus = async () => {
-      try {
-        const sensor1 = await AsyncStorage.getItem('sensor1Status');
-        const sensor2 = await AsyncStorage.getItem('sensor2Status');
+  useFocusEffect(
+    useCallback(() => {
+      const loadSensorStatus = async () => {
+        try {
+          const sensor3 = await AsyncStorage.getItem('sensor3Status');
+          const sensor4 = await AsyncStorage.getItem('sensor4Status');
 
-        console.log('Sensor 1 Status:', sensor1);
-        console.log('Sensor 2 Status:', sensor2);
+          console.log('Sensor 3 Status:', sensor3);
+          console.log('Sensor 4 Status:', sensor4);
 
-        setSensor1Status(sensor1 || 'INACTIVE');
-        setSensor2Status(sensor2 || 'INACTIVE');
-      } catch (error) {
-        console.error('Error loading sensor status:', error);
-      }
-    };
+          setSensor3Status(sensor3 || 'INACTIVE');
+          setSensor4Status(sensor4 || 'INACTIVE');
+        } catch (error) {
+          console.error('Error loading sensor status:', error);
+        }
+      };
 
-    loadSensorStatus();
-  }, [])
-);
+      loadSensorStatus();
+    }, [])
+  );
 
-const activeSensorCount = [
-  sensor1Status,
-  sensor2Status,
-].filter(status => status === 'ACTIVE').length;
+  const activeSensorCount = [
+    sensor3Status,
+    sensor4Status,
+  ].filter(status => status === 'ACTIVE').length;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -96,68 +96,68 @@ const activeSensorCount = [
                 Sensor Status
               </Text>
 
-             <View style={styles.statusRow}>
-  <View
-    style={[
-      styles.statusDotGreen,
-      {
-        backgroundColor:
-          activeSensorCount > 0
-            ? '#10B981'
-            : '#9CA3AF',
-      },
-    ]}
-  />
+              <View style={styles.statusRow}>
+                <View
+                  style={[
+                    styles.statusDotGreen,
+                    {
+                      backgroundColor:
+                        activeSensorCount > 0
+                          ? '#10B981'
+                          : '#9CA3AF',
+                    },
+                  ]}
+                />
 
-  <Text
-    style={[
-      styles.statusTextGreen,
-      {
-        color:
-          activeSensorCount > 0
-            ? '#10B981'
-            : '#6B7280',
-      },
-    ]}
-  >
-    {activeSensorCount > 0 ? 'Connected' : 'Offline'}
-  </Text>
-</View>
+                <Text
+                  style={[
+                    styles.statusTextGreen,
+                    {
+                      color:
+                        activeSensorCount > 0
+                          ? '#10B981'
+                          : '#6B7280',
+                    },
+                  ]}
+                >
+                  {activeSensorCount > 0 ? 'Connected' : 'Offline'}
+                </Text>
+              </View>
 
-<Text style={styles.statusSubtitle}>
-  {activeSensorCount === 2
-    ? '2 sensors online'
-    : activeSensorCount === 1
-      ? '1 sensor online'
-      : '2 sensors offline'}
-</Text>
+              <Text style={styles.statusSubtitle}>
+                {activeSensorCount === 2
+                  ? '2 sensors online'
+                  : activeSensorCount === 1
+                    ? '1 sensor online'
+                    : '2 sensors offline'}
+              </Text>
             </View>
 
-           <View
-  style={[
-    styles.statusBadge,
-    {
-      backgroundColor:
-        activeSensorCount > 0
-          ? '#0D9488'
-          : '#F3F4F6',
-    },
-  ]}
->
-  <Text
-    style={[
-      styles.statusBadgeText,
-      {
-        color:
-          activeSensorCount > 0
-            ? '#FFFFFF'
-            : '#6B7280',
-      },
-    ]}
-  >
-    {activeSensorCount > 0 ? 'ACTIVE' : 'OFF'}
-  </Text>
-</View>
+            <View
+              style={[
+                styles.statusBadge,
+                {
+                  backgroundColor:
+                    activeSensorCount > 0
+                      ? '#0D9488'
+                      : '#F3F4F6',
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.statusBadgeText,
+                  {
+                    color:
+                      activeSensorCount > 0
+                        ? '#FFFFFF'
+                        : '#6B7280',
+                  },
+                ]}
+              >
+                {activeSensorCount > 0 ? 'ACTIVE' : 'OFF'}
+              </Text>
+            </View>
 
           </View>
         </View>
@@ -169,7 +169,7 @@ const activeSensorCount = [
             style={[
               styles.tabButton,
               activeTab === 'SENSOR 1' &&
-                styles.tabButtonActive,
+              styles.tabButtonActive,
             ]}
             onPress={() => setActiveTab('SENSOR 1')}
           >
@@ -177,7 +177,7 @@ const activeSensorCount = [
               style={[
                 styles.tabButtonText,
                 activeTab === 'SENSOR 1' &&
-                  styles.tabButtonTextActive,
+                styles.tabButtonTextActive,
               ]}
             >
               SENSOR 1
@@ -188,7 +188,7 @@ const activeSensorCount = [
             style={[
               styles.tabButton,
               activeTab === 'SENSOR 2' &&
-                styles.tabButtonActive,
+              styles.tabButtonActive,
             ]}
             onPress={() => setActiveTab('SENSOR 2')}
           >
@@ -196,7 +196,7 @@ const activeSensorCount = [
               style={[
                 styles.tabButtonText,
                 activeTab === 'SENSOR 2' &&
-                  styles.tabButtonTextActive,
+                styles.tabButtonTextActive,
               ]}
             >
               SENSOR 2

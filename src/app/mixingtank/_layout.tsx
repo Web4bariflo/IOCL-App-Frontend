@@ -1,3 +1,4 @@
+
 // import { Tabs } from 'expo-router';
 // import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -63,6 +64,36 @@
 //           ),
 //         }}
 //       />
+
+//       {/* These are pages, NOT footer tabs */}
+
+// <Tabs.Screen
+//   name="mixingtank-setting/inletpump"
+//   options={{
+//     href: null,
+//   }}
+// />
+
+// <Tabs.Screen
+//   name="mixingtank-setting/contactorsensor"
+//   options={{
+//     href: null,
+//   }}
+// />
+
+// <Tabs.Screen
+//   name="mixingtank-setting/solenoid"
+//   options={{
+//     href: null,
+//   }}
+// />
+
+// <Tabs.Screen
+//   name="mixingtank-setting/steppermotor"
+//   options={{
+//     href: null,
+//   }}
+// />
 //     </Tabs>
 //   );
 // }
@@ -70,8 +101,11 @@
 
 import { Tabs } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function MixingTankLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
@@ -79,8 +113,9 @@ export default function MixingTankLayout() {
         tabBarActiveTintColor: '#159AA3',
         tabBarInactiveTintColor: '#6B7280',
         tabBarStyle: {
-          height: 65,
-          paddingBottom: 5,
+          backgroundColor: '#FFFFFF',
+          height: 65 + insets.bottom,
+          paddingBottom: 5 + insets.bottom,
         },
       }}
     >
@@ -136,33 +171,33 @@ export default function MixingTankLayout() {
 
       {/* These are pages, NOT footer tabs */}
 
-<Tabs.Screen
-  name="mixingtank-setting/inletpump"
-  options={{
-    href: null,
-  }}
-/>
+      <Tabs.Screen
+        name="mixingtank-setting/inletpump"
+        options={{
+          href: null,
+        }}
+      />
 
-<Tabs.Screen
-  name="mixingtank-setting/contactorsensor"
-  options={{
-    href: null,
-  }}
-/>
+      <Tabs.Screen
+        name="mixingtank-setting/contactorsensor"
+        options={{
+          href: null,
+        }}
+      />
 
-<Tabs.Screen
-  name="mixingtank-setting/solenoid"
-  options={{
-    href: null,
-  }}
-/>
+      <Tabs.Screen
+        name="mixingtank-setting/solenoid"
+        options={{
+          href: null,
+        }}
+      />
 
-<Tabs.Screen
-  name="mixingtank-setting/steppermotor"
-  options={{
-    href: null,
-  }}
-/>
+      <Tabs.Screen
+        name="mixingtank-setting/steppermotor"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

@@ -151,6 +151,31 @@ const handleStopPump = async () => {
 
       // Show Running Time
       setPumpDuration(response.duration_seconds);
+
+      // Get sensors from OFF response
+      const sensors = response.sensors || [];
+
+      const sensor1 = sensors.find(
+        (sensor: any) => sensor.id === 3
+      );
+
+      const sensor2 = sensors.find(
+        (sensor: any) => sensor.id === 4
+      );
+
+      // Save sensor status as INACTIVE
+      await AsyncStorage.setItem(
+        'sensor1Status',
+        sensor1?.status || 'INACTIVE'
+      );
+
+      await AsyncStorage.setItem(
+        'sensor2Status',
+        sensor2?.status || 'INACTIVE'
+      );
+
+      console.log('Sensor 1 Status:', sensor1?.status);
+      console.log('Sensor 2 Status:', sensor2?.status);
     }
 
   } catch (error) {
