@@ -1,15 +1,130 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { turnOnMotor, turnOffMotor } from '../../../../../api/inletApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function InletPumpScreen() {
+     const [pumpStartTime, setPumpStartTime] = useState<string | null>(null);
+  const [pumpEndTime, setPumpEndTime] = useState<string | null>(null);
+  const [pumpDuration, setPumpDuration] = useState<number | null>(null);
+
+
+  const handleStartPump = async () => {
+  try {
+    const stageId = await AsyncStorage.getItem(
+      'cleanWaterStageId'
+    );
+
+    const motorId = await AsyncStorage.getItem(
+      'cleanWaterPumpMotorId'
+    );
+
+    console.log('Stage ID:', stageId);
+    console.log('Motor Equipment ID:', motorId);
+
+    if (!stageId) {
+      console.log('Stage ID not found');
+      return;
+    }
+
+    if (!motorId) {
+      console.log('Motor Equipment ID not found');
+      return;
+    }
+
+    const response = await turnOnMotor(
+      Number(motorId),
+      Number(stageId)
+    );
+
+    console.log('Motor ON Response:', response);
+    console.log('Sensors from response:', response.sensors);
+
+    if (response.status === 'ACTIVE') {
+      setPumpStartTime(response.started_at);
+
+      setPumpEndTime(null);
+      setPumpDuration(null);
+const sensors = response.sensors || [];
+
+const sensor1 = sensors.find(
+  (sensor: any) => sensor.id === 7
+);
+
+const sensor2 = sensors.find(
+  (sensor: any) => sensor.id === 8
+);
+
+await AsyncStorage.setItem(
+  'sensor1Status',
+  sensor1?.status || 'INACTIVE'
+);
+
+await AsyncStorage.setItem(
+  'sensor2Status',
+  sensor2?.status || 'INACTIVE'
+);
+
+console.log('Sensor 1 Status:', sensor1?.status);
+console.log('Sensor 2 Status:', sensor2?.status);
+    }
+
+  } catch (error) {
+    console.error('Failed to start pump:', error);
+  }
+};
+
+const handleStopPump = async () => {
+  try {
+    const stageId = await AsyncStorage.getItem(
+      'selectedStageId'
+    );
+
+    const motorId = await AsyncStorage.getItem(
+      'cleanWaterPumpMotorId'
+    );
+
+    console.log('Stage ID:', stageId);
+    console.log('Motor Equipment ID:', motorId);
+
+    if (!stageId) {
+      console.log('Stage ID not found');
+      return;
+    }
+
+    if (!motorId) {
+      console.log('Motor Equipment ID not found');
+      return;
+    }
+
+    const response = await turnOffMotor(
+      Number(motorId),
+      Number(stageId)
+    );
+
+    console.log('Motor OFF Response:', response);
+
+    if (response.status === 'INACTIVE') {
+      setPumpStartTime(null);
+
+      setPumpEndTime(response.ended_at);
+
+      setPumpDuration(response.duration_seconds);
+    }
+
+  } catch (error) {
+    console.error('Failed to stop pump:', error);
+  }
+};
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.navigate('/settings')}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.navigate('/(tabs)/inlet/cleanwater/settings')}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="#1E3A8A" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
@@ -44,65 +159,122 @@ export default function InletPumpScreen() {
           </View>
         </View>
 
-        {/* Manual Control Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Manual Control</Text>
-          <View style={styles.actionButtonsContainer}>
-            <TouchableOpacity style={styles.startButton}>
-              <MaterialCommunityIcons name="power" size={24} color="#FFFFFF" />
-              <Text style={styles.startButtonText}>START PUMP</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.stopButton}>
-              <MaterialCommunityIcons name="stop-circle-outline" size={24} color="#DC2626" />
-              <Text style={styles.stopButtonText}>STOP PUMP</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+       
+               {/* Manual Control Card */}
+               <View style={styles.card}>
+                 <Text style={styles.cardTitle}>Manual Control</Text>
+                 <View style={styles.actionButtonsContainer}>
+                   {/* <TouchableOpacity style={styles.startButton}>
+                     <MaterialCommunityIcons name="power" size={24} color="#FFFFFF" />
+                     <Text style={styles.startButtonText}>START PUMP</Text>
+                   </TouchableOpacity> */}
+                   <TouchableOpacity
+         style={styles.startButton}
+         onPress={handleStartPump}
+       >
+         <MaterialCommunityIcons
+           name="power"
+           size={24}
+           color="#FFFFFF"
+         />
+         <Text style={styles.startButtonText}>START PUMP</Text>
+       </TouchableOpacity>
+                   
+                   <TouchableOpacity
+         style={styles.stopButton}
+         onPress={handleStopPump}
+       >
+         <MaterialCommunityIcons
+           name="stop-circle-outline"
+           size={24}
+           color="#DC2626"
+         />
+         <Text style={styles.stopButtonText}>STOP PUMP</Text>
+       </TouchableOpacity>
+                 </View>
+               </View>
 
         {/* Operating Schedule Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Operating Schedule</Text>
-          <Text style={styles.cardSubtitle}>Set the pump operation window</Text>
-          
-          <View style={styles.scheduleRow}>
-            <View style={styles.scheduleLabelContainer}>
-              <MaterialCommunityIcons name="clock-outline" size={22} color="#1A5B9C" />
-              <Text style={styles.scheduleLabel}>Start Time</Text>
+             {/* Operating Schedule Card */}
+                {/* Start Time */}
+        {pumpStartTime && (
+          <>
+            <View style={styles.scheduleRow}>
+              <View style={styles.scheduleLabelContainer}>
+                <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={22}
+                  color="#1A5B9C"
+                />
+        
+                <Text style={styles.scheduleLabel}>
+                  Start Time
+                </Text>
+              </View>
+        
+              <View style={styles.timeInputBox}>
+                <Text style={styles.timeInputText}>
+                  {new Date(pumpStartTime).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </Text>
+              </View>
             </View>
-            <View style={styles.timeInputBox}>
-              <Text style={styles.timeInputText}>08:15 AM</Text>
+          </>
+        )}
+        
+        {/* End Time + Running Time */}
+        {pumpEndTime && (
+          <>
+            <View style={styles.scheduleRow}>
+              <View style={styles.scheduleLabelContainer}>
+                <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={22}
+                  color="#1A5B9C"
+                />
+        
+                <Text style={styles.scheduleLabel}>
+                  End Time
+                </Text>
+              </View>
+        
+              <View style={styles.timeInputBox}>
+                <Text style={styles.timeInputText}>
+                  {new Date(pumpEndTime).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </Text>
+              </View>
             </View>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.scheduleRow}>
-            <View style={styles.scheduleLabelContainer}>
-              <MaterialCommunityIcons name="clock-outline" size={22} color="#1A5B9C" />
-              <Text style={styles.scheduleLabel}>End Time</Text>
+        
+            <View style={styles.divider} />
+        
+            <View style={styles.scheduleRow}>
+              <View style={styles.scheduleLabelContainer}>
+                <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={22}
+                  color="#1A5B9C"
+                />
+        
+                <Text style={styles.scheduleLabel}>
+                  Running Time
+                </Text>
+              </View>
+        
+              <View style={styles.timeInputBox}>
+                <Text style={styles.timeInputText}>
+                  {pumpDuration !== null
+                    ? `${Math.floor(pumpDuration / 60)} min ${pumpDuration % 60} sec`
+                    : '--'}
+                </Text>
+              </View>
             </View>
-            <View style={styles.timeInputBox}>
-              <Text style={styles.timeInputText}>06:15 PM</Text>
-            </View>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.scheduleRow}>
-            <View style={styles.scheduleLabelContainer}>
-              <MaterialCommunityIcons name="clock-outline" size={22} color="#1A5B9C" />
-              <Text style={styles.scheduleLabel}>Running Time</Text>
-            </View>
-            <View style={styles.timeInputBox}>
-              <Text style={styles.timeInputText}>10 hr</Text>
-            </View>
-          </View>
-
-          <TouchableOpacity style={styles.saveButton}>
-            <Text style={styles.saveButtonText}>SAVE SCHEDULE</Text>
-          </TouchableOpacity>
-        </View>
+          </>
+        )}
 
         {/* Operation Log Card */}
         <View style={styles.card}>

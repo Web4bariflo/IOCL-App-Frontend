@@ -20,7 +20,7 @@ export default function SettingsScreen() {
   }>();
 
   const selectedModule =
-    module === 'Clean Water' ? 'Clean Water' : 'Waste Water';
+    module === 'Waste Water' ? 'Waste Water' : 'Clean Water';
 
   const [operatingMode, setOperatingMode] =
     useState<'AUTO' | 'MANUAL'>('MANUAL');
@@ -256,6 +256,39 @@ const solenoidValves = equipmentTypes.find(
         <Text style={styles.sectionTitle}>DEVICES</Text>
 
         <View style={styles.card}>
+
+          <TouchableOpacity
+            style={styles.deviceRow}
+            onPress={() =>
+              router.push('/inlet/cleanwater/inletroutes/solenoid')
+            }
+            activeOpacity={0.7}
+          >
+            <Image
+              source={require('@/assets/images/solenoid.png')}
+              style={styles.deviceIcon}
+              resizeMode="contain"
+            />
+
+            <View style={styles.settingTextContainer}>
+             <Text style={styles.settingTitle}>
+  {solenoidValves?.equipment_type?.name || 'Solenoid Valves'}
+</Text>
+
+<Text style={styles.settingSubtitle}>
+  {solenoidValves?.count || 0} Valves
+</Text>
+            </View>
+
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={24}
+              color="#111827"
+            />
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
           <TouchableOpacity
             style={styles.deviceRow}
             onPress={() =>
@@ -316,37 +349,9 @@ const solenoidValves = equipmentTypes.find(
             />
           </TouchableOpacity>
 
-          <View style={styles.divider} />
+          
 
-          <TouchableOpacity
-            style={styles.deviceRow}
-            onPress={() =>
-              router.push('/inlet/cleanwater/inletroutes/solenoid')
-            }
-            activeOpacity={0.7}
-          >
-            <Image
-              source={require('@/assets/images/solenoid.png')}
-              style={styles.deviceIcon}
-              resizeMode="contain"
-            />
-
-            <View style={styles.settingTextContainer}>
-             <Text style={styles.settingTitle}>
-  {solenoidValves?.equipment_type?.name || 'Solenoid Valves'}
-</Text>
-
-<Text style={styles.settingSubtitle}>
-  {solenoidValves?.count || 0} Valves
-</Text>
-            </View>
-
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color="#111827"
-            />
-          </TouchableOpacity>
+          
         </View>
 
         {/* Alerts & Notifications */}

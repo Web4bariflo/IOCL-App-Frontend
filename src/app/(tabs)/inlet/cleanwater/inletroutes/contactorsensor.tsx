@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -10,13 +10,42 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function ContactorSensorScreen() {
   const [activeTab, setActiveTab] = useState<'SENSOR 1' | 'SENSOR 2'>(
     'SENSOR 1'
   );
 
-  const [isPowerOn, setIsPowerOn] = useState(false);
+  const [sensor1Status, setSensor1Status] = useState('INACTIVE');
+const [sensor2Status, setSensor2Status] = useState('INACTIVE');
+
+useFocusEffect(
+  useCallback(() => {
+    const loadSensorStatus = async () => {
+      try {
+        const sensor1 = await AsyncStorage.getItem('sensor1Status');
+        const sensor2 = await AsyncStorage.getItem('sensor2Status');
+
+        console.log('Sensor 1 Status:', sensor1);
+        console.log('Sensor 2 Status:', sensor2);
+
+        setSensor1Status(sensor1 || 'INACTIVE');
+        setSensor2Status(sensor2 || 'INACTIVE');
+      } catch (error) {
+        console.error('Error loading sensor status:', error);
+      }
+    };
+
+    loadSensorStatus();
+  }, [])
+);
+
+const activeSensorCount = [
+  sensor1Status,
+  sensor2Status,
+].filter(status => status === 'ACTIVE').length;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -25,7 +54,7 @@ export default function ContactorSensorScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.navigate('/settings')}
+          onPress={() => router.navigate('/(tabs)/inlet/cleanwater/settings')}
         >
           <MaterialCommunityIcons
             name="arrow-left"
@@ -67,62 +96,68 @@ export default function ContactorSensorScreen() {
                 Sensor Status
               </Text>
 
-              <View style={styles.statusRow}>
-                <View
-                  style={[
-                    styles.statusDotGreen,
-                    {
-                      backgroundColor: isPowerOn
-                        ? '#10B981'
-                        : '#9CA3AF',
-                    },
-                  ]}
-                />
+             <View style={styles.statusRow}>
+  <View
+    style={[
+      styles.statusDotGreen,
+      {
+        backgroundColor:
+          activeSensorCount > 0
+            ? '#10B981'
+            : '#9CA3AF',
+      },
+    ]}
+  />
 
-                <Text
-                  style={[
-                    styles.statusTextGreen,
-                    {
-                      color: isPowerOn
-                        ? '#10B981'
-                        : '#6B7280',
-                    },
-                  ]}
-                >
-                  {isPowerOn ? 'Connected' : 'Offline'}
-                </Text>
-              </View>
+  <Text
+    style={[
+      styles.statusTextGreen,
+      {
+        color:
+          activeSensorCount > 0
+            ? '#10B981'
+            : '#6B7280',
+      },
+    ]}
+  >
+    {activeSensorCount > 0 ? 'Connected' : 'Offline'}
+  </Text>
+</View>
 
-              <Text style={styles.statusSubtitle}>
-                {isPowerOn
-                  ? '2 sensors online'
-                  : '2 sensors offline'}
-              </Text>
+<Text style={styles.statusSubtitle}>
+  {activeSensorCount === 2
+    ? '2 sensors online'
+    : activeSensorCount === 1
+      ? '1 sensor online'
+      : '2 sensors offline'}
+</Text>
             </View>
 
-            <View
-              style={[
-                styles.statusBadge,
-                {
-                  backgroundColor: isPowerOn
-                    ? '#0D9488'
-                    : '#F3F4F6',
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.statusBadgeText,
-                  {
-                    color: isPowerOn
-                      ? '#FFFFFF'
-                      : '#6B7280',
-                  },
-                ]}
-              >
-                {isPowerOn ? 'ACTIVE' : 'OFF'}
-              </Text>
-            </View>
+           <View
+  style={[
+    styles.statusBadge,
+    {
+      backgroundColor:
+        activeSensorCount > 0
+          ? '#0D9488'
+          : '#F3F4F6',
+    },
+  ]}
+>
+  <Text
+    style={[
+      styles.statusBadgeText,
+      {
+        color:
+          activeSensorCount > 0
+            ? '#FFFFFF'
+            : '#6B7280',
+      },
+    ]}
+  >
+    {activeSensorCount > 0 ? 'ACTIVE' : 'OFF'}
+  </Text>
+</View>
 
           </View>
         </View>
@@ -170,7 +205,7 @@ export default function ContactorSensorScreen() {
 
         </View>
 
-        {/* ================= POWER CONTROL ================= */}
+        {/* ================= POWER CONTROL =================
         <View style={styles.card}>
 
           <Text style={styles.cardTitle}>
@@ -200,7 +235,7 @@ export default function ContactorSensorScreen() {
             </Text>
           </TouchableOpacity>
 
-        </View>
+        </View> */}
 
         {/* ================= DETECTION LOG ================= */}
         <View style={styles.card}>
