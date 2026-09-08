@@ -463,7 +463,6 @@ const handleLogin = async () => {
 
 <View style={styles.accountRow}>
 
-  {/* Don't Have Account */}
   <TouchableOpacity
     style={styles.signupContainer}
     onPress={() => router.push('/SignUp')}
@@ -478,13 +477,13 @@ const handleLogin = async () => {
   </TouchableOpacity>
 
   <TouchableOpacity
-                style={styles.forgotPasswordContainer}
-                onPress={() => router.push('/forgot-password')}
-              >
-                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-              </TouchableOpacity>
-
-  
+    style={styles.forgotPasswordContainer}
+    onPress={() => router.push('/forgot-password')}
+  >
+    <Text style={styles.forgotPasswordText}>
+      Forgot Password?
+    </Text>
+  </TouchableOpacity>
 
 </View>
 
@@ -627,17 +626,17 @@ const styles = StyleSheet.create({
     padding: 8,
   },
 
-  accountRow: {
-  flexDirection: 'row',
+ accountRow: {
+  width: '100%',
   alignItems: 'center',
-  justifyContent: 'space-between',
   marginBottom: 28,
 },
 
 signupContainer: {
   flexDirection: 'row',
   alignItems: 'center',
-  flexShrink: 1,
+  justifyContent: 'center',
+  marginBottom: 10,
 },
 
 accountText: {
@@ -654,7 +653,7 @@ signupText: {
 },
 
 forgotPasswordContainer: {
-  marginLeft: 10,
+  alignItems: 'center',
 },
 
 forgotPasswordText: {
@@ -662,7 +661,6 @@ forgotPasswordText: {
   fontWeight: '600',
   color: '#1769AA',
 },
-
   /* ================= BUTTON ================= */
   loginButton: {
     height: 52,

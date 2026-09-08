@@ -10,23 +10,21 @@
     "scheme": "ioclapp",
     "userInterfaceStyle": "automatic",
 
-    "ios": {
-      "icon": "./assets/images/bariflo.png"
-    },
-
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/bariflo.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/bariflo.png"
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/images/bariflo.png"
       },
       "predictiveBackGestureEnabled": false
     },
 
+    "ios": {
+      "icon": "./assets/images/bariflo.png"
+    },
+
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/bariflo.png"
     },
 
     "plugins": [
@@ -34,9 +32,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#FFFFFF",
+          "image": "./assets/images/bariflo.png",
+          "imageWidth": 200
         }
       ],
       "@react-native-community/datetimepicker"
