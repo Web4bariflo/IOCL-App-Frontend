@@ -4,29 +4,24 @@
     "slug": "iocl-app",
     "version": "1.0.0",
     "orientation": "portrait",
-
-    "icon": "./assets/images/bariflo.png",
-
+    "icon": "./assets/images/bariflo-icon.png",
     "scheme": "ioclapp",
     "userInterfaceStyle": "automatic",
-
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
-        "foregroundImage": "./assets/images/bariflo.png"
+        "foregroundImage": "./assets/images/bariflo-icon.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.bariflo.ioclapp"
     },
-
     "ios": {
-      "icon": "./assets/images/bariflo.png"
+      "icon": "./assets/images/bariflo-icon.png"
     },
-
     "web": {
       "output": "static",
       "favicon": "./assets/images/bariflo.png"
     },
-
     "plugins": [
       "expo-router",
       [
@@ -39,10 +34,15 @@
       ],
       "@react-native-community/datetimepicker"
     ],
-
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "cd2128d4-76f9-4f30-bd4e-c58839a40f6c"
+      }
     }
   }
 }
