@@ -38,6 +38,13 @@ export default function DashboardScreen() {
   const [contactorsActive, setContactorsActive] = useState(false);
 
   const [treatmentStages, setTreatmentStages] = useState<any[]>([]);
+  const inletStages = treatmentStages.filter(
+    (stage) => stage.stage_type === 'INLET'
+  );
+
+  const coagulationStages = treatmentStages.filter(
+    (stage) => stage.stage_type === 'COAGULATION'
+  );
 
   useEffect(() => {
     if (params.menu === 'open') {
@@ -66,20 +73,6 @@ export default function DashboardScreen() {
     }
   };
 
-  //   const fetchTreatmentStages = async () => {
-  //   try {
-  //     const response = await getTreatmentStages();
-
-  //     console.log('Treatment Stages:', response);
-
-  //     if (response.success) {
-  //       setTreatmentStages(response.data);
-  //     }
-  //   } catch (error) {
-  //     console.error('Failed to fetch treatment stages:', error);
-  //   }
-  // };
-
   // const fetchTreatmentStages = async () => {
   //   try {
   //     const response = await getTreatmentStages();
@@ -89,12 +82,41 @@ export default function DashboardScreen() {
   //     if (response.success) {
   //       setTreatmentStages(response.data);
 
-  //       await AsyncStorage.setItem(
-  //         'selectedStageId',
-  //         String(response.data[0].id)
+  //       // Find Waste Water
+  //       const wasteWaterStage = response.data.find(
+  //         (stage: any) => stage.name === 'Waste Water'
   //       );
 
-  //       console.log('Stored Stage ID:', response.data[0].id);
+  //       // Find Clean Water
+  //       const cleanWaterStage = response.data.find(
+  //         (stage: any) => stage.name === 'Clean Water'
+  //       );
+
+  //       // Store Waste Water ID as selectedStageId
+  //       if (wasteWaterStage) {
+  //         await AsyncStorage.setItem(
+  //           'selectedStageId',
+  //           String(wasteWaterStage.id)
+  //         );
+
+  //         console.log(
+  //           'Waste Water ID stored as selectedStageId:',
+  //           wasteWaterStage.id
+  //         );
+  //       }
+
+  //       // Store Clean Water ID
+  //       if (cleanWaterStage) {
+  //         await AsyncStorage.setItem(
+  //           'cleanWaterStageId',
+  //           String(cleanWaterStage.id)
+  //         );
+
+  //         console.log(
+  //           'Clean Water ID stored as cleanWaterStageId:',
+  //           cleanWaterStage.id
+  //         );
+  //       }
   //     }
   //   } catch (error) {
   //     console.error('Failed to fetch treatment stages:', error);
@@ -102,54 +124,105 @@ export default function DashboardScreen() {
   // };
 
   const fetchTreatmentStages = async () => {
-  try {
-    const response = await getTreatmentStages();
+    try {
+      const response = await getTreatmentStages();
 
-    console.log('Treatment Stages:', response);
+      console.log('Treatment Stages:', response);
 
-    if (response.success) {
-      setTreatmentStages(response.data);
+      if (response.success) {
+        setTreatmentStages(response.data);
 
-      // Find Waste Water
-      const wasteWaterStage = response.data.find(
-        (stage: any) => stage.name === 'Waste Water'
-      );
+        // =========================
+        // INLET STAGES
+        // =========================
 
-      // Find Clean Water
-      const cleanWaterStage = response.data.find(
-        (stage: any) => stage.name === 'Clean Water'
-      );
-
-      // Store Waste Water ID as selectedStageId
-      if (wasteWaterStage) {
-        await AsyncStorage.setItem(
-          'selectedStageId',
-          String(wasteWaterStage.id)
+        const wasteWaterStage = response.data.find(
+          (stage: any) =>
+            stage.stage_type === 'INLET' &&
+            stage.name === 'Waste Water'
         );
 
-        console.log(
-          'Waste Water ID stored as selectedStageId:',
-          wasteWaterStage.id
+        const cleanWaterStage = response.data.find(
+          (stage: any) =>
+            stage.stage_type === 'INLET' &&
+            stage.name === 'Clean Water'
         );
+
+        // Store Waste Water ID
+        if (wasteWaterStage) {
+          await AsyncStorage.setItem(
+            'selectedStageId',
+            String(wasteWaterStage.id)
+          );
+
+          console.log(
+            'Waste Water ID:',
+            wasteWaterStage.id
+          );
+        }
+
+        // Store Clean Water ID
+        if (cleanWaterStage) {
+          await AsyncStorage.setItem(
+            'cleanWaterStageId',
+            String(cleanWaterStage.id)
+          );
+
+          console.log(
+            'Clean Water ID:',
+            cleanWaterStage.id
+          );
+        }
+
+        // =========================
+        // COAGULATION STAGES
+        // =========================
+
+        const coagulationDosingStage = response.data.find(
+          (stage: any) =>
+            stage.stage_type === 'COAGULATION' &&
+            stage.name === 'Coagulation Dosing'
+        );
+
+        const coagulationMixingStage = response.data.find(
+          (stage: any) =>
+            stage.stage_type === 'COAGULATION' &&
+            stage.name === 'Coagulation Mixing'
+        );
+
+        // Store Coagulation Dosing ID
+        if (coagulationDosingStage) {
+          await AsyncStorage.setItem(
+            'coagulationDosingStageId',
+            String(coagulationDosingStage.id)
+          );
+
+          console.log(
+            'Coagulation Dosing ID:',
+            coagulationDosingStage.id
+          );
+        }
+
+        // Store Coagulation Mixing ID
+        if (coagulationMixingStage) {
+          await AsyncStorage.setItem(
+            'coagulationMixingStageId',
+            String(coagulationMixingStage.id)
+          );
+
+          console.log(
+            'Coagulation Mixing ID:',
+            coagulationMixingStage.id
+          );
+        }
       }
-
-      // Store Clean Water ID
-      if (cleanWaterStage) {
-        await AsyncStorage.setItem(
-          'cleanWaterStageId',
-          String(cleanWaterStage.id)
-        );
-
-        console.log(
-          'Clean Water ID stored as cleanWaterStageId:',
-          cleanWaterStage.id
-        );
-      }
+    } catch (error) {
+      console.error(
+        'Failed to fetch treatment stages:',
+        error
+      );
     }
-  } catch (error) {
-    console.error('Failed to fetch treatment stages:', error);
-  }
-};
+  };
 
   // =========================================================
   // SYSTEM CLICK
@@ -212,16 +285,16 @@ export default function DashboardScreen() {
         break;
 
       // -----------------------------------------------------
-      // COAGULANT DOSING
+      // COAGULATION DOSING
       // -----------------------------------------------------
-      case 'Coagulant Dosing':
+      case 'Coagulation Dosing':
         router.push('/coagulant/dosing/settings');
         break;
 
       // -----------------------------------------------------
-      // COAGULANT MIXING
+      // COAGULATION MIXING
       // -----------------------------------------------------
-      case 'Coagulant Mixing':
+      case 'Coagulation Mixing':
         router.push('/coagulant/mixing/settings');
         break;
 
@@ -791,16 +864,12 @@ export default function DashboardScreen() {
                       // -------------------------------------------------
 
                       if (item === 'Coagulant System') {
-                        setShowCoagulantDropdown(
-                          !showCoagulantDropdown
-                        );
+                        handleSystemPress('Coagulant System');
 
+                        setShowCoagulantDropdown(false);
                         setShowMixingDropdown(false);
                         setShowFlocculationDropdown(false);
                         setShowDesludgingDropdown(false);
-
-                        setExpandedSystem(null);
-                        setExpandedSubSystem(null);
 
                         return;
                       }
@@ -890,7 +959,7 @@ export default function DashboardScreen() {
                       <View style={styles.dropdownContainer}>
                         {/* WASTE WATER */}
 
-                        {treatmentStages.map((stage) => (
+                        {inletStages.map((stage) => (
                           <React.Fragment key={stage.id}>
                             <TouchableOpacity
                               style={styles.subSystemMenuItem}
@@ -938,63 +1007,6 @@ export default function DashboardScreen() {
                           </React.Fragment>
                         ))}
 
-                        {/* CLEAN WATER */}
-
-                        {/* <TouchableOpacity
-                          style={styles.subSystemMenuItem}
-                          onPress={() =>
-                            handleSubSystemPress(
-                              'Clean Water'
-                            )
-                          }
-                          activeOpacity={0.7}
-                        >
-                          <Text
-                            style={styles.subSystemMenuText}
-                          >
-                            Clean Water
-                          </Text>
-
-                          <MaterialCommunityIcons
-                            name={
-                              expandedSubSystem ===
-                                'Clean Water'
-                                ? 'chevron-up'
-                                : 'chevron-down'
-                            }
-                            size={19}
-                            color="#6B7280"
-                          />
-                        </TouchableOpacity> */}
-
-                        {/* CLEAN WATER SETTINGS */}
-
-                        {/* {expandedSubSystem ===
-                          'Clean Water' && (
-                            <TouchableOpacity
-                              style={styles.settingsMenuItem}
-                              onPress={() =>
-                                handleSettingsPress(
-                                  'Clean Water'
-                                )
-                              }
-                              activeOpacity={0.7}
-                            >
-                              <MaterialCommunityIcons
-                                name="cog-outline"
-                                size={21}
-                                color="#159AA3"
-                              />
-
-                              <Text
-                                style={
-                                  styles.settingsMenuText
-                                }
-                              >
-                                Settings
-                              </Text>
-                            </TouchableOpacity>
-                          )} */}
                       </View>
                     )}
 
@@ -1003,125 +1015,51 @@ export default function DashboardScreen() {
                   ================================================= */}
 
                   {item === 'Coagulant System' &&
-                    showCoagulantDropdown && (
-                      <View
-                        style={styles.dropdownContainer}
-                      >
-                        {/* COAGULANT DOSING */}
-
-                        <TouchableOpacity
-                          style={styles.subSystemMenuItem}
-                          onPress={() =>
-                            handleSubSystemPress(
-                              'Coagulant Dosing'
-                            )
-                          }
-                          activeOpacity={0.7}
-                        >
-                          <Text
-                            style={
-                              styles.subSystemMenuText
-                            }
-                          >
-                            Coagulant Dosing
-                          </Text>
-
-                          <MaterialCommunityIcons
-                            name={
-                              expandedSubSystem ===
-                                'Coagulant Dosing'
-                                ? 'chevron-up'
-                                : 'chevron-down'
-                            }
-                            size={19}
-                            color="#6B7280"
-                          />
-                        </TouchableOpacity>
-
-                        {expandedSubSystem ===
-                          'Coagulant Dosing' && (
+                    expandedSystem === 'Coagulant System' && (
+                      <View style={styles.dropdownContainer}>
+                        {coagulationStages.map((stage) => (
+                          <React.Fragment key={stage.id}>
                             <TouchableOpacity
-                              style={styles.settingsMenuItem}
-                              onPress={() =>
-                                handleSettingsPress(
-                                  'Coagulant Dosing'
-                                )
-                              }
+                              style={styles.subSystemMenuItem}
+                              onPress={() => handleSubSystemPress(stage.name)}
                               activeOpacity={0.7}
                             >
-                              <MaterialCommunityIcons
-                                name="cog-outline"
-                                size={21}
-                                color="#159AA3"
-                              />
-
-                              <Text
-                                style={
-                                  styles.settingsMenuText
-                                }
-                              >
-                                Settings
+                              <Text style={styles.subSystemMenuText}>
+                                {stage.name}
                               </Text>
-                            </TouchableOpacity>
-                          )}
 
-                        {/* COAGULANT MIXING */}
-
-                        <TouchableOpacity
-                          style={styles.subSystemMenuItem}
-                          onPress={() =>
-                            handleSubSystemPress(
-                              'Coagulant Mixing'
-                            )
-                          }
-                          activeOpacity={0.7}
-                        >
-                          <Text
-                            style={
-                              styles.subSystemMenuText
-                            }
-                          >
-                            Coagulant Mixing
-                          </Text>
-
-                          <MaterialCommunityIcons
-                            name={
-                              expandedSubSystem ===
-                                'Coagulant Mixing'
-                                ? 'chevron-up'
-                                : 'chevron-down'
-                            }
-                            size={19}
-                            color="#6B7280"
-                          />
-                        </TouchableOpacity>
-
-                        {expandedSubSystem ===
-                          'Coagulant Mixing' && (
-                            <TouchableOpacity
-                              style={styles.settingsMenuItem}
-                              onPress={() =>
-                                handleSettingsPress(
-                                  'Coagulant Mixing'
-                                )
-                              }
-                              activeOpacity={0.7}
-                            >
                               <MaterialCommunityIcons
-                                name="cog-outline"
-                                size={21}
-                                color="#159AA3"
-                              />
-
-                              <Text
-                                style={
-                                  styles.settingsMenuText
+                                name={
+                                  expandedSubSystem === stage.name
+                                    ? 'chevron-up'
+                                    : 'chevron-down'
                                 }
-                              >
-                                Settings
-                              </Text>
+                                size={19}
+                                color="#6B7280"
+                              />
                             </TouchableOpacity>
-                          )}
+
+                            {expandedSubSystem === stage.name && (
+                              <TouchableOpacity
+                                style={styles.settingsMenuItem}
+                                onPress={() =>
+                                  handleSettingsPress(stage.name)
+                                }
+                                activeOpacity={0.7}
+                              >
+                                <MaterialCommunityIcons
+                                  name="cog-outline"
+                                  size={21}
+                                  color="#159AA3"
+                                />
+
+                                <Text style={styles.settingsMenuText}>
+                                  Settings
+                                </Text>
+                              </TouchableOpacity>
+                            )}
+                          </React.Fragment>
+                        ))}
                       </View>
                     )}
 

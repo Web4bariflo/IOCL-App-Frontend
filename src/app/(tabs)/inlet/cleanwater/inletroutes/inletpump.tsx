@@ -43,33 +43,33 @@ export default function InletPumpScreen() {
     console.log('Motor ON Response:', response);
     console.log('Sensors from response:', response.sensors);
 
-    if (response.status === 'ACTIVE') {
-      setPumpStartTime(response.started_at);
+    if (response.success && response.data.current_state === 'ON') {
+      setPumpStartTime(response.data.started_at);
 
       setPumpEndTime(null);
       setPumpDuration(null);
-const sensors = response.sensors || [];
+// const sensors = response.sensors || [];
 
-const sensor1 = sensors.find(
-  (sensor: any) => sensor.id === 7
-);
+// const sensor1 = sensors.find(
+//   (sensor: any) => sensor.id === 7
+// );
 
-const sensor2 = sensors.find(
-  (sensor: any) => sensor.id === 8
-);
+// const sensor2 = sensors.find(
+//   (sensor: any) => sensor.id === 8
+// );
 
-await AsyncStorage.setItem(
-  'sensor3Status',
-  sensor1?.status || 'INACTIVE'
-);
+// await AsyncStorage.setItem(
+//   'sensor3Status',
+//   sensor1?.status || 'INACTIVE'
+// );
 
-await AsyncStorage.setItem(
-  'sensor4Status',
-  sensor2?.status || 'INACTIVE'
-);
+// await AsyncStorage.setItem(
+//   'sensor4Status',
+//   sensor2?.status || 'INACTIVE'
+// );
 
-console.log('Sensor 1 Status:', sensor1?.status);
-console.log('Sensor 2 Status:', sensor2?.status);
+// console.log('Sensor 1 Status:', sensor1?.status);
+// console.log('Sensor 2 Status:', sensor2?.status);
     }
 
   } catch (error) {
@@ -151,10 +151,10 @@ const handleStopPump = async () => {
     console.log('Motor OFF Response:', response);
     console.log('Sensors from OFF response:', response.sensors);
 
-    if (response.status === 'INACTIVE') {
+    if (response.success && response.data.current_state === 'OFF') {
       setPumpStartTime(null);
-      setPumpEndTime(response.ended_at);
-      setPumpDuration(response.duration_seconds);
+      setPumpEndTime(response.data.ended_at);
+      setPumpDuration(response.data.duration_seconds);
 
       // Get sensors from OFF response
       const sensors = response.sensors || [];

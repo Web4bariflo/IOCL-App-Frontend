@@ -154,3 +154,56 @@ export const turnOffMotor = async (motorId: number, stageId: number) => {
     throw error;
   }
 };
+
+// export const getSensors = async (stageId: number) => {
+//   try {
+//     const token = await AsyncStorage.getItem('accessToken');
+
+//     const response = await axios.get(
+//       `${BASE_URL}/equipment/sensors/`,
+//       {
+//         params: {
+//           stage_id: stageId,
+//         },
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       }
+//     );
+
+//     console.log('Sensors API Response:', response.data);
+
+//     return response.data;
+//   } catch (error: any) {
+//     console.log('Sensors API Status:', error.response?.status);
+//     console.log('Sensors API Error:', error.response?.data);
+//     console.log('Sensors API Message:', error.message);
+
+//     throw error;
+//   }
+// };
+
+export const getSensors = async (stageId: number) => {
+  try {
+    const token = await AsyncStorage.getItem('accessToken');
+
+    const response = await axios.get(
+      `${BASE_URL}/equipment/stage/${stageId}/sensors/`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log('Sensors API Response:', response.data);
+
+    return response.data;
+  } catch (error: any) {
+    console.log('Sensors API Status:', error.response?.status);
+    console.log('Sensors API Error:', error.response?.data);
+    console.log('Sensors API Message:', error.message);
+
+    throw error;
+  }
+};

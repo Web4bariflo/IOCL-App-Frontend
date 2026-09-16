@@ -35,8 +35,11 @@ export default function SolenoidScreen() {
 
            
             console.log('Valve ON Response:', response);
-          if (response.success) {
-    setValveStartTime(response.data.start_time);
+          if (
+            response.success &&
+            response.data.current_state === 'ON'
+        ) {
+    setValveStartTime(response.data.started_at);
 
     // Hide Close Time and Duration when valve is opened
     setValveCloseTime(null);
@@ -69,9 +72,12 @@ export default function SolenoidScreen() {
 
         console.log('Valve OFF Response:', response);
 
-        if (response.status === 'INACTIVE') {
-            setValveCloseTime(response.ended_at);
-            setValveDuration(response.duration_seconds);
+        if (
+            response.success &&
+            response.data.current_state === 'OFF'
+        ) {
+            setValveCloseTime(response.data.ended_at);
+            setValveDuration(response.data.duration_seconds);
 
             // Hide Open Time
             setValveStartTime(null);

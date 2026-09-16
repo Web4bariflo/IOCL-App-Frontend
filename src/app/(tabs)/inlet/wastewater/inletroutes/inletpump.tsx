@@ -7,181 +7,181 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { turnOnMotor, turnOffMotor } from '../../../../../api/inletApi';
 
 export default function InletPumpScreen() {
-    const [pumpStartTime, setPumpStartTime] = useState<string | null>(null);
-const [pumpEndTime, setPumpEndTime] = useState<string | null>(null);
-const [pumpDuration, setPumpDuration] = useState<number | null>(null);
-//    const handleStartPump = async () => {
-//   try {
-//     const stageId = await AsyncStorage.getItem('selectedStageId');
+  const [pumpStartTime, setPumpStartTime] = useState<string | null>(null);
+  const [pumpEndTime, setPumpEndTime] = useState<string | null>(null);
+  const [pumpDuration, setPumpDuration] = useState<number | null>(null);
+  //    const handleStartPump = async () => {
+  //   try {
+  //     const stageId = await AsyncStorage.getItem('selectedStageId');
 
-//     console.log('Selected Stage ID:', stageId);
+  //     console.log('Selected Stage ID:', stageId);
 
-//     if (!stageId) {
-//       console.log('Stage ID not found');
-//       return;
-//     }
+  //     if (!stageId) {
+  //       console.log('Stage ID not found');
+  //       return;
+  //     }
 
-//     const motorId = 2;
+  //     const motorId = 2;
 
-//     console.log('Motor ID:', motorId);
-//     console.log('Stage ID:', Number(stageId));
+  //     console.log('Motor ID:', motorId);
+  //     console.log('Stage ID:', Number(stageId));
 
-//     const response = await turnOnMotor(
-//       motorId,
-//       Number(stageId)
-//     );
+  //     const response = await turnOnMotor(
+  //       motorId,
+  //       Number(stageId)
+  //     );
 
-//     console.log('Motor ON Response:', response);
+  //     console.log('Motor ON Response:', response);
 
-//     if (response.status === 'ACTIVE') {
-//       // Show only Start Time
-//       setPumpStartTime(response.started_at);
+  //     if (response.status === 'ACTIVE') {
+  //       // Show only Start Time
+  //       setPumpStartTime(response.started_at);
 
-//       // Hide End Time and Running Time
-//       setPumpEndTime(null);
-//       setPumpDuration(null);
-//     }
+  //       // Hide End Time and Running Time
+  //       setPumpEndTime(null);
+  //       setPumpDuration(null);
+  //     }
 
-//   } catch (error) {
-//     console.error('Failed to start pump:', error);
-//   }
-// };
+  //   } catch (error) {
+  //     console.error('Failed to start pump:', error);
+  //   }
+  // };
 
-const handleStartPump = async () => {
-  try {
-    const stageId = await AsyncStorage.getItem('selectedStageId');
+  const handleStartPump = async () => {
+    try {
+      const stageId = await AsyncStorage.getItem('selectedStageId');
 
-    console.log('Selected Stage ID:', stageId);
+      console.log('Selected Stage ID:', stageId);
 
-    if (!stageId) {
-      console.log('Stage ID not found');
-      return;
+      if (!stageId) {
+        console.log('Stage ID not found');
+        return;
+      }
+
+      const motorId = 2;
+
+      console.log('Motor ID:', motorId);
+      console.log('Stage ID:', Number(stageId));
+
+      const response = await turnOnMotor(
+        motorId,
+        Number(stageId)
+      );
+
+      console.log('Motor ON Response:', response);
+      console.log('Sensors from response:', response.sensors);
+
+      if (response.success && response.data.current_state === 'ON') {
+        // Show Start Time
+        setPumpStartTime(response.data.started_at);
+
+        // Hide End Time and Running Time
+        setPumpEndTime(null);
+        setPumpDuration(null);
+
+        // ================= SENSOR STATUS =================
+
+        // const sensors = response.sensors || [];
+
+        // const sensor1 = sensors.find(
+        //   (sensor: any) => sensor.id === 3
+        // );
+
+        // const sensor2 = sensors.find(
+        //   (sensor: any) => sensor.id === 4
+        // );
+
+        // // Store Sensor 1 status
+        // await AsyncStorage.setItem(
+        //   'sensor1Status',
+        //   sensor1?.status || 'INACTIVE'
+        // );
+
+        // // Store Sensor 2 status
+        // await AsyncStorage.setItem(
+        //   'sensor2Status',
+        //   sensor2?.status || 'INACTIVE'
+        // );
+
+        // console.log(
+        //   'Sensor 1 Status:',
+        //   sensor1?.status
+        // );
+
+        // console.log(
+        //   'Sensor 2 Status:',
+        //   sensor2?.status
+        // );
+      }
+
+    } catch (error) {
+      console.error('Failed to start pump:', error);
     }
+  };
 
-    const motorId = 2;
+  const handleStopPump = async () => {
+    try {
+      const stageId = await AsyncStorage.getItem('selectedStageId');
 
-    console.log('Motor ID:', motorId);
-    console.log('Stage ID:', Number(stageId));
+      console.log('Selected Stage ID:', stageId);
 
-    const response = await turnOnMotor(
-      motorId,
-      Number(stageId)
-    );
+      if (!stageId) {
+        console.log('Stage ID not found');
+        return;
+      }
 
-    console.log('Motor ON Response:', response);
-    console.log('Sensors from response:', response.sensors);
+      const motorId = 2;
 
-    if (response.status === 'ACTIVE') {
-      // Show Start Time
-      setPumpStartTime(response.started_at);
+      console.log('Motor ID:', motorId);
+      console.log('Stage ID:', Number(stageId));
 
-      // Hide End Time and Running Time
-      setPumpEndTime(null);
-      setPumpDuration(null);
-
-      // ================= SENSOR STATUS =================
-
-      const sensors = response.sensors || [];
-
-      const sensor1 = sensors.find(
-        (sensor: any) => sensor.id === 3
+      const response = await turnOffMotor(
+        motorId,
+        Number(stageId)
       );
 
-      const sensor2 = sensors.find(
-        (sensor: any) => sensor.id === 4
-      );
+      console.log('Motor OFF Response:', response);
 
-      // Store Sensor 1 status
-      await AsyncStorage.setItem(
-        'sensor1Status',
-        sensor1?.status || 'INACTIVE'
-      );
+      if (response.success && response.data.current_state === 'OFF') {
+        // Hide Start Time
+        setPumpStartTime(null);
 
-      // Store Sensor 2 status
-      await AsyncStorage.setItem(
-        'sensor2Status',
-        sensor2?.status || 'INACTIVE'
-      );
+        // Show End Time
+        setPumpEndTime(response.data.ended_at);
 
-      console.log(
-        'Sensor 1 Status:',
-        sensor1?.status
-      );
+        // Show Running Time
+        setPumpDuration(response.data.duration_seconds);
 
-      console.log(
-        'Sensor 2 Status:',
-        sensor2?.status
-      );
+        // Get sensors from OFF response
+        // const sensors = response.sensors || [];
+
+        // const sensor1 = sensors.find(
+        //   (sensor: any) => sensor.id === 3
+        // );
+
+        // const sensor2 = sensors.find(
+        //   (sensor: any) => sensor.id === 4
+        // );
+
+        // // Save sensor status as INACTIVE
+        // await AsyncStorage.setItem(
+        //   'sensor1Status',
+        //   sensor1?.status || 'INACTIVE'
+        // );
+
+        // await AsyncStorage.setItem(
+        //   'sensor2Status',
+        //   sensor2?.status || 'INACTIVE'
+        // );
+
+        // console.log('Sensor 1 Status:', sensor1?.status);
+        // console.log('Sensor 2 Status:', sensor2?.status);
+      }
+
+    } catch (error) {
+      console.error('Failed to stop pump:', error);
     }
-
-  } catch (error) {
-    console.error('Failed to start pump:', error);
-  }
-};
-
-const handleStopPump = async () => {
-  try {
-    const stageId = await AsyncStorage.getItem('selectedStageId');
-
-    console.log('Selected Stage ID:', stageId);
-
-    if (!stageId) {
-      console.log('Stage ID not found');
-      return;
-    }
-
-    const motorId = 2;
-
-    console.log('Motor ID:', motorId);
-    console.log('Stage ID:', Number(stageId));
-
-    const response = await turnOffMotor(
-      motorId,
-      Number(stageId)
-    );
-
-    console.log('Motor OFF Response:', response);
-
-    if (response.status === 'INACTIVE') {
-      // Hide Start Time
-      setPumpStartTime(null);
-
-      // Show End Time
-      setPumpEndTime(response.ended_at);
-
-      // Show Running Time
-      setPumpDuration(response.duration_seconds);
-
-      // Get sensors from OFF response
-      const sensors = response.sensors || [];
-
-      const sensor1 = sensors.find(
-        (sensor: any) => sensor.id === 3
-      );
-
-      const sensor2 = sensors.find(
-        (sensor: any) => sensor.id === 4
-      );
-
-      // Save sensor status as INACTIVE
-      await AsyncStorage.setItem(
-        'sensor1Status',
-        sensor1?.status || 'INACTIVE'
-      );
-
-      await AsyncStorage.setItem(
-        'sensor2Status',
-        sensor2?.status || 'INACTIVE'
-      );
-
-      console.log('Sensor 1 Status:', sensor1?.status);
-      console.log('Sensor 2 Status:', sensor2?.status);
-    }
-
-  } catch (error) {
-    console.error('Failed to stop pump:', error);
-  }
-};
+  };
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -198,14 +198,14 @@ const handleStopPump = async () => {
       <View style={styles.headerBorder} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        
+
         {/* Pump Status Card */}
         <View style={styles.card}>
           <View style={styles.statusCardContent}>
-            <Image 
-              source={require('@/assets/images/inletpump.png')} 
-              style={styles.pumpLargeIcon} 
-              resizeMode="contain" 
+            <Image
+              source={require('@/assets/images/inletpump.png')}
+              style={styles.pumpLargeIcon}
+              resizeMode="contain"
             />
             <View style={styles.statusTextContainer}>
               <Text style={styles.statusTitle}>Pump Status</Text>
@@ -230,111 +230,111 @@ const handleStopPump = async () => {
               <Text style={styles.startButtonText}>START PUMP</Text>
             </TouchableOpacity> */}
             <TouchableOpacity
-  style={styles.startButton}
-  onPress={handleStartPump}
->
-  <MaterialCommunityIcons
-    name="power"
-    size={24}
-    color="#FFFFFF"
-  />
-  <Text style={styles.startButtonText}>START PUMP</Text>
-</TouchableOpacity>
-            
+              style={styles.startButton}
+              onPress={handleStartPump}
+            >
+              <MaterialCommunityIcons
+                name="power"
+                size={24}
+                color="#FFFFFF"
+              />
+              <Text style={styles.startButtonText}>START PUMP</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity
-  style={styles.stopButton}
-  onPress={handleStopPump}
->
-  <MaterialCommunityIcons
-    name="stop-circle-outline"
-    size={24}
-    color="#DC2626"
-  />
-  <Text style={styles.stopButtonText}>STOP PUMP</Text>
-</TouchableOpacity>
+              style={styles.stopButton}
+              onPress={handleStopPump}
+            >
+              <MaterialCommunityIcons
+                name="stop-circle-outline"
+                size={24}
+                color="#DC2626"
+              />
+              <Text style={styles.stopButtonText}>STOP PUMP</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
         {/* Operating Schedule Card */}
         {/* Start Time */}
-{pumpStartTime && (
-  <>
-    <View style={styles.scheduleRow}>
-      <View style={styles.scheduleLabelContainer}>
-        <MaterialCommunityIcons
-          name="clock-outline"
-          size={22}
-          color="#1A5B9C"
-        />
+        {pumpStartTime && (
+          <>
+            <View style={styles.scheduleRow}>
+              <View style={styles.scheduleLabelContainer}>
+                <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={22}
+                  color="#1A5B9C"
+                />
 
-        <Text style={styles.scheduleLabel}>
-          Start Time
-        </Text>
-      </View>
+                <Text style={styles.scheduleLabel}>
+                  Start Time
+                </Text>
+              </View>
 
-      <View style={styles.timeInputBox}>
-        <Text style={styles.timeInputText}>
-          {new Date(pumpStartTime).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </Text>
-      </View>
-    </View>
-  </>
-)}
+              <View style={styles.timeInputBox}>
+                <Text style={styles.timeInputText}>
+                  {new Date(pumpStartTime).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </Text>
+              </View>
+            </View>
+          </>
+        )}
 
-{/* End Time + Running Time */}
-{pumpEndTime && (
-  <>
-    <View style={styles.scheduleRow}>
-      <View style={styles.scheduleLabelContainer}>
-        <MaterialCommunityIcons
-          name="clock-outline"
-          size={22}
-          color="#1A5B9C"
-        />
+        {/* End Time + Running Time */}
+        {pumpEndTime && (
+          <>
+            <View style={styles.scheduleRow}>
+              <View style={styles.scheduleLabelContainer}>
+                <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={22}
+                  color="#1A5B9C"
+                />
 
-        <Text style={styles.scheduleLabel}>
-          End Time
-        </Text>
-      </View>
+                <Text style={styles.scheduleLabel}>
+                  End Time
+                </Text>
+              </View>
 
-      <View style={styles.timeInputBox}>
-        <Text style={styles.timeInputText}>
-          {new Date(pumpEndTime).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </Text>
-      </View>
-    </View>
+              <View style={styles.timeInputBox}>
+                <Text style={styles.timeInputText}>
+                  {new Date(pumpEndTime).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </Text>
+              </View>
+            </View>
 
-    <View style={styles.divider} />
+            <View style={styles.divider} />
 
-    <View style={styles.scheduleRow}>
-      <View style={styles.scheduleLabelContainer}>
-        <MaterialCommunityIcons
-          name="clock-outline"
-          size={22}
-          color="#1A5B9C"
-        />
+            <View style={styles.scheduleRow}>
+              <View style={styles.scheduleLabelContainer}>
+                <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={22}
+                  color="#1A5B9C"
+                />
 
-        <Text style={styles.scheduleLabel}>
-          Running Time
-        </Text>
-      </View>
+                <Text style={styles.scheduleLabel}>
+                  Running Time
+                </Text>
+              </View>
 
-      <View style={styles.timeInputBox}>
-        <Text style={styles.timeInputText}>
-          {pumpDuration !== null
-            ? `${Math.floor(pumpDuration / 60)} min ${pumpDuration % 60} sec`
-            : '--'}
-        </Text>
-      </View>
-    </View>
-  </>
-)}
+              <View style={styles.timeInputBox}>
+                <Text style={styles.timeInputText}>
+                  {pumpDuration !== null
+                    ? `${Math.floor(pumpDuration / 60)} min ${pumpDuration % 60} sec`
+                    : '--'}
+                </Text>
+              </View>
+            </View>
+          </>
+        )}
 
         {/* Operation Log Card */}
         <View style={styles.card}>

@@ -12,40 +12,136 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { getSensors } from '../../../../../api/inletApi';
 
 export default function ContactorSensorScreen() {
   const [activeTab, setActiveTab] = useState<'SENSOR 1' | 'SENSOR 2'>(
     'SENSOR 1'
   );
 
-  const [sensor3Status, setSensor3Status] = useState('INACTIVE');
-  const [sensor4Status, setSensor4Status] = useState('INACTIVE');
+  // const [sensor3Status, setSensor3Status] = useState('INACTIVE');
+  // const [sensor4Status, setSensor4Status] = useState('INACTIVE');
 
-  useFocusEffect(
-    useCallback(() => {
-      const loadSensorStatus = async () => {
-        try {
-          const sensor3 = await AsyncStorage.getItem('sensor3Status');
-          const sensor4 = await AsyncStorage.getItem('sensor4Status');
+  const [sensors, setSensors] = useState<any[]>([]);
+const [activeSensorCount, setActiveSensorCount] = useState(0);
 
-          console.log('Sensor 3 Status:', sensor3);
-          console.log('Sensor 4 Status:', sensor4);
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     const loadSensorStatus = async () => {
+  //       try {
+  //         const sensor3 = await AsyncStorage.getItem('sensor3Status');
+  //         const sensor4 = await AsyncStorage.getItem('sensor4Status');
 
-          setSensor3Status(sensor3 || 'INACTIVE');
-          setSensor4Status(sensor4 || 'INACTIVE');
-        } catch (error) {
-          console.error('Error loading sensor status:', error);
+  //         console.log('Sensor 3 Status:', sensor3);
+  //         console.log('Sensor 4 Status:', sensor4);
+
+  //         setSensor3Status(sensor3 || 'INACTIVE');
+  //         setSensor4Status(sensor4 || 'INACTIVE');
+  //       } catch (error) {
+  //         console.error('Error loading sensor status:', error);
+  //       }
+  //     };
+
+  //     loadSensorStatus();
+  //   }, [])
+  // );
+
+//   useFocusEffect(
+//   useCallback(() => {
+//     const loadSensors = async () => {
+//       try {
+//         // Get selected stage ID
+//         const stageId = await AsyncStorage.getItem('cleanWaterStageId');
+
+//         console.log('Selected Stage ID:', stageId);
+
+//         if (!stageId) {
+//           console.log('Stage ID not found');
+//           return;
+//         }
+
+//         // Call Sensors API
+//         const response = await getSensors(Number(stageId));
+
+//         console.log('Sensors API Response:', response);
+
+//         // API response:
+//         // {
+//         //   success: true,
+//         //   count: 2,
+//         //   data: [...]
+//         // }
+
+//         const sensorData = response.data || [];
+
+//         // Store sensor data
+//         setSensors(sensorData);
+
+//         // Count ACTIVE sensors from API
+//         const activeCount = sensorData.filter(
+//           (sensor: any) => sensor.status === 'ACTIVE'
+//         ).length;
+
+//         setActiveSensorCount(activeCount);
+
+//         console.log('Total Sensors:', sensorData.length);
+//         console.log('Active Sensors:', activeCount);
+
+//       } catch (error) {
+//         console.error('Error fetching sensors:', error);
+//       }
+//     };
+
+//     loadSensors();
+//   }, [])
+// );
+
+useFocusEffect(
+  useCallback(() => {
+    const loadSensors = async () => {
+      try {
+        const stageId = await AsyncStorage.getItem('cleanWaterStageId');
+
+        console.log('Selected Stage ID:', stageId);
+
+        if (!stageId) {
+          console.log('Stage ID not found');
+          return;
         }
-      };
 
-      loadSensorStatus();
-    }, [])
-  );
+        const response = await getSensors(Number(stageId));
 
-  const activeSensorCount = [
-    sensor3Status,
-    sensor4Status,
-  ].filter(status => status === 'ACTIVE').length;
+        console.log('Sensors API Response:', response);
+
+        // API returns sensors directly
+        const sensorData = response.sensors || [];
+
+        setSensors(sensorData);
+
+        // Count sensors whose current_state is ON
+        const activeCount = sensorData.filter(
+          (sensor: any) => sensor.current_state === 'ON'
+        ).length;
+
+        setActiveSensorCount(activeCount);
+
+        console.log('Total Sensors:', sensorData.length);
+        console.log('Active Sensors:', activeCount);
+
+      } catch (error) {
+        console.error('Error fetching sensors:', error);
+      }
+    };
+
+    loadSensors();
+  }, [])
+);
+
+
+  // const activeSensorCount = [
+  //   sensor3Status,
+  //   sensor4Status,
+  // ].filter(status => status === 'ACTIVE').length;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -96,7 +192,7 @@ export default function ContactorSensorScreen() {
                 Sensor Status
               </Text>
 
-              <View style={styles.statusRow}>
+              {/* <View style={styles.statusRow}>
                 <View
                   style={[
                     styles.statusDotGreen,
@@ -130,10 +226,44 @@ export default function ContactorSensorScreen() {
                   : activeSensorCount === 1
                     ? '1 sensor online'
                     : '2 sensors offline'}
+              </Text> */}
+
+              <View style={styles.statusRow}>
+                <View
+                  style={[
+                    styles.statusDotGreen,
+                    {
+                      backgroundColor:
+                        activeSensorCount === 2
+                          ? '#10B981'
+                          : '#9CA3AF',
+                    },
+                  ]}
+                />
+              
+                <Text
+                  style={[
+                    styles.statusTextGreen,
+                    {
+                      color:
+                        activeSensorCount === 2
+                          ? '#10B981'
+                          : '#6B7280',
+                    },
+                  ]}
+                >
+                  {activeSensorCount === 2 ? 'Connected' : 'Offline'}
+                </Text>
+              </View>
+              
+              <Text style={styles.statusSubtitle}>
+                {activeSensorCount === 2
+                  ? '2 sensors online'
+                  : '2 sensors offline'}
               </Text>
             </View>
 
-            <View
+            {/* <View
               style={[
                 styles.statusBadge,
                 {
@@ -156,6 +286,32 @@ export default function ContactorSensorScreen() {
                 ]}
               >
                 {activeSensorCount > 0 ? 'ACTIVE' : 'OFF'}
+              </Text>
+            </View> */}
+
+                 <View
+              style={[
+                styles.statusBadge,
+                {
+                  backgroundColor:
+                    activeSensorCount === 2
+                      ? '#0D9488'
+                      : '#F3F4F6',
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.statusBadgeText,
+                  {
+                    color:
+                      activeSensorCount === 2
+                        ? '#FFFFFF'
+                        : '#6B7280',
+                  },
+                ]}
+              >
+                {activeSensorCount === 2 ? 'ACTIVE' : 'OFF'}
               </Text>
             </View>
 
