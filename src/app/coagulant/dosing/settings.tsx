@@ -12,125 +12,125 @@ export default function DosingSettingsScreen() {
   const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('MANUAL');
   const [notifications, setNotifications] = useState(true);
   const [stageData, setStageData] = useState<any>(null);
-const [equipmentData, setEquipmentData] = useState<any[]>([]);
+  const [equipmentData, setEquipmentData] = useState<any[]>([]);
 
-//   useFocusEffect(
-//   useCallback(() => {
-//     const loadCoagulationDosingData = async () => {
-//       try {
-//         // Get already stored stage ID
-//         const stageId = await AsyncStorage.getItem(
-//           'coagulationDosingStageId'
-//         );
+  //   useFocusEffect(
+  //   useCallback(() => {
+  //     const loadCoagulationDosingData = async () => {
+  //       try {
+  //         // Get already stored stage ID
+  //         const stageId = await AsyncStorage.getItem(
+  //           'coagulationDosingStageId'
+  //         );
 
-//         console.log('Stored Stage ID:', stageId);
+  //         console.log('Stored Stage ID:', stageId);
 
-//         if (!stageId) {
-//           console.log('Coagulation Dosing Stage ID not found');
-//           return;
-//         }
+  //         if (!stageId) {
+  //           console.log('Coagulation Dosing Stage ID not found');
+  //           return;
+  //         }
 
-//         // Pass stage ID to API
-//         const response = await getTreatmentStages(
-//           Number(stageId)
-//         );
+  //         // Pass stage ID to API
+  //         const response = await getTreatmentStages(
+  //           Number(stageId)
+  //         );
 
-//         console.log('Treatment Stage Response:', response);
+  //         console.log('Treatment Stage Response:', response);
 
-//         // Get equipment ID from response
-//         const equipmentId =
-//           response.data?.equipment_types?.[0]?.equipments?.[0]?.id;
+  //         // Get equipment ID from response
+  //         const equipmentId =
+  //           response.data?.equipment_types?.[0]?.equipments?.[0]?.id;
 
-//         console.log('Equipment ID:', equipmentId);
+  //         console.log('Equipment ID:', equipmentId);
 
-//         if (equipmentId) {
-//           // Store equipment ID
-//           await AsyncStorage.setItem(
-//             'coagulationDosingEquipmentId',
-//             String(equipmentId)
-//           );
+  //         if (equipmentId) {
+  //           // Store equipment ID
+  //           await AsyncStorage.setItem(
+  //             'coagulationDosingEquipmentId',
+  //             String(equipmentId)
+  //           );
 
-//           console.log(
-//             'Stored Equipment ID:',
-//             equipmentId
-//           );
-//         }
+  //           console.log(
+  //             'Stored Equipment ID:',
+  //             equipmentId
+  //           );
+  //         }
 
-//       } catch (error) {
-//         console.error(
-//           'Error loading Coagulation Dosing:',
-//           error
-//         );
-//       }
-//     };
+  //       } catch (error) {
+  //         console.error(
+  //           'Error loading Coagulation Dosing:',
+  //           error
+  //         );
+  //       }
+  //     };
 
-//     loadCoagulationDosingData();
-//   }, [])
-// );
+  //     loadCoagulationDosingData();
+  //   }, [])
+  // );
 
-useFocusEffect(
-  useCallback(() => {
-    const loadCoagulationDosingData = async () => {
-      try {
-        // Get already stored stage ID
-        const stageId = await AsyncStorage.getItem(
-          'coagulationDosingStageId'
-        );
-
-        console.log('Stored Stage ID:', stageId);
-
-        if (!stageId) {
-          console.log('Coagulation Dosing Stage ID not found');
-          return;
-        }
-
-        // Call API with stored stage ID
-        const response = await getTreatmentStages(
-          Number(stageId)
-        );
-
-        console.log('Treatment Stage Response:', response);
-
-        if (response.success) {
-          // Store stage data
-          setStageData(response.data.stage);
-
-          // Store equipment data
-          setEquipmentData(
-            response.data.equipment_types || []
+  useFocusEffect(
+    useCallback(() => {
+      const loadCoagulationDosingData = async () => {
+        try {
+          // Get already stored stage ID
+          const stageId = await AsyncStorage.getItem(
+            'coagulationDosingStageId'
           );
 
-          // Get first equipment ID
-          const equipmentId =
-            response.data.equipment_types?.[0]?.equipments?.[0]?.id;
+          console.log('Stored Stage ID:', stageId);
 
-          console.log('Equipment ID:', equipmentId);
-
-          // Store equipment ID
-          if (equipmentId) {
-            await AsyncStorage.setItem(
-              'coagulationDosingEquipmentId',
-              String(equipmentId)
-            );
-
-            console.log(
-              'Stored Equipment ID:',
-              equipmentId
-            );
+          if (!stageId) {
+            console.log('Coagulation Dosing Stage ID not found');
+            return;
           }
+
+          // Call API with stored stage ID
+          const response = await getTreatmentStages(
+            Number(stageId)
+          );
+
+          console.log('Treatment Stage Response:', response);
+
+          if (response.success) {
+            // Store stage data
+            setStageData(response.data.stage);
+
+            // Store equipment data
+            setEquipmentData(
+              response.data.equipment_types || []
+            );
+
+            // Get first equipment ID
+            const equipmentId =
+              response.data.equipment_types?.[0]?.equipments?.[0]?.id;
+
+            console.log('Equipment ID:', equipmentId);
+
+            // Store equipment ID
+            if (equipmentId) {
+              await AsyncStorage.setItem(
+                'coagulationDosingEquipmentId',
+                String(equipmentId)
+              );
+
+              console.log(
+                'Stored Equipment ID:',
+                equipmentId
+              );
+            }
+          }
+
+        } catch (error) {
+          console.error(
+            'Error loading Coagulation Dosing:',
+            error
+          );
         }
+      };
 
-      } catch (error) {
-        console.error(
-          'Error loading Coagulation Dosing:',
-          error
-        );
-      }
-    };
-
-    loadCoagulationDosingData();
-  }, [])
-);
+      loadCoagulationDosingData();
+    }, [])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -213,8 +213,8 @@ useFocusEffect(
 
             <View style={styles.settingTextContainer}>
               <Text style={styles.settingTitle}>
-  {equipmentData[0]?.equipments?.[0]?.name || 'Loading...'}
-</Text>
+                {equipmentData[0]?.equipments?.[0]?.name || 'Loading...'}
+              </Text>
             </View>
 
             <MaterialCommunityIcons

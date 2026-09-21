@@ -1,86 +1,129 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { turnOnMotor, turnOffMotor } from '../../../../../api/inletApi';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// import React, { useState } from 'react';
+// import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+// import { SafeAreaView } from 'react-native-safe-area-context';
+// import { MaterialCommunityIcons } from '@expo/vector-icons';
+// import { router } from 'expo-router';
+// import { turnOnMotor, turnOffMotor } from '../../../../../api/inletApi';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function InletPumpScreen() {
-     const [pumpStartTime, setPumpStartTime] = useState<string | null>(null);
-  const [pumpEndTime, setPumpEndTime] = useState<string | null>(null);
-  const [pumpDuration, setPumpDuration] = useState<number | null>(null);
+// export default function InletPumpScreen() {
+//      const [pumpStartTime, setPumpStartTime] = useState<string | null>(null);
+//   const [pumpEndTime, setPumpEndTime] = useState<string | null>(null);
+//   const [pumpDuration, setPumpDuration] = useState<number | null>(null);
 
 
-  const handleStartPump = async () => {
-  try {
-    const stageId = await AsyncStorage.getItem(
-      'cleanWaterStageId'
-    );
+//   const handleStartPump = async () => {
+//   try {
+//     const stageId = await AsyncStorage.getItem(
+//       'cleanWaterStageId'
+//     );
 
-    const motorId = await AsyncStorage.getItem(
-      'cleanWaterPumpMotorId'
-    );
+//     const motorId = await AsyncStorage.getItem(
+//       'cleanWaterPumpMotorId'
+//     );
 
-    console.log('Stage ID:', stageId);
-    console.log('Motor Equipment ID:', motorId);
+//     console.log('Stage ID:', stageId);
+//     console.log('Motor Equipment ID:', motorId);
 
-    if (!stageId) {
-      console.log('Stage ID not found');
-      return;
-    }
+//     if (!stageId) {
+//       console.log('Stage ID not found');
+//       return;
+//     }
 
-    if (!motorId) {
-      console.log('Motor Equipment ID not found');
-      return;
-    }
+//     if (!motorId) {
+//       console.log('Motor Equipment ID not found');
+//       return;
+//     }
 
-    const response = await turnOnMotor(
-      Number(motorId),
-      Number(stageId)
-    );
+//     const response = await turnOnMotor(
+//       Number(motorId),
+//       Number(stageId)
+//     );
 
-    console.log('Motor ON Response:', response);
-    console.log('Sensors from response:', response.sensors);
+//     console.log('Motor ON Response:', response);
+//     console.log('Sensors from response:', response.sensors);
 
-    if (response.success && response.data.current_state === 'ON') {
-      setPumpStartTime(response.data.started_at);
+//     if (response.success && response.data.current_state === 'ON') {
+//       setPumpStartTime(response.data.started_at);
 
-      setPumpEndTime(null);
-      setPumpDuration(null);
-// const sensors = response.sensors || [];
+//       setPumpEndTime(null);
+//       setPumpDuration(null);
+// // const sensors = response.sensors || [];
 
-// const sensor1 = sensors.find(
-//   (sensor: any) => sensor.id === 7
-// );
+// // const sensor1 = sensors.find(
+// //   (sensor: any) => sensor.id === 7
+// // );
 
-// const sensor2 = sensors.find(
-//   (sensor: any) => sensor.id === 8
-// );
+// // const sensor2 = sensors.find(
+// //   (sensor: any) => sensor.id === 8
+// // );
 
-// await AsyncStorage.setItem(
-//   'sensor3Status',
-//   sensor1?.status || 'INACTIVE'
-// );
+// // await AsyncStorage.setItem(
+// //   'sensor3Status',
+// //   sensor1?.status || 'INACTIVE'
+// // );
 
-// await AsyncStorage.setItem(
-//   'sensor4Status',
-//   sensor2?.status || 'INACTIVE'
-// );
+// // await AsyncStorage.setItem(
+// //   'sensor4Status',
+// //   sensor2?.status || 'INACTIVE'
+// // );
 
-// console.log('Sensor 1 Status:', sensor1?.status);
-// console.log('Sensor 2 Status:', sensor2?.status);
-    }
+// // console.log('Sensor 1 Status:', sensor1?.status);
+// // console.log('Sensor 2 Status:', sensor2?.status);
+//     }
 
-  } catch (error) {
-    console.error('Failed to start pump:', error);
-  }
-};
+//   } catch (error) {
+//     console.error('Failed to start pump:', error);
+//   }
+// };
+
+// // const handleStopPump = async () => {
+// //   try {
+// //     const stageId = await AsyncStorage.getItem(
+// //       'selectedStageId'
+// //     );
+
+// //     const motorId = await AsyncStorage.getItem(
+// //       'cleanWaterPumpMotorId'
+// //     );
+
+// //     console.log('Stage ID:', stageId);
+// //     console.log('Motor Equipment ID:', motorId);
+
+// //     if (!stageId) {
+// //       console.log('Stage ID not found');
+// //       return;
+// //     }
+
+// //     if (!motorId) {
+// //       console.log('Motor Equipment ID not found');
+// //       return;
+// //     }
+
+// //     const response = await turnOffMotor(
+// //       Number(motorId),
+// //       Number(stageId)
+// //     );
+
+// //     console.log('Motor OFF Response:', response);
+
+// //     if (response.status === 'INACTIVE') {
+// //       setPumpStartTime(null);
+
+// //       setPumpEndTime(response.ended_at);
+
+// //       setPumpDuration(response.duration_seconds);
+// //     }
+
+// //   } catch (error) {
+// //     console.error('Failed to stop pump:', error);
+// //   }
+// // };
 
 // const handleStopPump = async () => {
 //   try {
 //     const stageId = await AsyncStorage.getItem(
-//       'selectedStageId'
+//       'cleanWaterStageId'
 //     );
 
 //     const motorId = await AsyncStorage.getItem(
@@ -106,13 +149,37 @@ export default function InletPumpScreen() {
 //     );
 
 //     console.log('Motor OFF Response:', response);
+//     console.log('Sensors from OFF response:', response.sensors);
 
-//     if (response.status === 'INACTIVE') {
+//     if (response.success && response.data.current_state === 'OFF') {
 //       setPumpStartTime(null);
+//       setPumpEndTime(response.data.ended_at);
+//       setPumpDuration(response.data.duration_seconds);
 
-//       setPumpEndTime(response.ended_at);
+//       // Get sensors from OFF response
+//       const sensors = response.sensors || [];
 
-//       setPumpDuration(response.duration_seconds);
+//       const sensor1 = sensors.find(
+//         (sensor: any) => sensor.id === 7
+//       );
+
+//       const sensor2 = sensors.find(
+//         (sensor: any) => sensor.id === 8
+//       );
+
+//       // Save sensor status as INACTIVE
+//       await AsyncStorage.setItem(
+//         'sensor3Status',
+//         sensor1?.status || 'INACTIVE'
+//       );
+
+//       await AsyncStorage.setItem(
+//         'sensor4Status',
+//         sensor2?.status || 'INACTIVE'
+//       );
+
+//       console.log('Sensor 3 Status:', sensor1?.status);
+//       console.log('Sensor 4 Status:', sensor2?.status);
 //     }
 
 //   } catch (error) {
@@ -120,7 +187,655 @@ export default function InletPumpScreen() {
 //   }
 // };
 
-const handleStopPump = async () => {
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       {/* Header */}
+//       <View style={styles.header}>
+//         <TouchableOpacity style={styles.backButton} onPress={() => router.navigate('/(tabs)/inlet/cleanwater/settings')}>
+//           <MaterialCommunityIcons name="arrow-left" size={24} color="#1E3A8A" />
+//         </TouchableOpacity>
+//         <View style={styles.headerTitleContainer}>
+//           <Text style={styles.headerTitle}>Inlet Pump 1</Text>
+//           <Text style={styles.headerSubtitle}>Manual Control</Text>
+//         </View>
+//         <View style={styles.backButton} />
+//       </View>
+//       <View style={styles.headerBorder} />
+
+//       <ScrollView contentContainerStyle={styles.scrollContent}>
+
+//         {/* Pump Status Card */}
+//         <View style={styles.card}>
+//           <View style={styles.statusCardContent}>
+//             <Image 
+//               source={require('@/assets/images/inletpump.png')} 
+//               style={styles.pumpLargeIcon} 
+//               resizeMode="contain" 
+//             />
+//             <View style={styles.statusTextContainer}>
+//               <Text style={styles.statusTitle}>Pump Status</Text>
+//               <View style={styles.statusRow}>
+//                 <View style={styles.statusDotGreen} />
+//                 <Text style={styles.statusTextGreen}>Ready</Text>
+//               </View>
+//               <Text style={styles.statusSubtitle}>PLC connection active</Text>
+//             </View>
+//             <View style={styles.offBadge}>
+//               <Text style={styles.offBadgeText}>OFF</Text>
+//             </View>
+//           </View>
+//         </View>
+
+
+//                {/* Manual Control Card */}
+//                <View style={styles.card}>
+//                  <Text style={styles.cardTitle}>Manual Control</Text>
+//                  <View style={styles.actionButtonsContainer}>
+//                    {/* <TouchableOpacity style={styles.startButton}>
+//                      <MaterialCommunityIcons name="power" size={24} color="#FFFFFF" />
+//                      <Text style={styles.startButtonText}>START PUMP</Text>
+//                    </TouchableOpacity> */}
+//                    <TouchableOpacity
+//          style={styles.startButton}
+//          onPress={handleStartPump}
+//        >
+//          <MaterialCommunityIcons
+//            name="power"
+//            size={24}
+//            color="#FFFFFF"
+//          />
+//          <Text style={styles.startButtonText}>START PUMP</Text>
+//        </TouchableOpacity>
+
+//                    <TouchableOpacity
+//          style={styles.stopButton}
+//          onPress={handleStopPump}
+//        >
+//          <MaterialCommunityIcons
+//            name="stop-circle-outline"
+//            size={24}
+//            color="#DC2626"
+//          />
+//          <Text style={styles.stopButtonText}>STOP PUMP</Text>
+//        </TouchableOpacity>
+//                  </View>
+//                </View>
+
+//         {/* Operating Schedule Card */}
+//              {/* Operating Schedule Card */}
+//                 {/* Start Time */}
+//         {pumpStartTime && (
+//           <>
+//             <View style={styles.scheduleRow}>
+//               <View style={styles.scheduleLabelContainer}>
+//                 <MaterialCommunityIcons
+//                   name="clock-outline"
+//                   size={22}
+//                   color="#1A5B9C"
+//                 />
+
+//                 <Text style={styles.scheduleLabel}>
+//                   Start Time
+//                 </Text>
+//               </View>
+
+//               <View style={styles.timeInputBox}>
+//                 <Text style={styles.timeInputText}>
+//                   {new Date(pumpStartTime).toLocaleTimeString([], {
+//                     hour: '2-digit',
+//                     minute: '2-digit',
+//                   })}
+//                 </Text>
+//               </View>
+//             </View>
+//           </>
+//         )}
+
+//         {/* End Time + Running Time */}
+//         {pumpEndTime && (
+//           <>
+//             <View style={styles.scheduleRow}>
+//               <View style={styles.scheduleLabelContainer}>
+//                 <MaterialCommunityIcons
+//                   name="clock-outline"
+//                   size={22}
+//                   color="#1A5B9C"
+//                 />
+
+//                 <Text style={styles.scheduleLabel}>
+//                   End Time
+//                 </Text>
+//               </View>
+
+//               <View style={styles.timeInputBox}>
+//                 <Text style={styles.timeInputText}>
+//                   {new Date(pumpEndTime).toLocaleTimeString([], {
+//                     hour: '2-digit',
+//                     minute: '2-digit',
+//                   })}
+//                 </Text>
+//               </View>
+//             </View>
+
+//             <View style={styles.divider} />
+
+//             <View style={styles.scheduleRow}>
+//               <View style={styles.scheduleLabelContainer}>
+//                 <MaterialCommunityIcons
+//                   name="clock-outline"
+//                   size={22}
+//                   color="#1A5B9C"
+//                 />
+
+//                 <Text style={styles.scheduleLabel}>
+//                   Running Time
+//                 </Text>
+//               </View>
+
+//               <View style={styles.timeInputBox}>
+//                 <Text style={styles.timeInputText}>
+//                   {pumpDuration !== null
+//                     ? `${Math.floor(pumpDuration / 60)} min ${pumpDuration % 60} sec`
+//                     : '--'}
+//                 </Text>
+//               </View>
+//             </View>
+//           </>
+//         )}
+
+//         {/* Operation Log Card */}
+//         <View style={styles.card}>
+//           <View style={styles.logHeader}>
+//             <Text style={styles.cardTitle}>Operation Log</Text>
+//             <TouchableOpacity style={styles.viewAllRow}>
+//               <Text style={styles.viewAllText}>View All</Text>
+//               <MaterialCommunityIcons name="chevron-right" size={20} color="#0D9488" />
+//             </TouchableOpacity>
+//           </View>
+
+//           <View style={styles.logRow}>
+//             <Text style={styles.logTime}>Today, 08:15 AM</Text>
+//             <View style={styles.logStatusContainer}>
+//               <Text style={styles.logStatusText}>Pump Started</Text>
+//               <View style={[styles.logStatusDot, { backgroundColor: '#10B981' }]} />
+//             </View>
+//           </View>
+
+//           <View style={styles.logDivider} />
+
+//           <View style={styles.logRow}>
+//             <Text style={styles.logTime}>Yesterday, 06:15 PM</Text>
+//             <View style={styles.logStatusContainer}>
+//               <Text style={styles.logStatusText}>Pump Stopped</Text>
+//               <View style={[styles.logStatusDot, { backgroundColor: '#6B7280' }]} />
+//             </View>
+//           </View>
+
+//           <View style={styles.logDivider} />
+
+//           <View style={styles.logRow}>
+//             <Text style={styles.logTime}>Yesterday, 08:15 AM</Text>
+//             <View style={styles.logStatusContainer}>
+//               <Text style={styles.logStatusText}>Pump Started</Text>
+//               <View style={[styles.logStatusDot, { backgroundColor: '#10B981' }]} />
+//             </View>
+//           </View>
+
+//         </View>
+
+//       </ScrollView>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#F8F9FA',
+//   },
+//   header: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     justifyContent: 'space-between',
+//     paddingHorizontal: 16,
+//     paddingTop: 16,
+//     paddingBottom: 16,
+//     backgroundColor: '#FFFFFF',
+//   },
+//   headerBorder: {
+//     height: 1,
+//     backgroundColor: '#E5E7EB',
+//   },
+//   backButton: {
+//     width: 40,
+//     height: 40,
+//     justifyContent: 'center',
+//   },
+//   headerTitleContainer: {
+//     alignItems: 'center',
+//   },
+//   headerTitle: {
+//     fontSize: 18,
+//     fontWeight: '700',
+//     color: '#1E3A8A',
+//   },
+//   headerSubtitle: {
+//     fontSize: 13,
+//     color: '#6B7280',
+//     marginTop: 2,
+//   },
+//   scrollContent: {
+//     padding: 16,
+//     paddingBottom: 40,
+//   },
+//   card: {
+//     backgroundColor: '#FFFFFF',
+//     borderRadius: 12,
+//     padding: 16,
+//     borderWidth: 1,
+//     borderColor: '#F3F4F6',
+//     marginBottom: 16,
+//     shadowColor: '#000',
+//     shadowOffset: {
+//       width: 0,
+//       height: 2,
+//     },
+//     shadowOpacity: 0.05,
+//     shadowRadius: 3,
+//     elevation: 2,
+//   },
+//   statusCardContent: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//   },
+//   pumpLargeIcon: {
+//     width: 56,
+//     height: 56,
+//     marginRight: 16,
+//   },
+//   statusTextContainer: {
+//     flex: 1,
+//   },
+//   statusTitle: {
+//     fontSize: 16,
+//     fontWeight: '700',
+//     color: '#111827',
+//   },
+//   statusRow: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     marginTop: 4,
+//     marginBottom: 2,
+//   },
+//   statusDotGreen: {
+//     width: 8,
+//     height: 8,
+//     borderRadius: 4,
+//     backgroundColor: '#10B981',
+//     marginRight: 6,
+//   },
+//   statusTextGreen: {
+//     fontSize: 14,
+//     color: '#10B981',
+//     fontWeight: '500',
+//   },
+//   statusSubtitle: {
+//     fontSize: 12,
+//     color: '#6B7280',
+//   },
+//   offBadge: {
+//     backgroundColor: '#F3F4F6',
+//     paddingHorizontal: 12,
+//     paddingVertical: 6,
+//     borderRadius: 4,
+//   },
+//   offBadgeText: {
+//     fontSize: 14,
+//     fontWeight: '600',
+//     color: '#4B5563',
+//   },
+//   cardTitle: {
+//     fontSize: 16,
+//     fontWeight: '700',
+//     color: '#111827',
+//     marginBottom: 4,
+//   },
+//   cardSubtitle: {
+//     fontSize: 13,
+//     color: '#6B7280',
+//     marginBottom: 16,
+//   },
+//   actionButtonsContainer: {
+//     flexDirection: 'row',
+//     gap: 12,
+//     marginTop: 8,
+//   },
+//   startButton: {
+//     flex: 1,
+//     backgroundColor: '#0D9488',
+//     borderRadius: 8,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     paddingVertical: 14,
+//   },
+//   startButtonText: {
+//     color: '#FFFFFF',
+//     fontWeight: '600',
+//     fontSize: 14,
+//     marginLeft: 6,
+//   },
+//   stopButton: {
+//     flex: 1,
+//     backgroundColor: '#FFFFFF',
+//     borderWidth: 1,
+//     borderColor: '#DC2626',
+//     borderRadius: 8,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     paddingVertical: 14,
+//   },
+//   stopButtonText: {
+//     color: '#DC2626',
+//     fontWeight: '600',
+//     fontSize: 14,
+//     marginLeft: 6,
+//   },
+//   scheduleRow: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     justifyContent: 'space-between',
+//     paddingVertical: 8,
+//   },
+//   scheduleLabelContainer: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//   },
+//   scheduleLabel: {
+//     fontSize: 15,
+//     fontWeight: '600',
+//     color: '#111827',
+//     marginLeft: 12,
+//   },
+//   timeInputBox: {
+//     borderWidth: 1,
+//     borderColor: '#E5E7EB',
+//     borderRadius: 6,
+//     paddingHorizontal: 16,
+//     paddingVertical: 8,
+//     minWidth: 100,
+//     alignItems: 'center',
+//   },
+//   timeInputText: {
+//     fontSize: 14,
+//     color: '#4B5563',
+//     fontWeight: '500',
+//   },
+//   divider: {
+//     height: 1,
+//     backgroundColor: '#F3F4F6',
+//     marginVertical: 4,
+//   },
+//   saveButton: {
+//     backgroundColor: '#0D9488',
+//     borderRadius: 8,
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     paddingVertical: 14,
+//     marginTop: 16,
+//   },
+//   saveButtonText: {
+//     color: '#FFFFFF',
+//     fontWeight: '600',
+//     fontSize: 14,
+//   },
+//   logHeader: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     marginBottom: 16,
+//   },
+//   viewAllRow: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//   },
+//   viewAllText: {
+//     fontSize: 13,
+//     color: '#0D9488',
+//     fontWeight: '500',
+//   },
+//   logRow: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     paddingVertical: 10,
+//   },
+//   logTime: {
+//     fontSize: 14,
+//     color: '#4B5563',
+//   },
+//   logStatusContainer: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//   },
+//   logStatusText: {
+//     fontSize: 14,
+//     color: '#4B5563',
+//     marginRight: 8,
+//   },
+//   logStatusDot: {
+//     width: 8,
+//     height: 8,
+//     borderRadius: 4,
+//   },
+//   logDivider: {
+//     height: 1,
+//     backgroundColor: '#F3F4F6',
+//     marginVertical: 4,
+//   },
+// });
+
+
+
+import React, { useState, useEffect } from 'react';
+
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+import { router } from 'expo-router';
+
+import {
+
+    turnOnMotor,
+
+    turnOffMotor,
+
+    getEquipmentManualLogs,
+
+} from '../../../../../api/inletApi';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+export default function InletPumpScreen() {
+
+    const [pumpStartTime, setPumpStartTime] = useState<string | null>(null);
+
+    const [pumpEndTime, setPumpEndTime] = useState<string | null>(null);
+
+    const [pumpDuration, setPumpDuration] = useState<number | null>(null);
+
+
+    const [activityLogs, setActivityLogs] = useState<any[]>([]);
+
+    const [logsLoading, setLogsLoading] = useState(false);
+
+    const [logsError, setLogsError] = useState<string | null>(null);
+
+
+    const fetchActivityLogs = async () => {
+
+        try {
+
+            setLogsLoading(true);
+
+            setLogsError(null);
+
+
+            const stageId = await AsyncStorage.getItem(
+
+                'cleanWaterStageId'
+
+            );
+
+
+            const motorId = await AsyncStorage.getItem(
+
+                'cleanWaterPumpMotorId'
+
+            );
+
+
+            console.log('Clean Water Stage ID:', stageId);
+
+            console.log('Clean Water Pump Equipment ID:', motorId);
+
+
+            if (!stageId) {
+
+                console.log('Clean Water Stage ID not found');
+
+                setActivityLogs([]);
+
+                return;
+
+            }
+
+
+            if (!motorId) {
+
+                console.log('Clean Water Pump Motor ID not found');
+
+                setActivityLogs([]);
+
+                return;
+
+            }
+
+
+            const response = await getEquipmentManualLogs(
+
+                Number(motorId),
+
+                Number(stageId)
+
+            );
+
+
+            console.log(
+
+                'Clean Water Pump Manual Logs:',
+
+                JSON.stringify(response, null, 2)
+
+            );
+
+
+            if (
+
+                response?.success &&
+
+                Array.isArray(response?.data)
+
+            ) {
+
+                const latestLogs = [...response.data]
+
+                    .sort(
+
+                        (a: any, b: any) =>
+
+                            new Date(b.created_at).getTime() -
+
+                            new Date(a.created_at).getTime()
+
+                    )
+
+                    .slice(0, 3);
+
+
+                setActivityLogs(latestLogs);
+
+            } else {
+
+                setActivityLogs([]);
+
+            }
+
+        } catch (error: any) {
+
+            console.error(
+
+                'Failed to fetch clean water pump activity logs:',
+
+                error?.response?.data || error
+
+            );
+
+
+            setActivityLogs([]);
+
+            setLogsError('Unable to load activity logs');
+
+        } finally {
+
+            setLogsLoading(false);
+
+        }
+
+    };
+
+
+
+
+    useEffect(() => {
+
+        fetchActivityLogs();
+
+    }, []);
+
+
+
+
+    const formatDateTime = (dateString: string) => {
+
+        if (!dateString) return '--';
+
+
+        const date = new Date(dateString);
+
+
+        return date.toLocaleString([], {
+
+            day: '2-digit',
+
+            month: 'short',
+
+            hour: '2-digit',
+
+            minute: '2-digit',
+
+        });
+
+    };
+
+
+
+    const handleStartPump = async () => {
   try {
     const stageId = await AsyncStorage.getItem(
       'cleanWaterStageId'
@@ -133,505 +848,1340 @@ const handleStopPump = async () => {
     console.log('Stage ID:', stageId);
     console.log('Motor Equipment ID:', motorId);
 
-    if (!stageId) {
-      console.log('Stage ID not found');
+    if (!stageId || !motorId) {
+      console.log('Stage ID or Motor ID not found');
       return;
     }
 
-    if (!motorId) {
-      console.log('Motor Equipment ID not found');
-      return;
-    }
-
-    const response = await turnOffMotor(
+    const response = await turnOnMotor(
       Number(motorId),
       Number(stageId)
     );
 
-    console.log('Motor OFF Response:', response);
-    console.log('Sensors from OFF response:', response.sensors);
+    console.log(
+      'Motor ON Response:',
+      JSON.stringify(response, null, 2)
+    );
 
-    if (response.success && response.data.current_state === 'OFF') {
-      setPumpStartTime(null);
-      setPumpEndTime(response.data.ended_at);
-      setPumpDuration(response.data.duration_seconds);
+    // Check actual motor state
+    const currentState =
+      response?.data?.current_state ??
+      response?.current_state;
 
-      // Get sensors from OFF response
-      const sensors = response.sensors || [];
+    console.log('Motor Current State:', currentState);
 
-      const sensor1 = sensors.find(
-        (sensor: any) => sensor.id === 7
-      );
+    // Motor is successfully ON
+    if (
+      response?.success &&
+      currentState === 'ON'
+    ) {
+      const startedAt =
+        response?.data?.started_at ??
+        response?.started_at;
 
-      const sensor2 = sensors.find(
-        (sensor: any) => sensor.id === 8
-      );
+      console.log('Pump Started At:', startedAt);
 
-      // Save sensor status as INACTIVE
-      await AsyncStorage.setItem(
-        'sensor3Status',
-        sensor1?.status || 'INACTIVE'
-      );
+      // Show Start Time
+      setPumpStartTime(startedAt ?? null);
 
-      await AsyncStorage.setItem(
-        'sensor4Status',
-        sensor2?.status || 'INACTIVE'
-      );
+      // Hide End Time and Running Time
+      setPumpEndTime(null);
+      setPumpDuration(null);
 
-      console.log('Sensor 3 Status:', sensor1?.status);
-      console.log('Sensor 4 Status:', sensor2?.status);
+      console.log('Pump started successfully');
+
+      // Refresh operation logs
+      await fetchActivityLogs();
     }
 
-  } catch (error) {
-    console.error('Failed to stop pump:', error);
+  } catch (error: any) {
+    console.error(
+      'Failed to start pump:',
+      error?.response?.data || error
+    );
   }
 };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.navigate('/(tabs)/inlet/cleanwater/settings')}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color="#1E3A8A" />
-        </TouchableOpacity>
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Inlet Pump 1</Text>
-          <Text style={styles.headerSubtitle}>Manual Control</Text>
-        </View>
-        <View style={styles.backButton} />
-      </View>
-      <View style={styles.headerBorder} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        
-        {/* Pump Status Card */}
-        <View style={styles.card}>
-          <View style={styles.statusCardContent}>
-            <Image 
-              source={require('@/assets/images/inletpump.png')} 
-              style={styles.pumpLargeIcon} 
-              resizeMode="contain" 
-            />
-            <View style={styles.statusTextContainer}>
-              <Text style={styles.statusTitle}>Pump Status</Text>
-              <View style={styles.statusRow}>
-                <View style={styles.statusDotGreen} />
-                <Text style={styles.statusTextGreen}>Ready</Text>
-              </View>
-              <Text style={styles.statusSubtitle}>PLC connection active</Text>
+
+    const handleStopPump = async () => {
+
+        try {
+
+            const stageId = await AsyncStorage.getItem(
+
+                'cleanWaterStageId'
+
+            );
+
+
+            const motorId = await AsyncStorage.getItem(
+
+                'cleanWaterPumpMotorId'
+
+            );
+
+
+            console.log('Stage ID:', stageId);
+
+            console.log('Motor Equipment ID:', motorId);
+
+
+            if (!stageId || !motorId) {
+
+                console.log('Stage ID or Motor ID not found');
+
+                return;
+
+            }
+
+
+            const response = await turnOffMotor(
+
+                Number(motorId),
+
+                Number(stageId)
+
+            );
+
+
+            console.log(
+
+                'Motor OFF Response:',
+
+                JSON.stringify(response, null, 2)
+
+            );
+
+
+            const status =
+
+                response?.data?.equipment?.status ??
+
+                response?.data?.status ??
+
+                response?.status;
+
+
+            console.log('Pump Status:', status);
+
+
+            if (status === 'INACTIVE') {
+
+                const endedAt =
+
+                    response?.data?.ended_at ??
+
+                    response?.ended_at;
+
+
+                const duration =
+
+                    response?.data?.duration_seconds ??
+
+                    response?.duration_seconds;
+
+
+                setPumpStartTime(null);
+
+                setPumpEndTime(endedAt ?? null);
+
+                setPumpDuration(
+
+                    duration != null ? Number(duration) : null
+
+                );
+
+
+                console.log('Pump stopped successfully');
+
+
+                // Wait for backend to update the log
+
+                setTimeout(() => {
+
+                    fetchActivityLogs();
+
+                },);
+
+
+                // Sensor status
+
+                const sensors =
+
+                    response?.data?.sensors ??
+
+                    response?.sensors ??
+
+                    [];
+
+
+                const sensor1 = sensors.find(
+
+                    (sensor: any) => sensor.id === 7
+
+                );
+
+
+                const sensor2 = sensors.find(
+
+                    (sensor: any) => sensor.id === 8
+
+                );
+
+
+                await AsyncStorage.setItem(
+
+                    'sensor3Status',
+
+                    sensor1?.status || 'INACTIVE'
+
+                );
+
+
+                await AsyncStorage.setItem(
+
+                    'sensor4Status',
+
+                    sensor2?.status || 'INACTIVE'
+
+                );
+
+
+                console.log(
+
+                    'Sensor 3 Status:',
+
+                    sensor1?.status
+
+                );
+
+
+                console.log(
+
+                    'Sensor 4 Status:',
+
+                    sensor2?.status
+
+                );
+
+            }
+
+
+        } catch (error: any) {
+
+            console.error(
+
+                'Failed to stop pump:',
+
+                error?.response?.data || error
+
+            );
+
+        }
+
+    };
+
+
+    return (
+
+        <SafeAreaView style={styles.container}>
+
+            {/* Header */}
+
+            <View style={styles.header}>
+
+                <TouchableOpacity style={styles.backButton} onPress={() => router.navigate('/(tabs)/inlet/cleanwater/settings')}>
+
+                    <MaterialCommunityIcons name="arrow-left" size={24} color="#1E3A8A" />
+
+                </TouchableOpacity>
+
+                <View style={styles.headerTitleContainer}>
+
+                    <Text style={styles.headerTitle}>Inlet Pump 1</Text>
+
+                    <Text style={styles.headerSubtitle}>Manual Control</Text>
+
+                </View>
+
+                <View style={styles.backButton} />
+
             </View>
-            <View style={styles.offBadge}>
-              <Text style={styles.offBadgeText}>OFF</Text>
-            </View>
-          </View>
-        </View>
 
-       
-               {/* Manual Control Card */}
-               <View style={styles.card}>
-                 <Text style={styles.cardTitle}>Manual Control</Text>
-                 <View style={styles.actionButtonsContainer}>
-                   {/* <TouchableOpacity style={styles.startButton}>
-                     <MaterialCommunityIcons name="power" size={24} color="#FFFFFF" />
-                     <Text style={styles.startButtonText}>START PUMP</Text>
-                   </TouchableOpacity> */}
-                   <TouchableOpacity
-         style={styles.startButton}
-         onPress={handleStartPump}
-       >
-         <MaterialCommunityIcons
-           name="power"
-           size={24}
-           color="#FFFFFF"
-         />
-         <Text style={styles.startButtonText}>START PUMP</Text>
-       </TouchableOpacity>
-                   
-                   <TouchableOpacity
-         style={styles.stopButton}
-         onPress={handleStopPump}
-       >
-         <MaterialCommunityIcons
-           name="stop-circle-outline"
-           size={24}
-           color="#DC2626"
-         />
-         <Text style={styles.stopButtonText}>STOP PUMP</Text>
-       </TouchableOpacity>
-                 </View>
-               </View>
+            <View style={styles.headerBorder} />
 
-        {/* Operating Schedule Card */}
-             {/* Operating Schedule Card */}
+
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+
+                {/* Pump Status Card */}
+
+                <View style={styles.card}>
+
+                    <View style={styles.statusCardContent}>
+
+                        <Image
+
+                            source={require('@/assets/images/inletpump.png')}
+
+                            style={styles.pumpLargeIcon}
+
+                            resizeMode="contain"
+
+                        />
+
+                        <View style={styles.statusTextContainer}>
+
+                            <Text style={styles.statusTitle}>Pump Status</Text>
+
+                            <View style={styles.statusRow}>
+
+                                <View style={styles.statusDotGreen} />
+
+                                <Text style={styles.statusTextGreen}>Ready</Text>
+
+                            </View>
+
+                            <Text style={styles.statusSubtitle}>PLC connection active</Text>
+
+                        </View>
+
+                        <View style={styles.offBadge}>
+
+                            <Text style={styles.offBadgeText}>OFF</Text>
+
+                        </View>
+
+                    </View>
+
+                </View>
+
+
+                {/* Manual Control Card */}
+
+                <View style={styles.card}>
+
+                    <Text style={styles.cardTitle}>Manual Control</Text>
+
+                    <View style={styles.actionButtonsContainer}>
+
+                        <TouchableOpacity
+
+                            style={styles.startButton}
+
+                            onPress={handleStartPump}
+
+                        >
+
+                            <MaterialCommunityIcons
+
+                                name="power"
+
+                                size={24}
+
+                                color="#FFFFFF"
+
+                            />
+
+                            <Text style={styles.startButtonText}>START PUMP</Text>
+
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+
+                            style={styles.stopButton}
+
+                            onPress={handleStopPump}
+
+                        >
+
+                            <MaterialCommunityIcons
+
+                                name="stop-circle-outline"
+
+                                size={24}
+
+                                color="#DC2626"
+
+                            />
+
+                            <Text style={styles.stopButtonText}>STOP PUMP</Text>
+
+                        </TouchableOpacity>
+
+                    </View>
+
+                </View>
+
+
+                {/* Operating Schedule Card */}
+
+                {/* Operating Schedule Card */}
+
                 {/* Start Time */}
-        {pumpStartTime && (
-          <>
-            <View style={styles.scheduleRow}>
-              <View style={styles.scheduleLabelContainer}>
-                <MaterialCommunityIcons
-                  name="clock-outline"
-                  size={22}
-                  color="#1A5B9C"
-                />
-        
-                <Text style={styles.scheduleLabel}>
-                  Start Time
-                </Text>
-              </View>
-        
-              <View style={styles.timeInputBox}>
-                <Text style={styles.timeInputText}>
-                  {new Date(pumpStartTime).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </Text>
-              </View>
-            </View>
-          </>
-        )}
-        
-        {/* End Time + Running Time */}
-        {pumpEndTime && (
-          <>
-            <View style={styles.scheduleRow}>
-              <View style={styles.scheduleLabelContainer}>
-                <MaterialCommunityIcons
-                  name="clock-outline"
-                  size={22}
-                  color="#1A5B9C"
-                />
-        
-                <Text style={styles.scheduleLabel}>
-                  End Time
-                </Text>
-              </View>
-        
-              <View style={styles.timeInputBox}>
-                <Text style={styles.timeInputText}>
-                  {new Date(pumpEndTime).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </Text>
-              </View>
-            </View>
-        
-            <View style={styles.divider} />
-        
-            <View style={styles.scheduleRow}>
-              <View style={styles.scheduleLabelContainer}>
-                <MaterialCommunityIcons
-                  name="clock-outline"
-                  size={22}
-                  color="#1A5B9C"
-                />
-        
-                <Text style={styles.scheduleLabel}>
-                  Running Time
-                </Text>
-              </View>
-        
-              <View style={styles.timeInputBox}>
-                <Text style={styles.timeInputText}>
-                  {pumpDuration !== null
-                    ? `${Math.floor(pumpDuration / 60)} min ${pumpDuration % 60} sec`
-                    : '--'}
-                </Text>
-              </View>
-            </View>
-          </>
-        )}
 
-        {/* Operation Log Card */}
-        <View style={styles.card}>
-          <View style={styles.logHeader}>
-            <Text style={styles.cardTitle}>Operation Log</Text>
-            <TouchableOpacity style={styles.viewAllRow}>
-              <Text style={styles.viewAllText}>View All</Text>
-              <MaterialCommunityIcons name="chevron-right" size={20} color="#0D9488" />
-            </TouchableOpacity>
-          </View>
+                {pumpStartTime && (
 
-          <View style={styles.logRow}>
-            <Text style={styles.logTime}>Today, 08:15 AM</Text>
-            <View style={styles.logStatusContainer}>
-              <Text style={styles.logStatusText}>Pump Started</Text>
-              <View style={[styles.logStatusDot, { backgroundColor: '#10B981' }]} />
-            </View>
-          </View>
+                    <>
 
-          <View style={styles.logDivider} />
+                        <View style={styles.scheduleRow}>
 
-          <View style={styles.logRow}>
-            <Text style={styles.logTime}>Yesterday, 06:15 PM</Text>
-            <View style={styles.logStatusContainer}>
-              <Text style={styles.logStatusText}>Pump Stopped</Text>
-              <View style={[styles.logStatusDot, { backgroundColor: '#6B7280' }]} />
-            </View>
-          </View>
+                            <View style={styles.scheduleLabelContainer}>
 
-          <View style={styles.logDivider} />
+                                <MaterialCommunityIcons
 
-          <View style={styles.logRow}>
-            <Text style={styles.logTime}>Yesterday, 08:15 AM</Text>
-            <View style={styles.logStatusContainer}>
-              <Text style={styles.logStatusText}>Pump Started</Text>
-              <View style={[styles.logStatusDot, { backgroundColor: '#10B981' }]} />
-            </View>
-          </View>
+                                    name="clock-outline"
 
-        </View>
+                                    size={22}
 
-      </ScrollView>
-    </SafeAreaView>
-  );
+                                    color="#1A5B9C"
+
+                                />
+
+                                <Text style={styles.scheduleLabel}>
+
+                                    Start Time
+
+                                </Text>
+
+                            </View>
+
+                            <View style={styles.timeInputBox}>
+
+                                <Text style={styles.timeInputText}>
+
+                                    {new Date(pumpStartTime).toLocaleTimeString([], {
+
+                                        hour: '2-digit',
+
+                                        minute: '2-digit',
+
+                                    })}
+
+                                </Text>
+
+                            </View>
+
+                        </View>
+
+                    </>
+
+                )}
+
+                {/* End Time + Running Time */}
+
+                {pumpEndTime && (
+
+                    <>
+
+                        <View style={styles.scheduleRow}>
+
+                            <View style={styles.scheduleLabelContainer}>
+
+                                <MaterialCommunityIcons
+
+                                    name="clock-outline"
+
+                                    size={22}
+
+                                    color="#1A5B9C"
+
+                                />
+
+                                <Text style={styles.scheduleLabel}>
+
+                                    End Time
+
+                                </Text>
+
+                            </View>
+
+                            <View style={styles.timeInputBox}>
+
+                                <Text style={styles.timeInputText}>
+
+                                    {new Date(pumpEndTime).toLocaleTimeString([], {
+
+                                        hour: '2-digit',
+
+                                        minute: '2-digit',
+
+                                    })}
+
+                                </Text>
+
+                            </View>
+
+                        </View>
+
+                        <View style={styles.divider} />
+
+                        <View style={styles.scheduleRow}>
+
+                            <View style={styles.scheduleLabelContainer}>
+
+                                <MaterialCommunityIcons
+
+                                    name="clock-outline"
+
+                                    size={22}
+
+                                    color="#1A5B9C"
+
+                                />
+
+                                <Text style={styles.scheduleLabel}>
+
+                                    Running Time
+
+                                </Text>
+
+                            </View>
+
+                            <View style={styles.timeInputBox}>
+
+                                <Text style={styles.timeInputText}>
+
+                                    {pumpDuration !== null
+
+                                        ? `${Math.floor(pumpDuration / 60)} min ${pumpDuration % 60} sec`
+
+                                        : '--'}
+
+                                </Text>
+
+                            </View>
+
+                        </View>
+
+                    </>
+
+                )}
+
+
+                {/* Operation Log Card */}
+
+                {/* Operation Log Card */}
+
+                <View style={styles.card}>
+
+
+                    {/* Log Header */}
+
+                    <View style={styles.logHeader}>
+
+                        <Text style={styles.cardTitle}>
+
+                            Operation Log
+
+                        </Text>
+
+
+                        <TouchableOpacity style={styles.viewAllRow}>
+
+                            <Text style={styles.viewAllText}>
+
+                                View All
+
+                            </Text>
+
+
+                            <MaterialCommunityIcons
+
+                                name="chevron-right"
+
+                                size={20}
+
+                                color="#0D9488"
+
+                            />
+
+                        </TouchableOpacity>
+
+                    </View>
+
+
+                    {/* Loading */}
+
+                    {logsLoading && (
+
+                        <View style={styles.emptyLogContainer}>
+
+                            <Text style={styles.emptyLogText}>
+
+                                Loading operation logs...
+
+                            </Text>
+
+                        </View>
+
+                    )}
+
+
+                    {/* Error */}
+
+                    {!logsLoading && logsError && (
+
+                        <View style={styles.emptyLogContainer}>
+
+                            <Text style={styles.errorLogText}>
+
+                                {logsError}
+
+                            </Text>
+
+                        </View>
+
+                    )}
+
+
+                    {/* No Logs */}
+
+                    {!logsLoading &&
+
+                        !logsError &&
+
+                        activityLogs.length === 0 && (
+
+                            <View style={styles.emptyLogContainer}>
+
+
+                                <MaterialCommunityIcons
+
+                                    name="history"
+
+                                    size={28}
+
+                                    color="#9CA3AF"
+
+                                />
+
+
+                                <Text style={styles.emptyLogText}>
+
+                                    No operation logs found
+
+                                </Text>
+
+
+                            </View>
+
+                        )}
+
+
+                    {/* Dynamic API Logs */}
+
+                    {!logsLoading &&
+
+                        !logsError &&
+
+                        activityLogs.map((log, index) => {
+
+
+                            const isStarted = log.action === 'ON';
+
+
+                            const logTime = isStarted
+
+                                ? log.started_at
+
+                                : log.ended_at;
+
+
+                            return (
+
+                                <React.Fragment key={log.id}>
+
+
+                                    <View style={styles.logRow}>
+
+
+                                        <View style={{ flex: 1 }}>
+
+
+                                            {/* Date / Time */}
+
+                                            <Text style={styles.logTime}>
+
+                                                {formatDateTime(logTime)}
+
+                                            </Text>
+
+
+                                            {/* Stage */}
+
+                                            <Text style={styles.logStage}>
+
+                                                {log.stage?.name ?? '--'}
+
+                                            </Text>
+
+
+                                        </View>
+
+
+                                        {/* Status */}
+
+                                        <View style={styles.logStatusContainer}>
+
+
+                                            <Text
+
+                                                style={[
+
+                                                    styles.logStatusText,
+
+                                                    {
+
+                                                        color: isStarted
+
+                                                            ? '#10B981'
+
+                                                            : '#6B7280',
+
+                                                    },
+
+                                                ]}
+
+                                            >
+
+                                                {isStarted
+
+                                                    ? 'Pump Started'
+
+                                                    : 'Pump Stopped'}
+
+                                            </Text>
+
+
+                                            <View
+
+                                                style={[
+
+                                                    styles.logStatusDot,
+
+                                                    {
+
+                                                        backgroundColor: isStarted
+
+                                                            ? '#10B981'
+
+                                                            : '#6B7280',
+
+                                                    },
+
+                                                ]}
+
+                                            />
+
+
+                                        </View>
+
+
+                                    </View>
+
+
+                                    {/* Running Time */}
+
+                                    {log.duration_seconds !== null &&
+
+                                        log.duration_seconds !== undefined && (
+
+                                            <Text style={styles.logDuration}>
+
+                                                Running Time:{' '}
+
+                                                {Math.floor(
+
+                                                    Number(log.duration_seconds) / 60
+
+                                                )}{' '}
+
+                                                min{' '}
+
+                                                {Number(log.duration_seconds) % 60}{' '}
+
+                                                sec
+
+                                            </Text>
+
+                                        )}
+
+
+                                    {/* Divider */}
+
+                                    {index < activityLogs.length - 1 && (
+
+                                        <View style={styles.logDivider} />
+
+                                    )}
+
+
+                                </React.Fragment>
+
+                            );
+
+                        })}
+
+
+                </View>
+
+
+            </ScrollView>
+
+        </SafeAreaView>
+
+    );
+
 }
 
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 16,
-    backgroundColor: '#FFFFFF',
-  },
-  headerBorder: {
-    height: 1,
-    backgroundColor: '#E5E7EB',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-  },
-  headerTitleContainer: {
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1E3A8A',
-  },
-  headerSubtitle: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginTop: 2,
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
+
+    container: {
+
+        flex: 1,
+
+        backgroundColor: '#F8F9FA',
+
     },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  statusCardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  pumpLargeIcon: {
-    width: 56,
-    height: 56,
-    marginRight: 16,
-  },
-  statusTextContainer: {
-    flex: 1,
-  },
-  statusTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-    marginBottom: 2,
-  },
-  statusDotGreen: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#10B981',
-    marginRight: 6,
-  },
-  statusTextGreen: {
-    fontSize: 14,
-    color: '#10B981',
-    fontWeight: '500',
-  },
-  statusSubtitle: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
-  offBadge: {
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 4,
-  },
-  offBadgeText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#4B5563',
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 4,
-  },
-  cardSubtitle: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginBottom: 16,
-  },
-  actionButtonsContainer: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  startButton: {
-    flex: 1,
-    backgroundColor: '#0D9488',
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-  },
-  startButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 14,
-    marginLeft: 6,
-  },
-  stopButton: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#DC2626',
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-  },
-  stopButtonText: {
-    color: '#DC2626',
-    fontWeight: '600',
-    fontSize: 14,
-    marginLeft: 6,
-  },
-  scheduleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-  },
-  scheduleLabelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  scheduleLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#111827',
-    marginLeft: 12,
-  },
-  timeInputBox: {
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    minWidth: 100,
-    alignItems: 'center',
-  },
-  timeInputText: {
-    fontSize: 14,
-    color: '#4B5563',
-    fontWeight: '500',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#F3F4F6',
-    marginVertical: 4,
-  },
-  saveButton: {
-    backgroundColor: '#0D9488',
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    marginTop: 16,
-  },
-  saveButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  logHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  viewAllRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  viewAllText: {
-    fontSize: 13,
-    color: '#0D9488',
-    fontWeight: '500',
-  },
-  logRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  logTime: {
-    fontSize: 14,
-    color: '#4B5563',
-  },
-  logStatusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  logStatusText: {
-    fontSize: 14,
-    color: '#4B5563',
-    marginRight: 8,
-  },
-  logStatusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  logDivider: {
-    height: 1,
-    backgroundColor: '#F3F4F6',
-    marginVertical: 4,
-  },
+
+    header: {
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+        justifyContent: 'space-between',
+
+        paddingHorizontal: 16,
+
+        paddingTop: 16,
+
+        paddingBottom: 16,
+
+        backgroundColor: '#FFFFFF',
+
+    },
+
+    headerBorder: {
+
+        height: 1,
+
+        backgroundColor: '#E5E7EB',
+
+    },
+
+    backButton: {
+
+        width: 40,
+
+        height: 40,
+
+        justifyContent: 'center',
+
+    },
+
+    headerTitleContainer: {
+
+        alignItems: 'center',
+
+    },
+
+    headerTitle: {
+
+        fontSize: 18,
+
+        fontWeight: '700',
+
+        color: '#1E3A8A',
+
+    },
+
+    headerSubtitle: {
+
+        fontSize: 13,
+
+        color: '#6B7280',
+
+        marginTop: 2,
+
+    },
+
+    scrollContent: {
+
+        padding: 16,
+
+        paddingBottom: 40,
+
+    },
+
+    card: {
+
+        backgroundColor: '#FFFFFF',
+
+        borderRadius: 12,
+
+        padding: 16,
+
+        borderWidth: 1,
+
+        borderColor: '#F3F4F6',
+
+        marginBottom: 16,
+
+        shadowColor: '#000',
+
+        shadowOffset: {
+
+            width: 0,
+
+            height: 2,
+
+        },
+
+        shadowOpacity: 0.05,
+
+        shadowRadius: 3,
+
+        elevation: 2,
+
+    },
+
+    statusCardContent: {
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+    },
+
+    pumpLargeIcon: {
+
+        width: 56,
+
+        height: 56,
+
+        marginRight: 16,
+
+    },
+
+    statusTextContainer: {
+
+        flex: 1,
+
+    },
+
+    statusTitle: {
+
+        fontSize: 16,
+
+        fontWeight: '700',
+
+        color: '#111827',
+
+    },
+
+    statusRow: {
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+        marginTop: 4,
+
+        marginBottom: 2,
+
+    },
+
+    statusDotGreen: {
+
+        width: 8,
+
+        height: 8,
+
+        borderRadius: 4,
+
+        backgroundColor: '#10B981',
+
+        marginRight: 6,
+
+    },
+
+    statusTextGreen: {
+
+        fontSize: 14,
+
+        color: '#10B981',
+
+        fontWeight: '500',
+
+    },
+
+    statusSubtitle: {
+
+        fontSize: 12,
+
+        color: '#6B7280',
+
+    },
+
+    offBadge: {
+
+        backgroundColor: '#F3F4F6',
+
+        paddingHorizontal: 12,
+
+        paddingVertical: 6,
+
+        borderRadius: 4,
+
+    },
+
+    offBadgeText: {
+
+        fontSize: 14,
+
+        fontWeight: '600',
+
+        color: '#4B5563',
+
+    },
+
+    cardTitle: {
+
+        fontSize: 16,
+
+        fontWeight: '700',
+
+        color: '#111827',
+
+        marginBottom: 4,
+
+    },
+
+    cardSubtitle: {
+
+        fontSize: 13,
+
+        color: '#6B7280',
+
+        marginBottom: 16,
+
+    },
+
+    actionButtonsContainer: {
+
+        flexDirection: 'row',
+
+        gap: 12,
+
+        marginTop: 8,
+
+    },
+
+    startButton: {
+
+        flex: 1,
+
+        backgroundColor: '#0D9488',
+
+        borderRadius: 8,
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+        justifyContent: 'center',
+
+        paddingVertical: 14,
+
+    },
+
+    startButtonText: {
+
+        color: '#FFFFFF',
+
+        fontWeight: '600',
+
+        fontSize: 14,
+
+        marginLeft: 6,
+
+    },
+
+    stopButton: {
+
+        flex: 1,
+
+        backgroundColor: '#FFFFFF',
+
+        borderWidth: 1,
+
+        borderColor: '#DC2626',
+
+        borderRadius: 8,
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+        justifyContent: 'center',
+
+        paddingVertical: 14,
+
+    },
+
+    stopButtonText: {
+
+        color: '#DC2626',
+
+        fontWeight: '600',
+
+        fontSize: 14,
+
+        marginLeft: 6,
+
+    },
+
+    scheduleRow: {
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+        justifyContent: 'space-between',
+
+        paddingVertical: 8,
+
+    },
+
+    scheduleLabelContainer: {
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+    },
+
+    scheduleLabel: {
+
+        fontSize: 15,
+
+        fontWeight: '600',
+
+        color: '#111827',
+
+        marginLeft: 12,
+
+    },
+
+    timeInputBox: {
+
+        borderWidth: 1,
+
+        borderColor: '#E5E7EB',
+
+        borderRadius: 6,
+
+        paddingHorizontal: 16,
+
+        paddingVertical: 8,
+
+        minWidth: 100,
+
+        alignItems: 'center',
+
+    },
+
+    timeInputText: {
+
+        fontSize: 14,
+
+        color: '#4B5563',
+
+        fontWeight: '500',
+
+    },
+
+    divider: {
+
+        height: 1,
+
+        backgroundColor: '#F3F4F6',
+
+        marginVertical: 4,
+
+    },
+
+    saveButton: {
+
+        backgroundColor: '#0D9488',
+
+        borderRadius: 8,
+
+        alignItems: 'center',
+
+        justifyContent: 'center',
+
+        paddingVertical: 14,
+
+        marginTop: 16,
+
+    },
+
+    saveButtonText: {
+
+        color: '#FFFFFF',
+
+        fontWeight: '600',
+
+        fontSize: 14,
+
+    },
+
+    logHeader: {
+
+        flexDirection: 'row',
+
+        justifyContent: 'space-between',
+
+        alignItems: 'center',
+
+        marginBottom: 16,
+
+    },
+
+    viewAllRow: {
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+    },
+
+    viewAllText: {
+
+        fontSize: 13,
+
+        color: '#0D9488',
+
+        fontWeight: '500',
+
+    },
+
+    logRow: {
+
+        flexDirection: 'row',
+
+        justifyContent: 'space-between',
+
+        alignItems: 'center',
+
+        paddingVertical: 10,
+
+    },
+
+    logTime: {
+
+        fontSize: 14,
+
+        color: '#4B5563',
+
+    },
+
+    logStatusContainer: {
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+    },
+
+    logStatusText: {
+
+        fontSize: 14,
+
+        color: '#4B5563',
+
+        marginRight: 8,
+
+    },
+
+    logStatusDot: {
+
+        width: 8,
+
+        height: 8,
+
+        borderRadius: 4,
+
+    },
+
+    logDivider: {
+
+        height: 1,
+
+        backgroundColor: '#F3F4F6',
+
+        marginVertical: 4,
+
+    },
+
+    emptyLogContainer: {
+
+        alignItems: 'center',
+
+        justifyContent: 'center',
+
+        paddingVertical: 20,
+
+    },
+
+
+    emptyLogText: {
+
+        fontSize: 13,
+
+        color: '#6B7280',
+
+        marginTop: 6,
+
+    },
+
+
+    errorLogText: {
+
+        fontSize: 13,
+
+        color: '#DC2626',
+
+        textAlign: 'center',
+
+    },
+
+
+    logStage: {
+
+        fontSize: 11,
+
+        color: '#9CA3AF',
+
+        marginTop: 3,
+
+    },
+
+
+    logDuration: {
+
+        fontSize: 11,
+
+        color: '#6B7280',
+
+        marginTop: -4,
+
+        marginBottom: 6,
+
+    },
+
 });

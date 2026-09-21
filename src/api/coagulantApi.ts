@@ -32,7 +32,7 @@ export const turnOnCoagulantMotor = async (
     const token = await AsyncStorage.getItem('accessToken');
 
     const response = await axios.post(
-      `${BASE_URL}/equipment/coagulant-dosing/motor/${equipmentId}/on/`,
+      `${BASE_URL}/equipment/coagulant/motor/${equipmentId}/on/`,
       {
         stage_id: stageId,
       },
@@ -62,7 +62,7 @@ export const turnOffCoagulantMotor = async (
     const token = await AsyncStorage.getItem('accessToken');
 
     const response = await axios.post(
-      `${BASE_URL}/equipment/coagulant-dosing/motor/${equipmentId}/off/`,
+      `${BASE_URL}/equipment/coagulant/motor/${equipmentId}/off/`,
       {
         stage_id: stageId,
       },
@@ -83,7 +83,7 @@ export const turnOffCoagulantMotor = async (
   }
 };
 
-export const getCoagulantMotorManualLogs = async (equipmentId: number
+export const getCoagulantManualLogs = async (equipmentId: number
 ) => {
   try {
     const token = await AsyncStorage.getItem("accessToken");
@@ -105,3 +105,75 @@ export const getCoagulantMotorManualLogs = async (equipmentId: number
 
   }
 }
+
+export const turnOnValve = async (valveId: number, stageId: number) => {
+  try {
+    const token = await AsyncStorage.getItem("accessToken")
+    const response = await axios.post(`${BASE_URL}/equipment/valve/${valveId}/on/`, 
+      {
+        stage_id: stageId
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      },
+    );
+    return response.data
+  } catch(error: any) {
+     console.log('Valve API Status:', error.response?.status);
+    console.log('Valve API Error:', error.response?.data);
+    console.log('Valve API Message:', error.message);
+
+    throw error;
+  }
+}
+
+export const turnOffValve = async (valveId: number, stageId: number) => {
+  try {
+    const token = await AsyncStorage.getItem("accessToken")
+    const response = await axios.post(`${BASE_URL}/equipment/valve/${valveId}/off/`, 
+      {
+        stage_id: stageId
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      },
+    );
+    return response.data
+  } catch(error: any) {
+    console.log('Valve OFF API Status:', error.response?.status);
+    console.log('Valve OFF API Error:', error.response?.data);
+    console.log('Valve OFF API Message:', error.message);
+
+    throw error;
+  }
+}
+
+export const getSensors = async (stageId: number) => {
+  try {
+    const token = await AsyncStorage.getItem('accessToken');
+
+    const response = await axios.get(
+      `${BASE_URL}/equipment/stage/${stageId}/sensors/`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log('Sensors API Response:', response.data);
+
+    return response.data;
+  } catch (error: any) {
+    console.log('Sensors API Status:', error.response?.status);
+    console.log('Sensors API Error:', error.response?.data);
+    console.log('Sensors API Message:', error.message);
+
+    throw error;
+  }
+};
+

@@ -24,11 +24,11 @@ export default function InletPumpScreen() {
       setLoading(true);
 
       const stageId = await AsyncStorage.getItem(
-        'coagulationDosingStageId'
+        'coagulationMixingStageId'
       );
 
       const equipmentId = await AsyncStorage.getItem(
-        'coagulationDosingEquipmentId'
+        'coagulationMixingInletPumpId'
       );
 
       console.log('Stored Stage ID:', stageId);
@@ -78,11 +78,11 @@ export default function InletPumpScreen() {
       setLoading(true);
 
       const stageId = await AsyncStorage.getItem(
-        'coagulationDosingStageId'
+        'coagulationMixingStageId'
       );
 
       const equipmentId = await AsyncStorage.getItem(
-        'coagulationDosingEquipmentId'
+        'coagulationMixingInletPumpId'
       );
 
       console.log('Stored Stage ID:', stageId);
@@ -139,7 +139,7 @@ export default function InletPumpScreen() {
       setLogsLoading(true);
 
       const equipmentId = await AsyncStorage.getItem(
-        'coagulationDosingEquipmentId'
+        'coagulationMixingInletPumpId'
       );
 
       if (!equipmentId) {
@@ -172,7 +172,7 @@ export default function InletPumpScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.navigate('/coagulant/dosing/settings')}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.navigate('/coagulant/mixing/settings')}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="#1E3A8A" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
