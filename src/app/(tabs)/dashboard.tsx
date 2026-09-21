@@ -215,6 +215,92 @@ export default function DashboardScreen() {
             coagulationMixingStage.id
           );
         }
+
+        // =========================
+        // MIXING TANK STAGE
+        // =========================
+
+        const mixingTankStage = response.data.find(
+          (stage: any) =>
+            stage.stage_type === 'MIXING' ||
+            stage.name === 'Mixing Tank'
+        );
+
+        if (mixingTankStage) {
+          await AsyncStorage.setItem(
+            'mixingTankStageId',
+            String(mixingTankStage.id)
+          );
+
+          console.log(
+            'Mixing Tank ID:',
+            mixingTankStage.id
+          );
+        }
+
+        // =========================
+        // FLOCCULATION STAGES
+        // =========================
+
+        const flocculationDosingStage = response.data.find(
+          (stage: any) =>
+            stage.stage_type === 'FLOCCULATION' &&
+            (stage.name === 'Flocluation Dosing' ||
+              stage.name === 'Flocculation Dosing' ||
+              stage.name.toLowerCase().includes('dosing'))
+        );
+
+        const flocculationMixingStage = response.data.find(
+          (stage: any) =>
+            stage.stage_type === 'FLOCCULATION' &&
+            (stage.name === 'Flocluation Mixing' ||
+              stage.name === 'Flocculation Mixing' ||
+              stage.name.toLowerCase().includes('mixing'))
+        );
+
+        // Store Flocculation Dosing ID
+        if (flocculationDosingStage) {
+          await AsyncStorage.setItem(
+            'flocculationDosingStageId',
+            String(flocculationDosingStage.id)
+          );
+          await AsyncStorage.setItem(
+            'flocluationDosingStageId',
+            String(flocculationDosingStage.id)
+          );
+
+          if (
+            flocculationDosingStage.equipments &&
+            flocculationDosingStage.equipments.length > 0
+          ) {
+            await AsyncStorage.setItem(
+              'flocculationDosingEquipmentId',
+              String(flocculationDosingStage.equipments[0])
+            );
+          }
+
+          console.log(
+            'Flocculation Dosing ID stored:',
+            flocculationDosingStage.id
+          );
+        }
+
+        // Store Flocculation Mixing ID
+        if (flocculationMixingStage) {
+          await AsyncStorage.setItem(
+            'flocculationMixingStageId',
+            String(flocculationMixingStage.id)
+          );
+          await AsyncStorage.setItem(
+            'flocluationMixingStageId',
+            String(flocculationMixingStage.id)
+          );
+
+          console.log(
+            'Flocculation Mixing ID stored:',
+            flocculationMixingStage.id
+          );
+        }
       }
     } catch (error) {
       console.error(
