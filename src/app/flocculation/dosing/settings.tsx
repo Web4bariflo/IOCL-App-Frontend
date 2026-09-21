@@ -1,20 +1,203 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
-import { Image, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getStageEquipments } from '../../../api/inletApi';
 
 export default function DosingSettingsScreen() {
-  // const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('AUTO');
-  // const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('AUTO');
   const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('MANUAL');
   const [notifications, setNotifications] = useState(true);
+
+  // Dynamic API state
+  const [, setStageData] = useState<any>(null);
+  const [equipmentData, setEquipmentData] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  // Dynamic fetch on screen focus
+  useFocusEffect(
+    useCallback(() => {
+      const loadFlocculationDosingData = async () => {
+        try {
+          setLoading(true);
+
+          // 1. Get stored stage ID from AsyncStorage
+          let stageId = await AsyncStorage.getItem('flocculationDosingStageId');
+          if (!stageId) {
+            stageId = await AsyncStorage.getItem('flocluationDosingStageId');
+          }
+          if (!stageId) {
+            stageId = await AsyncStorage.getItem('selectedStageId');
+          }
+          if (!stageId) {
+            stageId = '6'; // Default fallback matching Flocculation Dosing stage ID
+          }
+
+          console.log('Flocculation Dosing Stage ID:', stageId);
+
+          // 2. Call dynamic API: /treatment-process/stages/{stageId}/equipments/
+          const response = await getStageEquipments(Number(stageId));
+          console.log('Flocculation Dosing Equipments API Response:', response);
+
+          if (response && response.success && response.data) {
+            setStageData(response.data.stage);
+            const equipmentTypes = response.data.equipment_types || [];
+            setEquipmentData(equipmentTypes);
+
+            // Store stage ID in AsyncStorage
+            if (response.data.stage?.id) {
+              await AsyncStorage.setItem(
+                'flocculationDosingStageId',
+                String(response.data.stage.id)
+              );
+              await AsyncStorage.setItem(
+                'selectedStageId',
+                String(response.data.stage.id)
+              );
+            }
+
+            // Store full equipment types in AsyncStorage
+            await AsyncStorage.setItem(
+              'flocculationDosingEquipments',
+              JSON.stringify(equipmentTypes)
+            );
+
+            // 3. Find and store Motor (Primary equipment for Stage 6 Flocculation Dosing)
+            const motorType = equipmentTypes.find(
+              (item: any) =>
+                item.equipment_type?.name?.toLowerCase().includes('motor') ||
+                item.equipment_type?.id === 4
+            );
+
+            if (motorType && motorType.equipments?.length > 0) {
+              const primaryMotor = motorType.equipments[0];
+
+              // Primary equipment ID & Motor ID
+              await AsyncStorage.setItem(
+                'flocculationDosingEquipmentId',
+                String(primaryMotor.id)
+              );
+              await AsyncStorage.setItem(
+                'flocculationDosingMotorId',
+                String(primaryMotor.id)
+              );
+              await AsyncStorage.setItem(
+                'flocculationDosingEquipmentName',
+                primaryMotor.name || 'Motor 1'
+              );
+              // Legacy fallback key for backward compatibility
+              await AsyncStorage.setItem(
+                'flocculationDosingInletPumpId',
+                String(primaryMotor.id)
+              );
+
+              // Individual motor IDs & names
+              for (let i = 0; i < motorType.equipments.length; i++) {
+                await AsyncStorage.setItem(
+                  `flocculationDosingMotorId_${i + 1}`,
+                  String(motorType.equipments[i].id)
+                );
+                await AsyncStorage.setItem(
+                  `flocculationDosingMotorName_${i + 1}`,
+                  String(motorType.equipments[i].name)
+                );
+              }
+
+              console.log('Stored Flocculation Motor ID:', primaryMotor.id);
+            }
+
+            // 4. Find Inlet Pump (if present)
+            const inletPumpType = equipmentTypes.find(
+              (item: any) =>
+                item.equipment_type?.name?.toLowerCase().includes('inlet pump') ||
+                item.equipment_type?.id === 2
+            );
+
+            if (inletPumpType && inletPumpType.equipments?.length > 0) {
+              await AsyncStorage.setItem(
+                'flocculationDosingInletPumpId',
+                String(inletPumpType.equipments[0].id)
+              );
+              for (let i = 0; i < inletPumpType.equipments.length; i++) {
+                await AsyncStorage.setItem(
+                  `flocculationDosingInletPumpId_${i + 1}`,
+                  String(inletPumpType.equipments[i].id)
+                );
+              }
+            }
+
+            // 5. Find Contactor Sensors (if present)
+            const contactorType = equipmentTypes.find(
+              (item: any) =>
+                item.equipment_type?.name?.toLowerCase().includes('contactor') ||
+                item.equipment_type?.id === 3
+            );
+
+            if (contactorType && contactorType.equipments?.length > 0) {
+              await AsyncStorage.setItem(
+                'flocculationDosingContactorId',
+                String(contactorType.equipments[0].id)
+              );
+              for (let i = 0; i < contactorType.equipments.length; i++) {
+                await AsyncStorage.setItem(
+                  `flocculationDosingContactorId_${i + 1}`,
+                  String(contactorType.equipments[i].id)
+                );
+              }
+            }
+
+            // 6. Find Solenoid Valves (if present)
+            const solenoidType = equipmentTypes.find(
+              (item: any) =>
+                item.equipment_type?.name?.toLowerCase().includes('solenoid') ||
+                item.equipment_type?.id === 1
+            );
+
+            if (solenoidType && solenoidType.equipments?.length > 0) {
+              await AsyncStorage.setItem(
+                'flocculationDosingSolenoidId',
+                String(solenoidType.equipments[0].id)
+              );
+              for (let i = 0; i < solenoidType.equipments.length; i++) {
+                await AsyncStorage.setItem(
+                  `flocculationDosingSolenoidId_${i + 1}`,
+                  String(solenoidType.equipments[i].id)
+                );
+              }
+            }
+          }
+        } catch (error: any) {
+          console.error(
+            'Error fetching Flocculation Dosing equipments:',
+            error.response?.data || error.message
+          );
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadFlocculationDosingData();
+    }, [])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.navigate('/dashboard')}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.navigate('/(tabs)/dashboard')}
+        >
           <MaterialCommunityIcons name="arrow-left" size={24} color="#111827" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
@@ -33,134 +216,143 @@ export default function DosingSettingsScreen() {
               <Text style={styles.settingTitle}>Operating Mode</Text>
               <Text style={styles.settingSubtitle}>Select automatic or manual control</Text>
             </View>
-            {/* <View style={styles.toggleContainer}>
-              <TouchableOpacity
-                style={[styles.toggleButton, operatingMode === 'AUTO' && styles.toggleButtonActive]}
-                onPress={() => setOperatingMode('AUTO')}
-              >
-                <Text style={[styles.toggleText, operatingMode === 'AUTO' && styles.toggleTextActive]}>AUTO</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.toggleButton, operatingMode === 'MANUAL' && styles.toggleButtonActive]}
-                onPress={() => setOperatingMode('MANUAL')}
-              >
-                <Text style={[styles.toggleText, operatingMode === 'MANUAL' && styles.toggleTextActive]}>MANUAL</Text>
-              </TouchableOpacity>
-            </View> */}
-        <View style={styles.toggleContainer}>
-  <TouchableOpacity
-    style={[
-      styles.toggleButton,
-      operatingMode === 'AUTO' && styles.toggleButtonActive,
-    ]}
-    onPress={() => {
-      setOperatingMode('AUTO');
-      router.push('/flocculation/dosing');
-    }}
-  >
-    <Text
-      style={[
-        styles.toggleText,
-        operatingMode === 'AUTO' && styles.toggleTextActive,
-      ]}
-    >
-      AUTO
-    </Text>
-  </TouchableOpacity>
 
-  <TouchableOpacity
-    style={[
-      styles.toggleButton,
-      operatingMode === 'MANUAL' && styles.toggleButtonActive,
-    ]}
-    onPress={() => {
-      setOperatingMode('MANUAL');
-    }}
-  >
-    <Text
-      style={[
-        styles.toggleText,
-        operatingMode === 'MANUAL' && styles.toggleTextActive,
-      ]}
-    >
-      MANUAL
-    </Text>
-  </TouchableOpacity>
-</View>
+            <View style={styles.toggleContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.toggleButton,
+                  operatingMode === 'AUTO' && styles.toggleButtonActive,
+                ]}
+                onPress={() => {
+                  setOperatingMode('AUTO');
+                  router.push('/flocculation/dosing');
+                }}
+              >
+                <Text
+                  style={[
+                    styles.toggleText,
+                    operatingMode === 'AUTO' && styles.toggleTextActive,
+                  ]}
+                >
+                  AUTO
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.toggleButton,
+                  operatingMode === 'MANUAL' && styles.toggleButtonActive,
+                ]}
+                onPress={() => {
+                  setOperatingMode('MANUAL');
+                }}
+              >
+                <Text
+                  style={[
+                    styles.toggleText,
+                    operatingMode === 'MANUAL' && styles.toggleTextActive,
+                  ]}
+                >
+                  MANUAL
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
         {/* Devices */}
         <Text style={styles.sectionTitle}>DEVICES</Text>
         <View style={styles.card}>
-          <TouchableOpacity
-            style={styles.deviceRow}
-            onPress={() => router.push('/flocculation/dosing/inletpump')}
-          >
-            <Image
-              source={require('@/assets/images/inletpump.png')}
-              style={[styles.deviceIcon, { width: 24, height: 24 }]}
-              resizeMode="contain"
-            />
-
-            <View style={styles.settingTextContainer}>
-              <Text style={styles.settingTitle}>Inlet Pump 1</Text>
+          {loading && equipmentData.length === 0 ? (
+            <View style={styles.emptyDevicesContainer}>
+              <ActivityIndicator size="small" color="#14B8A6" />
+              <Text style={styles.emptyDevicesText}>Loading devices...</Text>
             </View>
-
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color="#111827"
-            />
-          </TouchableOpacity>
-
-          <View style={styles.divider} />
-
-          <TouchableOpacity
-            style={styles.deviceRow}
-            onPress={() => router.push('/flocculation/dosing/contactorsensors')}
-          >
-            <Image
-              source={require('@/assets/images/contactor.png')}
-              style={[styles.deviceIcon, { width: 24, height: 24 }]}
-              resizeMode="contain"
-            />
-
-            <View style={styles.settingTextContainer}>
-              <Text style={styles.settingTitle}>Contactor Sensors</Text>
-              <Text style={styles.settingSubtitle}>2 Sensors</Text>
+          ) : equipmentData.length === 0 ? (
+            <View style={styles.emptyDevicesContainer}>
+              <Text style={styles.emptyDevicesText}>No devices available</Text>
             </View>
+          ) : (
+            equipmentData.map((item: any, index: number) => {
+              const typeName = item.equipment_type?.name || 'Device';
+              const isMotor =
+                typeName.toLowerCase().includes('motor') ||
+                item.equipment_type?.id === 4;
+              const isInletPump =
+                typeName.toLowerCase().includes('pump') ||
+                item.equipment_type?.id === 2;
+              const isContactor =
+                typeName.toLowerCase().includes('contactor') ||
+                item.equipment_type?.id === 3;
+              const isSolenoid =
+                typeName.toLowerCase().includes('solenoid') ||
+                item.equipment_type?.id === 1;
 
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color="#111827"
-            />
-          </TouchableOpacity>
+              // Determine icon
+              let iconSource = require('@/assets/images/motor.png');
+              if (isMotor) {
+                iconSource = require('@/assets/images/motor.png');
+              } else if (isInletPump) {
+                iconSource = require('@/assets/images/inletpump.png');
+              } else if (isContactor) {
+                iconSource = require('@/assets/images/contactor.png');
+              } else if (isSolenoid) {
+                iconSource = require('@/assets/images/solenoid.png');
+              }
 
-          <View style={styles.divider} />
+              // Determine route
+              let routePath = '/flocculation/dosing/inletpump';
+              if (isMotor || isInletPump) {
+                routePath = '/flocculation/dosing/inletpump';
+              } else if (isContactor) {
+                routePath = '/flocculation/dosing/contactorsensors';
+              } else if (isSolenoid) {
+                routePath = '/flocculation/dosing/solenoid';
+              }
 
-          <TouchableOpacity
-            style={styles.deviceRow}
-            onPress={() => router.push('/flocculation/dosing/solenoid')}
-          >
-            <Image
-              source={require('@/assets/images/solenoid.png')}
-              style={[styles.deviceIcon, { width: 24, height: 24 }]}
-              resizeMode="contain"
-            />
+              // Determine title & subtitle
+              const title = item.equipments?.[0]?.name || typeName;
+              const count = item.count || item.equipments?.length || 1;
+              const unitLabel = isMotor
+                ? 'Motor'
+                : isInletPump
+                ? 'Pump'
+                : isContactor
+                ? 'Sensor'
+                : isSolenoid
+                ? 'Valve'
+                : typeName;
+              const subtitle = `${count} ${unitLabel}${count > 1 && !unitLabel.endsWith('s') ? 's' : ''}`;
 
-            <View style={styles.settingTextContainer}>
-              <Text style={styles.settingTitle}>Solenoid Valves</Text>
-              <Text style={styles.settingSubtitle}>2 Valves</Text>
-            </View>
+              return (
+                <View key={item.equipment_type?.id || index}>
+                  {index > 0 && <View style={styles.divider} />}
+                  <TouchableOpacity
+                    style={styles.deviceRow}
+                    onPress={() => router.push(routePath as any)}
+                    activeOpacity={0.7}
+                  >
+                    <Image
+                      source={iconSource}
+                      style={[styles.deviceIcon, { width: 24, height: 24 }]}
+                      resizeMode="contain"
+                    />
 
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color="#111827"
-            />
-          </TouchableOpacity>
+                    <View style={styles.settingTextContainer}>
+                      <Text style={styles.settingTitle}>{title}</Text>
+                      <Text style={styles.settingSubtitle}>{subtitle}</Text>
+                    </View>
+
+                    <MaterialCommunityIcons
+                      name="chevron-right"
+                      size={24}
+                      color="#111827"
+                    />
+                  </TouchableOpacity>
+                </View>
+              );
+            })
+          )}
         </View>
 
         {/* Alerts & Notifications */}
@@ -346,5 +538,15 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#10B981',
     marginLeft: 8,
+  },
+  emptyDevicesContainer: {
+    paddingVertical: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyDevicesText: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginTop: 6,
   },
 });

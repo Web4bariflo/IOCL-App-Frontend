@@ -272,15 +272,11 @@ export const getStageEquipments = async (stageId: number) => {
 
 
     return response.data;
-
-  } catch (error) {
-
-    console.error('Error fetching stage equipments:', error);
-
+  } catch (error: any) {
+    console.error('Error fetching stage equipments status:', error.response?.status);
+    console.error('Error fetching stage equipments data:', error.response?.data);
     throw error;
-
   }
-
 };
 
 
