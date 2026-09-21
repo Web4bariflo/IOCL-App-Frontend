@@ -177,3 +177,79 @@ export const getSensors = async (stageId: number) => {
   }
 };
 
+
+
+
+export const mergeStageDuration = async (stageId: number) => {
+
+  try {
+
+    const token = await AsyncStorage.getItem('accessToken');
+
+
+    const response = await axios.post(
+
+      `${BASE_URL}/equipment/stages/${stageId}/merge-duration/`,
+
+      {},
+
+      {
+
+        headers: {
+
+          Authorization: `Bearer ${token}`,
+
+          'Content-Type': 'application/json',
+
+        },
+
+      }
+
+    );
+
+
+    console.log(
+
+      'Merge Duration API Response:',
+
+      JSON.stringify(response.data, null, 2)
+
+    );
+
+
+    return response.data;
+
+  } catch (error: any) {
+
+    console.log(
+
+      'Merge Duration API Status:',
+
+      error.response?.status
+
+    );
+
+
+    console.log(
+
+      'Merge Duration API Error:',
+
+      error.response?.data
+
+    );
+
+
+    console.log(
+
+      'Merge Duration API Message:',
+
+      error.message
+
+    );
+
+
+    throw error;
+
+  }
+
+};

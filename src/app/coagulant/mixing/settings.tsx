@@ -3,7 +3,10 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Image } f
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { getTreatmentStages } from '../../../api/coagulantApi';
+import {
+  getTreatmentStages,
+  mergeStageDuration,
+} from '../../../api/coagulantApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SettingsScreen() {
@@ -25,6 +28,8 @@ export default function SettingsScreen() {
 
   const [contactorTypeName, setContactorTypeName] = useState('');
 
+  const [merging, setMerging] = useState(false);
+
   // const handleModeSelect = (mode: 'AUTO' | 'MANUAL') => {
   //   setOperatingMode(mode);
   //   if (mode === 'AUTO') {
@@ -33,6 +38,65 @@ export default function SettingsScreen() {
   //     router.push('/coagulant/manual');
   //   }
   // };
+
+
+  const handleMerge = async () => {
+  try {
+    setMerging(true);
+
+    // Get Coagulation Mixing Stage ID
+    const stageId = await AsyncStorage.getItem(
+      'coagulationMixingStageId'
+    );
+
+    console.log(
+      'Coagulation Mixing Stage ID:',
+      stageId
+    );
+
+    if (!stageId) {
+      console.log(
+        'Coagulation Mixing Stage ID not found'
+      );
+      return;
+    }
+
+    // Call Merge Duration API
+    const response = await mergeStageDuration(
+      Number(stageId)
+    );
+
+    console.log(
+      'Merge Duration Response:',
+      JSON.stringify(response, null, 2)
+    );
+
+    if (response?.success) {
+      console.log(
+        'Coagulation Mixing equipment durations merged successfully'
+      );
+
+      console.log(
+        'Merged Equipment Count:',
+        response.count
+      );
+
+      console.log(
+        'Merged Equipment Data:',
+        response.data
+      );
+    }
+  } catch (error: any) {
+    console.error(
+      'Merge Duration Failed:',
+      error?.response?.data || error?.message
+    );
+  } finally {
+    setMerging(false);
+  }
+};
+
+
 
   const handleModeSelect = (mode: 'AUTO' | 'MANUAL') => {
     setOperatingMode(mode);
@@ -197,6 +261,27 @@ if (inletPumpType?.equipments?.length > 0) {
       <View style={styles.headerBorder} />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+
+      {/* Merge Button */}
+<TouchableOpacity
+  style={[
+    styles.mergeButton,
+    merging && styles.mergeButtonDisabled,
+  ]}
+  onPress={handleMerge}
+  disabled={merging}
+  activeOpacity={0.8}
+>
+  <MaterialCommunityIcons
+    name="merge"
+    size={22}
+    color="#FFFFFF"
+  />
+
+  <Text style={styles.mergeButtonText}>
+    {merging ? 'MERGING...' : 'MERGE'}
+  </Text>
+</TouchableOpacity>
 
         {/* General */}
         <Text style={styles.sectionTitle}>GENERAL</Text>
@@ -596,6 +681,25 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: '#10B981',
-  }
+  },
+  mergeButton: {
+  backgroundColor: '#14B8A6',
+  borderRadius: 8,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingVertical: 13,
+  marginBottom: 8,
+},
+
+mergeButtonText: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  fontWeight: '600',
+  marginLeft: 8,
+},
+mergeButtonDisabled: {
+  opacity: 0.6,
+},
 
 });

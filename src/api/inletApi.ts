@@ -391,7 +391,7 @@ export const turnOnMotor = async (motorId: number, stageId: number) => {
 
     const response = await axios.post(
 
-      `${BASE_URL}/equipment/motor/${motorId}/on/`,
+      `${BASE_URL}/equipment/pump/${motorId}/on/`,
 
       {
 
@@ -442,7 +442,7 @@ export const turnOffMotor = async (motorId: number, stageId: number) => {
 
     const response = await axios.post(
 
-      `${BASE_URL}/equipment/motor/${motorId}/off/`,
+      `${BASE_URL}/equipment/pump/${motorId}/off/`,
 
       {
 

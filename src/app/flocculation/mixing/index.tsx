@@ -32,7 +32,7 @@ import {
   getStageProcessLogs,
 } from '@/api/inletApi';
 
-export default function CoagulantMixingScreen() {
+export default function FlocculationMixingScreen() {
   // =====================================================
   // UI TOGGLE STATES
   // =====================================================
@@ -75,19 +75,19 @@ export default function CoagulantMixingScreen() {
       try {
         const stageId =
           await AsyncStorage.getItem(
-            'coagulationMixingStageId'
+            'flocculationMixingStageId'
           );
 
       
         console.log(
-          'Stored Coagulation Mixing Stage ID:',
+          'Stored Flocculation Mixing Stage ID:',
           stageId
         );
 
 
         if (!stageId) {
           console.log(
-            '❌ Coagulation Mixing Stage ID not found'
+            '❌ Flocculation Mixing Stage ID not found'
           );
 
           return;
@@ -106,7 +106,7 @@ export default function CoagulantMixingScreen() {
         }
 
         console.log(
-          'Calling Coagulation Mixing Stage Status API:',
+          'Calling Flocculation Mixing Stage Status API:',
           numericStageId
         );
 
@@ -116,7 +116,7 @@ export default function CoagulantMixingScreen() {
           );
 
         console.log(
-          'Coagulation Mixing Stage Status:',
+          'Flocculation Mixing Stage Status:',
           JSON.stringify(
             response,
             null,
@@ -138,7 +138,7 @@ export default function CoagulantMixingScreen() {
             ).toUpperCase();
 
           console.log(
-            'Current Coagulation Mixing Status:',
+            'Current Flocculation Mixing Status:',
             stageStatus
           );
 
@@ -165,7 +165,7 @@ export default function CoagulantMixingScreen() {
           // ==========================================
 
           console.log(
-            'Coagulation Mixing Equipment:',
+            'Flocculation Mixing Equipment:',
             JSON.stringify(
               response.data?.equipment,
               null,
@@ -174,7 +174,7 @@ export default function CoagulantMixingScreen() {
           );
 
           console.log(
-            'Coagulation Mixing Processes:',
+            'Flocculation Mixing Processes:',
             JSON.stringify(
               response.data?.processes,
               null,
@@ -184,7 +184,7 @@ export default function CoagulantMixingScreen() {
         }
       } catch (error: any) {
         console.log(
-          '❌ Coagulation Mixing Stage Status Error:',
+          '❌ Flocculation Mixing Stage Status Error:',
           error.response?.data ||
             error.message
         );
@@ -200,11 +200,11 @@ export default function CoagulantMixingScreen() {
       try {
         const stageId =
           await AsyncStorage.getItem(
-            'coagulationMixingStageId'
+            'flocculationMixingStageId'
           );
 
         console.log(
-          'Coagulation Mixing Process Logs Stage ID:',
+          'Flocculation Mixing Process Logs Stage ID:',
           stageId
         );
 
@@ -276,11 +276,11 @@ export default function CoagulantMixingScreen() {
 
         const stageId =
           await AsyncStorage.getItem(
-            'coagulationMixingStageId'
+            'flocculationMixingStageId'
           );
 
         console.log(
-          'Start Coagulation Mixing Stage ID:',
+          'Start Flocculation Mixing Stage ID:',
           stageId
         );
 
@@ -304,7 +304,7 @@ export default function CoagulantMixingScreen() {
         }
 
         console.log(
-          '🚀 Starting Coagulation Mixing Stage:',
+          '🚀 Starting Flocculation Mixing Stage:',
           numericStageId
         );
 
@@ -314,7 +314,7 @@ export default function CoagulantMixingScreen() {
           );
 
         console.log(
-          'Start Coagulation Mixing Response:',
+          'Start Flocculation Mixing Response:',
           JSON.stringify(
             response,
             null,
@@ -345,7 +345,7 @@ export default function CoagulantMixingScreen() {
       try {
         const stageId =
           await AsyncStorage.getItem(
-            'coagulationMixingStageId'
+            'flocculationMixingStageId'
           );
 
         if (!stageId) {

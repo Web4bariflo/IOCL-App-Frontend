@@ -11,7 +11,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { getStageEquipments } from '../../../../api/inletApi';
+import {
+  getStageEquipments,
+  mergeStageDuration,
+} from '../../../../api/inletApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SettingsScreen() {
@@ -29,10 +32,9 @@ export default function SettingsScreen() {
   const [equipmentTypes, setEquipmentTypes] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(false);
+  const [merging, setMerging] = useState(false);
 
-  useEffect(() => {
-  fetchStageEquipments();
-}, []);
+ 
 
   const fetchStageEquipments = async () => {
   try {
@@ -129,6 +131,72 @@ export default function SettingsScreen() {
   }
 };
 
+
+ useEffect(() => {
+  fetchStageEquipments();
+}, []);
+
+
+
+const handleMerge = async () => {
+  try {
+    setMerging(true);
+
+    // Get stage ID according to selected module
+    const stageIdKey =
+      selectedModule === 'Waste Water'
+        ? 'selectedStageId'
+        : 'cleanWaterStageId';
+
+    const stageId = await AsyncStorage.getItem(stageIdKey);
+
+    console.log(
+      `${selectedModule} Stage ID:`,
+      stageId
+    );
+
+    if (!stageId) {
+      console.log(
+        `${selectedModule} Stage ID not found`
+      );
+      return;
+    }
+
+    // Call Merge Duration API
+    const response = await mergeStageDuration(
+      Number(stageId)
+    );
+
+    console.log(
+      'Merge Duration Response:',
+      JSON.stringify(response, null, 2)
+    );
+
+    if (response?.success) {
+      console.log(
+        'Stage equipment durations merged successfully'
+      );
+
+      console.log(
+        'Merged Equipment Count:',
+        response.count
+      );
+
+      console.log(
+        'Merged Equipment Data:',
+        response.data
+      );
+    }
+  } catch (error: any) {
+    console.error(
+      'Merge Duration Failed:',
+      error?.response?.data || error?.message
+    );
+  } finally {
+    setMerging(false);
+  }
+};
+
   const inletPump = equipmentTypes.find(
   item => item.equipment_type?.name === 'Inlet Pump 1'
 );
@@ -175,20 +243,25 @@ const solenoidValves = equipmentTypes.find(
       >
 
         {/* Merge Button */}
-        <TouchableOpacity
-          style={styles.mergeButton}
-          onPress={() => {
-            // Add merge action here
-          }}
-          activeOpacity={0.8}
-        >
-          <MaterialCommunityIcons
-            name="merge"
-            size={22}
-            color="#FFFFFF"
-          />
-          <Text style={styles.mergeButtonText}>MERGE</Text>
-        </TouchableOpacity>
+       <TouchableOpacity
+  style={[
+    styles.mergeButton,
+    merging && styles.mergeButtonDisabled,
+  ]}
+  onPress={handleMerge}
+  disabled={merging}
+  activeOpacity={0.8}
+>
+  <MaterialCommunityIcons
+    name="merge"
+    size={22}
+    color="#FFFFFF"
+  />
+
+  <Text style={styles.mergeButtonText}>
+    {merging ? 'MERGING...' : 'MERGE'}
+  </Text>
+</TouchableOpacity>
         {/* General */}
         <Text style={styles.sectionTitle}>GENERAL</Text>
 
@@ -616,6 +689,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
+  mergeButtonDisabled: {
+  opacity: 0.6,
+},
 });
 
 

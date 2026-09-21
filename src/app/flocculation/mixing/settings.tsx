@@ -11,7 +11,7 @@ export default function SettingsScreen() {
   const handleModeSelect = (mode: 'AUTO' | 'MANUAL') => {
     setOperatingMode(mode);
     if (mode === 'AUTO') {
-      router.push('/flocculation/dosing');
+      router.push('/flocculation/mixing');
     } else {
       router.push('/flocculation/mixing/settings');
     }
