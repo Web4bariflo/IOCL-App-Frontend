@@ -657,17 +657,12 @@ import {
 export default function InletPumpScreen() {
 
   const [pumpStartTime, setPumpStartTime] = useState<string | null>(null);
-
   const [pumpEndTime, setPumpEndTime] = useState<string | null>(null);
-
   const [pumpDuration, setPumpDuration] = useState<number | null>(null);
-
-
   const [activityLogs, setActivityLogs] = useState<any[]>([]);
-
   const [logsLoading, setLogsLoading] = useState(false);
-
   const [logsError, setLogsError] = useState<string | null>(null);
+  const [currentState, setCurrentState] = useState<'ON' | 'OFF' | null>(null);
 
   // const handleStartPump = async () => {
 
@@ -982,70 +977,70 @@ export default function InletPumpScreen() {
   // };
 
 
+// /a
 
+// const handleStartPump = async () => {
+//   try {
+//     const stageId = await AsyncStorage.getItem('selectedStageId');
 
-const handleStartPump = async () => {
-  try {
-    const stageId = await AsyncStorage.getItem('selectedStageId');
+//     console.log('Selected Stage ID:', stageId);
 
-    console.log('Selected Stage ID:', stageId);
+//     if (!stageId) {
+//       console.log('Stage ID not found');
+//       return;
+//     }
 
-    if (!stageId) {
-      console.log('Stage ID not found');
-      return;
-    }
+//     const motorId = 2;
 
-    const motorId = 2;
+//     console.log('Motor ID:', motorId);
+//     console.log('Stage ID:', Number(stageId));
 
-    console.log('Motor ID:', motorId);
-    console.log('Stage ID:', Number(stageId));
+//     const response = await turnOnMotor(
+//       motorId,
+//       Number(stageId)
+//     );
 
-    const response = await turnOnMotor(
-      motorId,
-      Number(stageId)
-    );
+//     console.log(
+//       'Motor ON Response:',
+//       JSON.stringify(response, null, 2)
+//     );
 
-    console.log(
-      'Motor ON Response:',
-      JSON.stringify(response, null, 2)
-    );
+//     // Check actual motor state
+//     const currentState =
+//       response?.data?.current_state ??
+//       response?.current_state;
 
-    // Check actual motor state
-    const currentState =
-      response?.data?.current_state ??
-      response?.current_state;
+//     console.log('Motor Current State:', currentState);
 
-    console.log('Motor Current State:', currentState);
+//     if (response?.success && currentState === 'ON') {
 
-    if (response?.success && currentState === 'ON') {
+//       // API gives started_at
+//       const startedAt =
+//         response?.data?.started_at ??
+//         response?.started_at;
 
-      // API gives started_at
-      const startedAt =
-        response?.data?.started_at ??
-        response?.started_at;
+//       console.log('Pump Started At:', startedAt);
 
-      console.log('Pump Started At:', startedAt);
+//       // Show Start Time
+//       setPumpStartTime(startedAt ?? null);
 
-      // Show Start Time
-      setPumpStartTime(startedAt ?? null);
+//       // Hide End Time and Running Time
+//       setPumpEndTime(null);
+//       setPumpDuration(null);
 
-      // Hide End Time and Running Time
-      setPumpEndTime(null);
-      setPumpDuration(null);
+//       console.log('Pump started successfully');
 
-      console.log('Pump started successfully');
+//       // Refresh operation log
+//       await fetchActivityLogs();
+//     }
 
-      // Refresh operation log
-      await fetchActivityLogs();
-    }
-
-  } catch (error: any) {
-    console.error(
-      'Failed to start pump:',
-      error?.response?.data || error
-    );
-  }
-};
+//   } catch (error: any) {
+//     console.error(
+//       'Failed to start pump:',
+//       error?.response?.data || error
+//     );
+//   }
+// };
 
 
   // const handleStopPump = async () => {
@@ -1161,185 +1156,302 @@ const handleStartPump = async () => {
 
   // };
 
-
-
-
-  const handleStopPump = async () => {
-
-    try {
-
-      const stageId = await AsyncStorage.getItem('selectedStageId');
-
-
-      console.log('Selected Stage ID:', stageId);
-
-
-      if (!stageId) {
-
-        console.log('Stage ID not found');
-
-        return;
-
-      }
-
-
-      const motorId = 2;
-
-
-      console.log('Motor ID:', motorId);
-
-      console.log('Stage ID:', Number(stageId));
-
-
-      const response = await turnOffMotor(
-
-        motorId,
-
-        Number(stageId)
-
-      );
-
-
-      console.log(
-
-        'Motor OFF Response:',
-
-        JSON.stringify(response, null, 2)
-
-      );
-
-
-      const status =
-
-        response?.data?.equipment?.status ??
-
-        response?.data?.status ??
-
-        response?.status;
-
-
-      console.log('Pump Status:', status);
-
-
-      if (status === 'INACTIVE') {
-
-
-        const endedAt =
-
-          response?.data?.ended_at ??
-
-          response?.ended_at;
-
-
-        const duration =
-
-          response?.data?.duration_seconds ??
-
-          response?.duration_seconds;
-
-
-        setPumpStartTime(null);
-
-
-        setPumpEndTime(endedAt ?? null);
-
-
-        setPumpDuration(duration ?? null);
-
-
-        console.log('Pump stopped successfully');
-
-
-        // Refresh operation log
-
-        await fetchActivityLogs();
-
-
-        // Fetch again after backend updates the log
-
-        // setTimeout(() => {
-
-        // fetchActivityLogs();
-
-        // }, 800);
-
-
-        // Sensor status
-
-        const sensors =
-
-          response?.data?.sensors ??
-
-          response?.sensors ??
-
-          [];
-
-
-        const sensor1 = sensors.find(
-
-          (sensor: any) => sensor.id === 3
-
-        );
-
-
-        const sensor2 = sensors.find(
-
-          (sensor: any) => sensor.id === 4
-
-        );
-
-
-        await AsyncStorage.setItem(
-
-          'sensor1Status',
-
-          sensor1?.status || 'INACTIVE'
-
-        );
-
-
-        await AsyncStorage.setItem(
-
-          'sensor2Status',
-
-          sensor2?.status || 'INACTIVE'
-
-        );
-
-
-        console.log(
-
-          'Sensor 1 Status:',
-
-          sensor1?.status
-
-        );
-
-
-        console.log(
-
-          'Sensor 2 Status:',
-
-          sensor2?.status
-
-        );
-
-      }
-
-
-    } catch (error: any) {
-
-      console.error(
-
-        'Failed to stop pump:',
-
-        error?.response?.data || error
-
-      );
-
+const handleStartPump = async () => {
+  try {
+    const stageId = await AsyncStorage.getItem('selectedStageId');
+
+    if (!stageId) {
+      console.log('Stage ID not found');
+      return;
     }
 
-  };
+    const motorId = 2;
+
+    const response = await turnOnMotor(
+      motorId,
+      Number(stageId)
+    );
+
+    console.log(
+      'Motor ON Response:',
+      JSON.stringify(response, null, 2)
+    );
+
+    const currentState = response?.data?.current_state;
+
+    console.log('Motor Current State:', currentState);
+
+    if (response?.success && currentState === 'ON') {
+
+      setCurrentState(currentState);
+
+      setPumpStartTime(response.data.started_at);
+
+      // Hide End Time and Running Time
+      setPumpEndTime(null);
+      setPumpDuration(null);
+
+      await fetchActivityLogs();
+    }
+
+  } catch (error: any) {
+    console.error(
+      'Failed to start pump:',
+      error?.response?.data || error
+    );
+  }
+};
+
+
+  // const handleStopPump = async () => {
+
+  //   try {
+
+  //     const stageId = await AsyncStorage.getItem('selectedStageId');
+
+
+  //     console.log('Selected Stage ID:', stageId);
+
+
+  //     if (!stageId) {
+
+  //       console.log('Stage ID not found');
+
+  //       return;
+
+  //     }
+
+
+  //     const motorId = 2;
+
+
+  //     console.log('Motor ID:', motorId);
+
+  //     console.log('Stage ID:', Number(stageId));
+
+
+  //     const response = await turnOffMotor(
+
+  //       motorId,
+
+  //       Number(stageId)
+
+  //     );
+
+
+  //     console.log(
+
+  //       'Motor OFF Response:',
+
+  //       JSON.stringify(response, null, 2)
+
+  //     );
+
+
+  //     const status =
+
+  //       response?.data?.equipment?.status ??
+
+  //       response?.data?.status ??
+
+  //       response?.status;
+
+
+  //     console.log('Pump Status:', status);
+
+
+  //     if (status === 'INACTIVE') {
+
+
+  //       const endedAt =
+
+  //         response?.data?.ended_at ??
+
+  //         response?.ended_at;
+
+
+  //       const duration =
+
+  //         response?.data?.duration_seconds ??
+
+  //         response?.duration_seconds;
+
+
+  //       setPumpStartTime(null);
+
+
+  //       setPumpEndTime(endedAt ?? null);
+
+
+  //       setPumpDuration(duration ?? null);
+
+
+  //       console.log('Pump stopped successfully');
+
+
+  //       // Refresh operation log
+
+  //       await fetchActivityLogs();
+
+
+  //       // Fetch again after backend updates the log
+
+  //       // setTimeout(() => {
+
+  //       // fetchActivityLogs();
+
+  //       // }, 800);
+
+
+  //       // Sensor status
+
+  //       const sensors =
+
+  //         response?.data?.sensors ??
+
+  //         response?.sensors ??
+
+  //         [];
+
+
+  //       const sensor1 = sensors.find(
+
+  //         (sensor: any) => sensor.id === 3
+
+  //       );
+
+
+  //       const sensor2 = sensors.find(
+
+  //         (sensor: any) => sensor.id === 4
+
+  //       );
+
+
+  //       await AsyncStorage.setItem(
+
+  //         'sensor1Status',
+
+  //         sensor1?.status || 'INACTIVE'
+
+  //       );
+
+
+  //       await AsyncStorage.setItem(
+
+  //         'sensor2Status',
+
+  //         sensor2?.status || 'INACTIVE'
+
+  //       );
+
+
+  //       console.log(
+
+  //         'Sensor 1 Status:',
+
+  //         sensor1?.status
+
+  //       );
+
+
+  //       console.log(
+
+  //         'Sensor 2 Status:',
+
+  //         sensor2?.status
+
+  //       );
+
+  //     }
+
+
+  //   } catch (error: any) {
+
+  //     console.error(
+
+  //       'Failed to stop pump:',
+
+  //       error?.response?.data || error
+
+  //     );
+
+  //   }
+
+  // };
+
+  const handleStopPump = async () => {
+  try {
+    const stageId = await AsyncStorage.getItem('selectedStageId');
+
+    if (!stageId) {
+      console.log('Stage ID not found');
+      return;
+    }
+
+    const motorId = 2;
+
+    const response = await turnOffMotor(
+      motorId,
+      Number(stageId)
+    );
+
+    console.log(
+      'Motor OFF Response:',
+      JSON.stringify(response, null, 2)
+    );
+
+    const currentState = response?.data?.current_state;
+
+    console.log('Motor Current State:', currentState);
+
+    if (response?.success && currentState === 'OFF') {
+
+      // Store current state
+      setCurrentState(currentState);
+
+      // Hide Start Time
+      setPumpStartTime(null);
+
+      // Show End Time
+      setPumpEndTime(response.data.ended_at);
+
+      // Show Running Time
+      setPumpDuration(response.data.duration_seconds);
+
+      console.log('Pump stopped successfully');
+
+      await fetchActivityLogs();
+
+      // Sensor status
+      const sensors = response?.data?.sensors ?? [];
+
+      const sensor1 = sensors.find(
+        (sensor: any) => sensor.id === 7
+      );
+
+      const sensor2 = sensors.find(
+        (sensor: any) => sensor.id === 8
+      );
+
+      await AsyncStorage.setItem(
+        'sensor1Status',
+        sensor1?.current_state || 'OFF'
+      );
+
+      await AsyncStorage.setItem(
+        'sensor2Status',
+        sensor2?.current_state || 'OFF'
+      );
+    }
+
+  } catch (error: any) {
+    console.error(
+      'Failed to stop pump:',
+      error?.response?.data || error
+    );
+  }
+};
 
   return (
 

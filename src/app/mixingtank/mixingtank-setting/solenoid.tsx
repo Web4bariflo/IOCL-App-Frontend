@@ -1,11 +1,228 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { turnOnValve, turnOffValve, getEquipmentManualLogs } from '../../../api/mixingTankApi';
 
 export default function SolenoidScreen() {
-  const [activeTab, setActiveTab] = useState<'VALVE 1' | 'VALVE 2'>('VALVE 1');
+  const [activeTab, setActiveTab] = useState<
+    'VALVE 1' | 'VALVE 2' | 'VALVE 3'
+  >('VALVE 1');
+
+  const [valveIds, setValveIds] = useState<number[]>([]);
+  const [stageId, setStageId] = useState<number | null>(null);
+
+  const [loading, setLoading] = useState(false);
+  const [startedAt, setStartedAt] = useState<string | null>(null);
+  const [endedAt, setEndedAt] = useState<string | null>(null);
+  const [durationSeconds, setDurationSeconds] = useState<number | null>(null);
+  const [valveState, setValveState] = useState<'ON' | 'OFF'>('OFF');
+  const [manualLogs, setManualLogs] = useState<any[]>([]);
+const [logsLoading, setLogsLoading] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const storedValveIds = await AsyncStorage.getItem(
+          'mixingTankSolenoidValveIds'
+        );
+
+        const storedStageId = await AsyncStorage.getItem(
+          'mixingTankStageId'
+        );
+
+        if (storedValveIds) {
+          setValveIds(JSON.parse(storedValveIds));
+        }
+
+        if (storedStageId) {
+          setStageId(Number(storedStageId));
+        }
+
+        console.log('Valve IDs:', storedValveIds);
+        console.log('Mixing Tank Stage ID:', storedStageId);
+      } catch (error) {
+        console.log('Error loading valve data:', error);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const getSelectedValveId = () => {
+    if (activeTab === 'VALVE 1') {
+      return valveIds[2];
+    }
+
+    if (activeTab === 'VALVE 2') {
+      return valveIds[1];
+    }
+
+    return valveIds[0];
+  };
+
+  const loadManualLogs = async () => {
+  try {
+    if (stageId === null) {
+      return;
+    }
+
+    const valveId = getSelectedValveId();
+
+    if (!valveId) {
+      return;
+    }
+
+    setLogsLoading(true);
+
+    console.log('Loading logs for Valve ID:', valveId);
+    console.log('Stage ID:', stageId);
+
+    const response = await getEquipmentManualLogs(
+      valveId,
+      stageId
+    );
+
+    console.log('Manual Logs:', response);
+
+    if (response.success) {
+      setManualLogs(response.data.slice(0, 3));
+    }
+
+  } catch (error) {
+    console.log('Failed to load manual logs:', error);
+  } finally {
+    setLogsLoading(false);
+  }
+};
+useEffect(() => {
+  if (stageId !== null && valveIds.length > 0) {
+    loadManualLogs();
+  }
+}, [stageId, valveIds, activeTab]);
+
+  // const handleOpenValve = async () => {
+  //   try {
+  //     if (stageId === null) {
+  //       console.log('Mixing Tank stage ID not found');
+  //       return;
+  //     }
+
+  //     const valveId = getSelectedValveId();
+
+  //     if (!valveId) {
+  //       console.log('Selected valve ID not found');
+  //       return;
+  //     }
+
+  //     setLoading(true);
+
+  //     console.log('Selected Valve:', activeTab);
+  //     console.log('Valve ID:', valveId);
+  //     console.log('Stage ID:', stageId);
+
+  //     const response = await turnOnValve(
+  //       valveId,
+  //       stageId
+  //     );
+
+  //     console.log('Valve ON Response:', response);
+
+  //     if (response.success) {
+  //       setStartedAt(response.data.started_at);
+  //     }
+  //   } catch (error) {
+  //     console.log('Failed to turn ON valve:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
+  const handleOpenValve = async () => {
+    try {
+      if (stageId === null) {
+        console.log('Mixing Tank stage ID not found');
+        return;
+      }
+
+      const valveId = getSelectedValveId();
+
+      if (!valveId) {
+        console.log('Selected valve ID not found');
+        return;
+      }
+
+      setLoading(true);
+
+      console.log('Selected Valve:', activeTab);
+      console.log('Valve ID:', valveId);
+      console.log('Stage ID:', stageId);
+
+      const response = await turnOnValve(
+        valveId,
+        stageId
+      );
+
+      console.log('Valve ON Response:', response);
+
+      if (response.success) {
+        setStartedAt(response.data.started_at);
+        setEndedAt(null);
+        setDurationSeconds(null);
+        setValveState('ON');
+        await loadManualLogs();
+      }
+
+    } catch (error) {
+      console.log('Failed to turn ON valve:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCloseValve = async () => {
+    try {
+      if (stageId === null) {
+        console.log('Mixing Tank stage ID not found');
+        return;
+      }
+
+      const valveId = getSelectedValveId();
+
+      if (!valveId) {
+        console.log('Selected valve ID not found');
+        return;
+      }
+
+      setLoading(true);
+
+      console.log('Selected Valve:', activeTab);
+      console.log('Valve ID:', valveId);
+      console.log('Stage ID:', stageId);
+
+      const response = await turnOffValve(
+        valveId,
+        stageId
+      );
+
+      console.log('Valve OFF Response:', response);
+
+      if (response.success) {
+        setEndedAt(response.data.ended_at);
+        setDurationSeconds(response.data.duration_seconds);
+        setValveState('OFF');
+        await loadManualLogs();
+      }
+
+    } catch (error) {
+      console.log('Failed to turn OFF valve:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -23,14 +240,14 @@ export default function SolenoidScreen() {
       <View style={styles.headerBorder} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        
+
         {/* Valve Status Card */}
         <View style={styles.card}>
           <View style={styles.statusCardContent}>
-            <Image 
-              source={require('@/assets/images/solenoid.png')} 
-              style={styles.valveLargeIcon} 
-              resizeMode="contain" 
+            <Image
+              source={require('@/assets/images/solenoid.png')}
+              style={styles.valveLargeIcon}
+              resizeMode="contain"
             />
             <View style={styles.statusTextContainer}>
               <Text style={styles.statusTitle}>Valve Status</Text>
@@ -48,7 +265,7 @@ export default function SolenoidScreen() {
 
         {/* Tabs */}
         <View style={styles.tabsContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.tabButton, activeTab === 'VALVE 1' && styles.tabButtonActive]}
             onPress={() => setActiveTab('VALVE 1')}
           >
@@ -56,7 +273,7 @@ export default function SolenoidScreen() {
               VALVE 1
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.tabButton, activeTab === 'VALVE 2' && styles.tabButtonActive]}
             onPress={() => setActiveTab('VALVE 2')}
           >
@@ -64,67 +281,155 @@ export default function SolenoidScreen() {
               VALVE 2
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.tabButton,
+              activeTab === 'VALVE 3' && styles.tabButtonActive,
+            ]}
+            onPress={() => setActiveTab('VALVE 3')}
+          >
+            <Text
+              style={[
+                styles.tabButtonText,
+                activeTab === 'VALVE 3' && styles.tabButtonTextActive,
+              ]}
+            >
+              VALVE 3
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Manual Control Card */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Solenoid Valve {activeTab === 'VALVE 1' ? '1' : '2'}</Text>
+          {/* <Text style={styles.cardTitle}>Solenoid Valve {activeTab === 'VALVE 1' ? '1' : '2'}</Text> */}
+          <Text style={styles.cardTitle}>
+            Solenoid Valve {activeTab.replace('VALVE ', '')}
+          </Text>
           <Text style={styles.cardSubtitle}>Manual flow control</Text>
           <View style={styles.actionButtonsContainer}>
-            <TouchableOpacity style={styles.openButton}>
+            {/* <TouchableOpacity style={styles.openButton}>
               <MaterialCommunityIcons name="pipe-valve" size={24} color="#FFFFFF" />
               <Text style={styles.openButtonText}>OPEN VALVE</Text>
+            </TouchableOpacity> */}
+
+            <TouchableOpacity
+              style={styles.openButton}
+              onPress={handleOpenValve}
+              disabled={loading}
+            >
+              <MaterialCommunityIcons
+                name="pipe-valve"
+                size={24}
+                color="#FFFFFF"
+              />
+
+              <Text style={styles.openButtonText}>
+                {loading ? 'OPENING...' : 'OPEN VALVE'}
+              </Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.closeButton}>
+
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={handleCloseValve}
+              disabled={loading}
+            >
               <MaterialCommunityIcons name="stop-circle-outline" size={24} color="#DC2626" />
-              <Text style={styles.closeButtonText}>CLOSE VALVE</Text>
+              <Text style={styles.closeButtonText}>
+                {loading ? 'CLOSING...' : 'CLOSE VALVE'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Valve Schedule Card */}
+
+
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Valve Schedule</Text>
-          <Text style={styles.cardSubtitle}>Set the valve operating window</Text>
-          
-          <View style={styles.scheduleRow}>
-            <View style={styles.scheduleLabelContainer}>
-              <MaterialCommunityIcons name="clock-outline" size={22} color="#1A5B9C" />
-              <Text style={styles.scheduleLabel}>Open Time</Text>
-            </View>
-            <View style={styles.timeInputBox}>
-              <Text style={styles.timeInputText}>08:15 AM</Text>
-            </View>
-          </View>
 
-          <View style={styles.divider} />
+          <Text style={styles.cardSubtitle}>
+            Set the pump operation window
+          </Text>
 
-          <View style={styles.scheduleRow}>
-            <View style={styles.scheduleLabelContainer}>
-              <MaterialCommunityIcons name="clock-outline" size={22} color="#1A5B9C" />
-              <Text style={styles.scheduleLabel}>Close Time</Text>
-            </View>
-            <View style={styles.timeInputBox}>
-              <Text style={styles.timeInputText}>06:15 PM</Text>
-            </View>
-          </View>
+          {/* After OPEN VALVE */}
+          {valveState === 'ON' && (
+            <View style={styles.scheduleRow}>
+              <View style={styles.scheduleLabelContainer}>
+                <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={22}
+                  color="#1A5B9C"
+                />
 
-          <View style={styles.divider} />
+                <Text style={styles.scheduleLabel}>
+                  Open Time
+                </Text>
+              </View>
 
-          <View style={styles.scheduleRow}>
-            <View style={styles.scheduleLabelContainer}>
-              <MaterialCommunityIcons name="clock-outline" size={22} color="#1A5B9C" />
-              <Text style={styles.scheduleLabel}>Open Duration</Text>
+              <View style={styles.timeInputBox}>
+                <Text style={styles.timeInputText}>
+                  {startedAt
+                    ? new Date(startedAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
+                    : '--'}
+                </Text>
+              </View>
             </View>
-            <View style={styles.timeInputBox}>
-              <Text style={styles.timeInputText}>10 hr</Text>
-            </View>
-          </View>
+          )}
 
-          <TouchableOpacity style={styles.saveButton}>
-            <Text style={styles.saveButtonText}>SAVE SCHEDULE</Text>
-          </TouchableOpacity>
+          {/* After CLOSE VALVE */}
+          {valveState === 'OFF' && endedAt && (
+            <>
+              <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLabelContainer}>
+                  <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={22}
+                    color="#DC2626"
+                  />
+
+                  <Text style={styles.scheduleLabel}>
+                    Close Time
+                  </Text>
+                </View>
+
+                <View style={styles.timeInputBox}>
+                  <Text style={styles.timeInputText}>
+                    {new Date(endedAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.divider} />
+
+              <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLabelContainer}>
+                  <MaterialCommunityIcons
+                    name="timer-outline"
+                    size={22}
+                    color="#1A5B9C"
+                  />
+
+                  <Text style={styles.scheduleLabel}>
+                    Open Duration
+                  </Text>
+                </View>
+
+                <View style={styles.timeInputBox}>
+                  <Text style={styles.timeInputText}>
+                    {durationSeconds !== null
+                      ? `${durationSeconds} sec`
+                      : '--'}
+                  </Text>
+                </View>
+              </View>
+            </>
+          )}
         </View>
 
         <View style={styles.infoRow}>
@@ -133,44 +438,76 @@ export default function SolenoidScreen() {
         </View>
 
         {/* Valve Activity Log Card */}
-        <View style={styles.card}>
-          <View style={styles.logHeader}>
-            <Text style={styles.cardTitle}>Valve Activity Log</Text>
-            <TouchableOpacity style={styles.viewAllRow}>
-              <Text style={styles.viewAllText}>View All</Text>
-              <MaterialCommunityIcons name="chevron-right" size={20} color="#0D9488" />
-            </TouchableOpacity>
-          </View>
+       <View style={styles.card}>
+  <View style={styles.logHeader}>
+    <Text style={styles.cardTitle}>Valve Activity Log</Text>
 
-          <View style={styles.logRow}>
-            <Text style={styles.logTime}>Today, 08:15 AM</Text>
-            <View style={styles.logStatusContainer}>
-              <Text style={styles.logStatusText}>Valve Opened</Text>
-              <View style={[styles.logStatusDot, { backgroundColor: '#10B981' }]} />
-            </View>
-          </View>
+    <TouchableOpacity style={styles.viewAllRow}>
+      <Text style={styles.viewAllText}>View All</Text>
 
-          <View style={styles.logDivider} />
+      <MaterialCommunityIcons
+        name="chevron-right"
+        size={20}
+        color="#0D9488"
+      />
+    </TouchableOpacity>
+  </View>
 
-          <View style={styles.logRow}>
-            <Text style={styles.logTime}>Yesterday, 06:15 PM</Text>
-            <View style={styles.logStatusContainer}>
-              <Text style={styles.logStatusText}>Valve Closed</Text>
-              <View style={[styles.logStatusDot, { backgroundColor: '#6B7280' }]} />
-            </View>
-          </View>
+  {logsLoading ? (
+    <Text style={styles.logTime}>
+      Loading logs...
+    </Text>
+  ) : manualLogs.length === 0 ? (
+    <Text style={styles.logTime}>
+      No operation logs found
+    </Text>
+  ) : (
+    manualLogs.map((log, index) => (
+      <React.Fragment key={log.id}>
 
-          <View style={styles.logDivider} />
+        <View style={styles.logRow}>
 
-          <View style={styles.logRow}>
-            <Text style={styles.logTime}>Yesterday, 08:15 AM</Text>
-            <View style={styles.logStatusContainer}>
-              <Text style={styles.logStatusText}>Valve Opened</Text>
-              <View style={[styles.logStatusDot, { backgroundColor: '#10B981' }]} />
-            </View>
+          <Text style={styles.logTime}>
+            {new Date(log.created_at).toLocaleString([], {
+              day: '2-digit',
+              month: 'short',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </Text>
+
+          <View style={styles.logStatusContainer}>
+
+            <Text style={styles.logStatusText}>
+              {log.action === 'ON'
+                ? 'Valve Opened'
+                : 'Valve Closed'}
+            </Text>
+
+            <View
+              style={[
+                styles.logStatusDot,
+                {
+                  backgroundColor:
+                    log.action === 'ON'
+                      ? '#10B981'
+                      : '#6B7280',
+                },
+              ]}
+            />
+
           </View>
 
         </View>
+
+        {index < manualLogs.length - 1 && (
+          <View style={styles.logDivider} />
+        )}
+
+      </React.Fragment>
+    ))
+  )}
+</View>
 
       </ScrollView>
     </SafeAreaView>
@@ -296,7 +633,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#FFFFFF',
+    borderRightWidth: 1,
+    borderRightColor: '#E5E7EB',
   },
   tabButtonActive: {
     backgroundColor: '#0D9488',

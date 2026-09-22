@@ -32,7 +32,7 @@ export const turnOnCoagulantMotor = async (
     const token = await AsyncStorage.getItem('accessToken');
 
     const response = await axios.post(
-      `${BASE_URL}/equipment/coagulant/motor/${equipmentId}/on/`,
+      `${BASE_URL}/equipment/motor/${equipmentId}/on/`,
       {
         stage_id: stageId,
       },
@@ -62,7 +62,7 @@ export const turnOffCoagulantMotor = async (
     const token = await AsyncStorage.getItem('accessToken');
 
     const response = await axios.post(
-      `${BASE_URL}/equipment/coagulant/motor/${equipmentId}/off/`,
+      `${BASE_URL}/equipment/motor/${equipmentId}/off/`,
       {
         stage_id: stageId,
       },

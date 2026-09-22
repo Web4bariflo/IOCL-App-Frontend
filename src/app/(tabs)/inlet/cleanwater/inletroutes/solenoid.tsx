@@ -1333,139 +1333,206 @@ export default function SolenoidScreen() {
 
     // =========================================================
 
+    // const handleCloseValve = async () => {
+
+    //     try {
+
+    //         const stageId = await AsyncStorage.getItem('cleanWaterStageId');
+
+
+    //         const valveId = await AsyncStorage.getItem('cleanWaterValveId');
+
+
+    //         console.log('Clean Water Stage ID:', stageId);
+
+    //         console.log('Clean Water Valve ID:', valveId);
+
+
+    //         if (!stageId) {
+
+    //             console.log('Stage ID not found');
+
+    //             return;
+
+    //         }
+
+
+    //         if (!valveId) {
+
+    //             console.log('Valve ID not found');
+
+    //             return;
+
+    //         }
+
+
+    //         const response = await turnOffValve(
+
+    //             Number(valveId),
+
+    //             Number(stageId)
+
+    //         );
+
+
+    //         console.log('Valve OFF Response:', response);
+
+    //         console.log('Valve OFF Response Data:', response?.data);
+
+
+    //         // Handle different possible response structures
+
+    //         const status =
+
+    //             response?.data?.status ??
+
+    //             response?.status ??
+
+    //             response?.data?.equipment?.status;
+
+
+    //         const endedAt =
+
+    //             response?.data?.ended_at ??
+
+    //             response?.ended_at;
+
+
+    //         const duration =
+
+    //             response?.data?.duration_seconds ??
+
+    //             response?.duration_seconds;
+
+
+    //         if (status === 'INACTIVE') {
+
+    //             setValveCloseTime(endedAt ?? null);
+
+
+    //             setValveDuration(
+
+    //                 duration !== undefined && duration !== null
+
+    //                     ? Number(duration)
+
+    //                     : null
+
+    //             );
+
+
+    //             // Hide open time after closing
+
+    //             setValveStartTime(null);
+
+
+    //             // Refresh activity log
+
+    //             await fetchActivityLogs();
+
+
+    //             // Small delay to make sure backend log is available
+
+    //             setTimeout(() => {
+
+    //                 fetchActivityLogs();
+
+    //             }, 800);
+
+    //         } else {
+
+    //             console.log(
+
+    //                 'Valve close response did not return INACTIVE:',
+
+    //                 response
+
+    //             );
+
+    //         }
+
+    //     } catch (error: any) {
+
+    //         console.error('Failed to close valve:', error);
+
+    //         console.error(
+
+    //             'Close error response:',
+
+    //             error?.response?.data
+
+    //         );
+
+    //     }
+
+    // };
+
     const handleCloseValve = async () => {
-
-        try {
-
-            const stageId = await AsyncStorage.getItem('cleanWaterStageId');
-
-
-            const valveId = await AsyncStorage.getItem('cleanWaterValveId');
-
-
-            console.log('Clean Water Stage ID:', stageId);
-
-            console.log('Clean Water Valve ID:', valveId);
-
-
-            if (!stageId) {
-
-                console.log('Stage ID not found');
-
-                return;
-
-            }
-
-
-            if (!valveId) {
-
-                console.log('Valve ID not found');
-
-                return;
-
-            }
-
-
-            const response = await turnOffValve(
-
-                Number(valveId),
-
-                Number(stageId)
-
-            );
-
-
-            console.log('Valve OFF Response:', response);
-
-            console.log('Valve OFF Response Data:', response?.data);
-
-
-            // Handle different possible response structures
-
-            const status =
-
-                response?.data?.status ??
-
-                response?.status ??
-
-                response?.data?.equipment?.status;
-
-
-            const endedAt =
-
-                response?.data?.ended_at ??
-
-                response?.ended_at;
-
-
-            const duration =
-
-                response?.data?.duration_seconds ??
-
-                response?.duration_seconds;
-
-
-            if (status === 'INACTIVE') {
-
-                setValveCloseTime(endedAt ?? null);
-
-
-                setValveDuration(
-
-                    duration !== undefined && duration !== null
-
-                        ? Number(duration)
-
-                        : null
-
-                );
-
-
-                // Hide open time after closing
-
-                setValveStartTime(null);
-
-
-                // Refresh activity log
-
-                await fetchActivityLogs();
-
-
-                // Small delay to make sure backend log is available
-
-                setTimeout(() => {
-
-                    fetchActivityLogs();
-
-                }, 800);
-
-            } else {
-
-                console.log(
-
-                    'Valve close response did not return INACTIVE:',
-
-                    response
-
-                );
-
-            }
-
-        } catch (error: any) {
-
-            console.error('Failed to close valve:', error);
-
-            console.error(
-
-                'Close error response:',
-
-                error?.response?.data
-
-            );
-
+    try {
+        const stageId = await AsyncStorage.getItem('cleanWaterStageId');
+        const valveId = await AsyncStorage.getItem('cleanWaterValveId');
+
+        console.log('Clean Water Stage ID:', stageId);
+        console.log('Clean Water Valve ID:', valveId);
+
+        if (!stageId) {
+            console.log('Stage ID not found');
+            return;
         }
 
-    };
+        if (!valveId) {
+            console.log('Valve ID not found');
+            return;
+        }
+
+        const response = await turnOffValve(
+            Number(valveId),
+            Number(stageId)
+        );
+
+        console.log('Valve OFF Response:', response);
+
+        const currentState = response?.data?.current_state;
+        const endedAt = response?.data?.ended_at;
+        const duration = response?.data?.duration_seconds;
+
+        console.log('Valve Current State:', currentState);
+        console.log('Valve Close Time:', endedAt);
+        console.log('Valve Duration:', duration);
+
+        if (response?.success && currentState === 'OFF') {
+
+            // Show close time
+            setValveCloseTime(endedAt ?? null);
+
+            // Show duration
+            setValveDuration(
+                duration !== undefined && duration !== null
+                    ? Number(duration)
+                    : null
+            );
+
+            // Hide open time
+            setValveStartTime(null);
+
+            // Refresh activity logs
+            await fetchActivityLogs();
+
+        } else {
+            console.log(
+                'Valve close response did not return OFF:',
+                response
+            );
+        }
+
+    } catch (error: any) {
+        console.error('Failed to close valve:', error);
+        console.error(
+            'Close error response:',
+            error?.response?.data
+        );
+    }
+};
 
 
     // =========================================================

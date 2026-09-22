@@ -1,13 +1,128 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getStageEquipments } from '../../api/mixingTankApi'
 
 export default function SettingsScreen() {
   // const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('AUTO');
   const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('MANUAL');
   const [notifications, setNotifications] = useState(true);
+
+  const [equipments, setEquipments] = useState<any[]>([]);
+  const [loadingEquipments, setLoadingEquipments] = useState(true);
+
+  useEffect(() => {
+    fetchMixingTankEquipments();
+  }, []);
+
+  const fetchMixingTankEquipments = async () => {
+    try {
+      const stageId = await AsyncStorage.getItem('mixingTankStageId');
+
+      if (!stageId) {
+        console.log('Mixing Tank stage ID not found');
+        return;
+      }
+
+      console.log('Fetching Mixing Tank equipments for stage:', stageId);
+
+      const response = await getStageEquipments(Number(stageId));
+
+      console.log('Mixing Tank Equipments:', response);
+
+      if (response.success) {
+        const equipmentTypes = response.data.equipment_types;
+
+        // Store complete equipment type data
+        setEquipments(equipmentTypes);
+
+        // Store equipment IDs in AsyncStorage
+        for (const item of equipmentTypes) {
+          const typeName = item.equipment_type.name;
+          const equipmentList = item.equipments;
+
+          console.log(`${typeName}:`, equipmentList);
+
+          for (const equipment of equipmentList) {
+            console.log(
+              `Equipment: ${equipment.name}, ID: ${equipment.id}`
+            );
+          }
+        }
+
+        // Store specific equipment IDs
+        const inletPumpIds =
+          equipmentTypes
+            .find(
+              (item: any) =>
+                item.equipment_type.name === 'Inlet Pump 1'
+            )
+            ?.equipments.map((equipment: any) => equipment.id) || [];
+
+        const contactorSensorIds =
+          equipmentTypes
+            .find(
+              (item: any) =>
+                item.equipment_type.name === 'Contactor Sensors'
+            )
+            ?.equipments.map((equipment: any) => equipment.id) || [];
+
+        const solenoidValveIds =
+          equipmentTypes
+            .find(
+              (item: any) =>
+                item.equipment_type.name === 'Solenoid Valves'
+            )
+            ?.equipments.map((equipment: any) => equipment.id) || [];
+
+        const motorIds =
+          equipmentTypes
+            .find(
+              (item: any) =>
+                item.equipment_type.name === 'Motor'
+            )
+            ?.equipments.map((equipment: any) => equipment.id) || [];
+
+        await AsyncStorage.multiSet([
+          ['mixingTankInletPumpIds', JSON.stringify(inletPumpIds)],
+          ['mixingTankContactorSensorIds', JSON.stringify(contactorSensorIds)],
+          ['mixingTankSolenoidValveIds', JSON.stringify(solenoidValveIds)],
+          ['mixingTankMotorIds', JSON.stringify(motorIds)],
+        ]);
+
+        console.log('Inlet Pump IDs:', inletPumpIds);
+        console.log('Contactor Sensor IDs:', contactorSensorIds);
+        console.log('Solenoid Valve IDs:', solenoidValveIds);
+        console.log('Motor IDs:', motorIds);
+      }
+    } catch (error) {
+      console.error(
+        'Failed to fetch Mixing Tank equipments:',
+        error
+      );
+    } finally {
+      setLoadingEquipments(false);
+    }
+  };
+
+  const inletPumpData = equipments.find(
+    (item) => item.equipment_type.name === 'Inlet Pump 1'
+  );
+
+  const contactorSensorData = equipments.find(
+    (item) => item.equipment_type.name === 'Contactor Sensors'
+  );
+
+  const solenoidValveData = equipments.find(
+    (item) => item.equipment_type.name === 'Solenoid Valves'
+  );
+
+  const motorData = equipments.find(
+    (item) => item.equipment_type.name === 'Motor'
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -99,7 +214,13 @@ export default function SettingsScreen() {
           >
             <Image source={require('@/assets/images/inletpump.png')} style={[styles.deviceIcon, { width: 24, height: 24 }]} resizeMode="contain" />
             <View style={styles.settingTextContainer}>
-              <Text style={styles.settingTitle}>Inlet Pump 1</Text>
+              <Text style={styles.settingTitle}>
+                {inletPumpData?.equipment_type.name || 'Inlet Pump'}
+              </Text>
+
+              <Text style={styles.settingSubtitle}>
+                {inletPumpData?.count || 0} Pumps
+              </Text>
             </View>
             <MaterialCommunityIcons name="chevron-right" size={24} color="#111827" />
           </TouchableOpacity>
@@ -112,8 +233,13 @@ export default function SettingsScreen() {
           >
             <Image source={require('@/assets/images/contactor.png')} style={[styles.deviceIcon, { width: 24, height: 24 }]} resizeMode="contain" />
             <View style={styles.settingTextContainer}>
-              <Text style={styles.settingTitle}>Contactor Sensors</Text>
-              <Text style={styles.settingSubtitle}>2 Sensors</Text>
+              <Text style={styles.settingTitle}>
+                {contactorSensorData?.equipment_type.name || 'Contactor Sensors'}
+              </Text>
+
+              <Text style={styles.settingSubtitle}>
+                {contactorSensorData?.count || 0} Sensors
+              </Text>
             </View>
             <MaterialCommunityIcons name="chevron-right" size={24} color="#111827" />
           </TouchableOpacity>
@@ -126,8 +252,13 @@ export default function SettingsScreen() {
           >
             <Image source={require('@/assets/images/solenoid.png')} style={[styles.deviceIcon, { width: 24, height: 24 }]} resizeMode="contain" />
             <View style={styles.settingTextContainer}>
-              <Text style={styles.settingTitle}>Solenoid Valves</Text>
-              <Text style={styles.settingSubtitle}>2 Valves</Text>
+              <Text style={styles.settingTitle}>
+                {solenoidValveData?.equipment_type.name || 'Solenoid Valves'}
+              </Text>
+
+              <Text style={styles.settingSubtitle}>
+                {solenoidValveData?.count || 0} Valves
+              </Text>
             </View>
             <MaterialCommunityIcons name="chevron-right" size={24} color="#111827" />
           </TouchableOpacity>
@@ -140,8 +271,13 @@ export default function SettingsScreen() {
           >
             <Image source={require('@/assets/images/StepperMotor.png')} style={[styles.deviceIcon, { width: 24, height: 24 }]} resizeMode="contain" />
             <View style={styles.settingTextContainer}>
-              <Text style={styles.settingTitle}>Stepper Motor</Text>
-              <Text style={styles.settingSubtitle}>1 Motor</Text>
+              <Text style={styles.settingTitle}>
+                {motorData?.equipment_type.name || 'Motor'}
+              </Text>
+
+              <Text style={styles.settingSubtitle}>
+                {motorData?.count || 0} Motor
+              </Text>
             </View>
             <MaterialCommunityIcons name="chevron-right" size={24} color="#111827" />
           </TouchableOpacity>

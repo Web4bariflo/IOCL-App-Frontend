@@ -46,6 +46,10 @@ export default function DashboardScreen() {
     (stage) => stage.stage_type === 'COAGULATION'
   );
 
+  const mixingStages = treatmentStages.filter(
+    (stage) => stage.stage_type === 'MIXING'
+  );
+
   useEffect(() => {
     if (params.menu === 'open') {
       setIsMenuOpen(true);
@@ -226,6 +230,12 @@ export default function DashboardScreen() {
             stage.name === 'Mixing Tank'
         );
 
+        //     stage.stage_type === 'MIXING' &&
+        //     stage.name === 'Mixing Tank'
+        // );
+
+        // Store Mixing Tank ID
+
         if (mixingTankStage) {
           await AsyncStorage.setItem(
             'mixingTankStageId',
@@ -237,6 +247,7 @@ export default function DashboardScreen() {
             mixingTankStage.id
           );
         }
+
 
         // =========================
         // FLOCCULATION STAGES
@@ -387,7 +398,7 @@ export default function DashboardScreen() {
       // -----------------------------------------------------
       // MIXING TANK SYSTEM
       // -----------------------------------------------------
-      case 'Mixing Tank System':
+      case 'Mixing Tank':
         router.push('/mixingtank/settings');
         break;
 
@@ -1150,33 +1161,62 @@ export default function DashboardScreen() {
                     )}
 
                   {/* =================================================
-                      MIXING TANK SETTINGS
-                  ================================================= */}
+    MIXING TANK SYSTEM
+================================================= */}
 
                   {item === 'Mixing Tank System' &&
-                    expandedSystem ===
-                    'Mixing Tank System' && (
-                      <TouchableOpacity
-                        style={styles.settingsMenuItem}
-                        onPress={() =>
-                          handleSettingsPress(
-                            'Mixing Tank System'
-                          )
-                        }
-                        activeOpacity={0.7}
-                      >
-                        <MaterialCommunityIcons
-                          name="cog-outline"
-                          size={21}
-                          color="#159AA3"
-                        />
+                    expandedSystem === 'Mixing Tank System' && (
+                      <View style={styles.dropdownContainer}>
+                        {mixingStages.map((stage) => (
+                          <React.Fragment key={stage.id}>
+                            {/* MIXING TANK */}
 
-                        <Text
-                          style={styles.settingsMenuText}
-                        >
-                          Settings
-                        </Text>
-                      </TouchableOpacity>
+                            <TouchableOpacity
+                              style={styles.subSystemMenuItem}
+                              onPress={() =>
+                                handleSubSystemPress(stage.name)
+                              }
+                              activeOpacity={0.7}
+                            >
+                              <Text style={styles.subSystemMenuText}>
+                                {stage.name}
+                              </Text>
+
+                              <MaterialCommunityIcons
+                                name={
+                                  expandedSubSystem === stage.name
+                                    ? 'chevron-up'
+                                    : 'chevron-down'
+                                }
+                                size={19}
+                                color="#6B7280"
+                              />
+                            </TouchableOpacity>
+
+                            {/* SETTINGS */}
+
+                            {expandedSubSystem === stage.name && (
+                              <TouchableOpacity
+                                style={styles.settingsMenuItem}
+                                onPress={() =>
+                                  handleSettingsPress(stage.name)
+                                }
+                                activeOpacity={0.7}
+                              >
+                                <MaterialCommunityIcons
+                                  name="cog-outline"
+                                  size={21}
+                                  color="#159AA3"
+                                />
+
+                                <Text style={styles.settingsMenuText}>
+                                  Settings
+                                </Text>
+                              </TouchableOpacity>
+                            )}
+                          </React.Fragment>
+                        ))}
+                      </View>
                     )}
 
                   {/* =================================================

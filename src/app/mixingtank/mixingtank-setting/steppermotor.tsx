@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   ScrollView,
@@ -11,14 +11,171 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { turnOnMixTankMotor, turnOffMixTankMotor, getEquipmentManualLogs } from '../../../api/mixingTankApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function StepperMotorScreen() {
   const router = useRouter();
   const [motorRunning, setMotorRunning] = useState(false);
-  const [rpm, setRpm] = useState(120);
+  const [motorStartTime, setMotorStartTime] = useState<string | null>(null);
+  const [motorEndTime, setMotorEndTime] = useState<string | null>(null);
+  const [motorLogs, setMotorLogs] = useState<any[]>([]);
+  const [motorDuration, setMotorDuration] = useState<number | null>(null);
+  // const [rpm, setRpm] = useState(120);
 
-  const increaseRpm = () => setRpm(prev => prev + 10);
-  const decreaseRpm = () => setRpm(prev => (prev > 10 ? prev - 10 : 10));
+  // const increaseRpm = () => setRpm(prev => prev + 10);
+  // const decreaseRpm = () => setRpm(prev => (prev > 10 ? prev - 10 : 10));
+
+  const fetchMotorLogs = async () => {
+    try {
+      const storedStageId = await AsyncStorage.getItem(
+        'mixingTankStageId'
+      );
+
+      const storedMotorIds = await AsyncStorage.getItem(
+        'mixingTankMotorIds'
+      );
+
+      if (!storedStageId) {
+        console.log('Mixing Tank Stage ID not found');
+        return;
+      }
+
+      if (!storedMotorIds) {
+        console.log('Mixing Tank Motor IDs not found');
+        return;
+      }
+
+      const stageId = Number(storedStageId);
+      const motorIds = JSON.parse(storedMotorIds);
+
+      const equipmentId = motorIds[0];
+
+      console.log('Fetching Motor Logs');
+      console.log('Stage ID:', stageId);
+      console.log('Motor ID:', equipmentId);
+
+      const response = await getEquipmentManualLogs(
+        equipmentId,
+        stageId
+      );
+
+      if (response.success) {
+        setMotorLogs(response.data.slice(0, 3));
+      }
+    } catch (error) {
+      console.log('Failed to fetch motor logs:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMotorLogs();
+  }, []);
+
+  const handleStartMotor = async () => {
+    try {
+      const storedStageId = await AsyncStorage.getItem(
+        'mixingTankStageId'
+      );
+
+      const storedMotorIds = await AsyncStorage.getItem(
+        'mixingTankMotorIds'
+      );
+
+      if (!storedStageId) {
+        console.log('Mixing Tank Stage ID not found');
+        return;
+      }
+
+      if (!storedMotorIds) {
+        console.log('Mixing Tank Motor IDs not found');
+        return;
+      }
+
+      const stageId = Number(storedStageId);
+
+      const motorIds = JSON.parse(storedMotorIds);
+
+      // If this screen is for the first motor
+      const equipmentId = motorIds[0];
+
+      console.log('Stage ID:', stageId);
+      console.log('Motor ID:', equipmentId);
+
+      const response = await turnOnMixTankMotor(
+        equipmentId,
+        stageId
+      );
+
+      if (response.success) {
+        setMotorRunning(true);
+
+        const startTime = new Date(
+          response.data.started_at
+        ).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+
+        setMotorStartTime(startTime);
+        fetchMotorLogs();
+      }
+    } catch (error) {
+      console.log('Failed to start motor:', error);
+    }
+  };
+
+  const handleStopMotor = async () => {
+    try {
+      const storedStageId = await AsyncStorage.getItem(
+        'mixingTankStageId'
+      );
+
+      const storedMotorIds = await AsyncStorage.getItem(
+        'mixingTankMotorIds'
+      );
+
+      if (!storedStageId) {
+        console.log('Mixing Tank Stage ID not found');
+        return;
+      }
+
+      if (!storedMotorIds) {
+        console.log('Mixing Tank Motor IDs not found');
+        return;
+      }
+
+      const stageId = Number(storedStageId);
+      const motorIds = JSON.parse(storedMotorIds);
+
+      const equipmentId = motorIds[0];
+
+      console.log('Stage ID:', stageId);
+      console.log('Motor ID:', equipmentId);
+
+      const response = await turnOffMixTankMotor(
+        equipmentId,
+        stageId
+      );
+
+      if (response.success) {
+        setMotorRunning(false);
+
+        const endTime = new Date(
+          response.data.ended_at
+        ).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+
+        setMotorEndTime(endTime);
+        setMotorDuration(response.data.duration_seconds);
+        fetchMotorLogs();
+      }
+    } catch (error) {
+      console.log('Failed to stop motor:', error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -35,7 +192,7 @@ export default function StepperMotorScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 30 }}>
-        
+
         {/* MOTOR STATUS CARD */}
         <View style={styles.card}>
           <View style={styles.motorStatusRow}>
@@ -66,15 +223,14 @@ export default function StepperMotorScreen() {
           <View style={styles.controlButtons}>
             <TouchableOpacity
               style={styles.startBtn}
-              onPress={() => setMotorRunning(true)}
+              onPress={handleStartMotor}
             >
               <MaterialCommunityIcons name="power" size={20} color="#fff" />
               <Text style={styles.startText}>START MOTOR</Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               style={styles.stopBtn}
-              onPress={() => setMotorRunning(false)}
+              onPress={handleStopMotor}
             >
               <MaterialCommunityIcons name="stop-circle-outline" size={20} color="#EF4444" />
               <Text style={styles.stopText}>STOP MOTOR</Text>
@@ -84,62 +240,204 @@ export default function StepperMotorScreen() {
 
         {/* OPERATING SCHEDULE */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Operating Schedule</Text>
-          <Text style={styles.sectionDesc}>Set the motor operation window</Text>
 
-          {/* Start Time */}
-          <View style={styles.scheduleRow}>
-            <View style={styles.scheduleLeft}>
-              <MaterialCommunityIcons name="clock-outline" size={20} color="#3B82F6" />
-              <Text style={styles.scheduleLabel}>Start Time</Text>
-            </View>
-            <View style={styles.timeBox}>
-              <Text style={styles.timeText}>08:15 AM</Text>
-            </View>
-          </View>
+          <Text style={styles.sectionTitle}>
+            {motorRunning
+              ? 'Motor Running'
+              : motorEndTime
+                ? 'Motor Stopped'
+                : 'Operating Schedule'}
+          </Text>
 
-          {/* End Time */}
-          <View style={styles.scheduleRow}>
-            <View style={styles.scheduleLeft}>
-              <MaterialCommunityIcons name="clock-outline" size={20} color="#3B82F6" />
-              <Text style={styles.scheduleLabel}>End Time</Text>
-            </View>
-            <View style={styles.timeBox}>
-              <Text style={styles.timeText}>06:15 PM</Text>
-            </View>
-          </View>
+          <Text style={styles.sectionDesc}>
+            {motorRunning
+              ? 'Motor operation details'
+              : motorEndTime
+                ? 'Motor operation details'
+                : 'Set the motor operation window'}
+          </Text>
 
-          {/* Running Time */}
-          <View style={styles.scheduleRow}>
-            <View style={styles.scheduleLeft}>
-              <MaterialCommunityIcons name="clock-outline" size={20} color="#3B82F6" />
-              <Text style={styles.scheduleLabel}>Running Time</Text>
-            </View>
-            <View style={styles.timeBox}>
-              <Text style={styles.timeText}>10 hr</Text>
-            </View>
-          </View>
+          {/* MOTOR RUNNING */}
+          {motorRunning && (
+            <View style={styles.scheduleRow}>
+              <View style={styles.scheduleLeft}>
+                <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={20}
+                  color="#3B82F6"
+                />
+                <Text style={styles.scheduleLabel}>
+                  Start Time
+                </Text>
+              </View>
 
-          {/* Set RPM */}
-          <View style={styles.scheduleRow}>
-            <View style={styles.scheduleLeft}>
-              <MaterialCommunityIcons name="speedometer" size={20} color="#3B82F6" />
-              <Text style={styles.scheduleLabel}>Set RPM</Text>
+              <View style={styles.timeBox}>
+                <Text style={styles.timeText}>
+                  {motorStartTime || '--:--'}
+                </Text>
+              </View>
             </View>
-            <View style={styles.rpmControl}>
-              <TouchableOpacity style={styles.rpmBtn} onPress={decreaseRpm}>
-                <Text style={styles.rpmBtnText}>−</Text>
-              </TouchableOpacity>
-              <Text style={styles.rpmValue}>{rpm} RPM</Text>
-              <TouchableOpacity style={styles.rpmBtn} onPress={increaseRpm}>
-                <Text style={styles.rpmBtnText}>+</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          )}
 
-          <TouchableOpacity style={styles.saveBtn}>
-            <Text style={styles.saveText}>SAVE SCHEDULE</Text>
-          </TouchableOpacity>
+          {/* MOTOR STOPPED */}
+          {!motorRunning && motorEndTime && (
+            <>
+              {/* End Time */}
+              <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLeft}>
+                  <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={20}
+                    color="#3B82F6"
+                  />
+
+                  <Text style={styles.scheduleLabel}>
+                    End Time
+                  </Text>
+                </View>
+
+                <View style={styles.timeBox}>
+                  <Text style={styles.timeText}>
+                    {motorEndTime}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Running Time */}
+              <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLeft}>
+                  <MaterialCommunityIcons
+                    name="timer-outline"
+                    size={20}
+                    color="#3B82F6"
+                  />
+
+                  <Text style={styles.scheduleLabel}>
+                    Running Time
+                  </Text>
+                </View>
+
+                <View style={styles.timeBox}>
+                  <Text style={styles.timeText}>
+                    {motorDuration !== null
+                      ? `${motorDuration} sec`
+                      : '--'}
+                  </Text>
+                </View>
+              </View>
+            </>
+          )}
+
+          {/* INITIAL OFF STATE */}
+          {!motorRunning && !motorEndTime && (
+            <>
+              {/* Start Time */}
+              <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLeft}>
+                  <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={20}
+                    color="#3B82F6"
+                  />
+
+                  <Text style={styles.scheduleLabel}>
+                    Start Time
+                  </Text>
+                </View>
+
+                <View style={styles.timeBox}>
+                  <Text style={styles.timeText}>
+                    --:--
+                  </Text>
+                </View>
+              </View>
+
+              {/* End Time */}
+              <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLeft}>
+                  <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={20}
+                    color="#3B82F6"
+                  />
+
+                  <Text style={styles.scheduleLabel}>
+                    End Time
+                  </Text>
+                </View>
+
+                <View style={styles.timeBox}>
+                  <Text style={styles.timeText}>
+                    06:15 PM
+                  </Text>
+                </View>
+              </View>
+
+              {/* Running Time */}
+              <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLeft}>
+                  <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={20}
+                    color="#3B82F6"
+                  />
+
+                  <Text style={styles.scheduleLabel}>
+                    Running Time
+                  </Text>
+                </View>
+
+                <View style={styles.timeBox}>
+                  <Text style={styles.timeText}>
+                    10 hr
+                  </Text>
+                </View>
+              </View>
+
+              {/* Set RPM */}
+              {/* <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLeft}>
+                  <MaterialCommunityIcons
+                    name="speedometer"
+                    size={20}
+                    color="#3B82F6"
+                  />
+
+                  <Text style={styles.scheduleLabel}>
+                    Set RPM
+                  </Text>
+                </View>
+
+                <View style={styles.rpmControl}>
+                  <TouchableOpacity
+                    style={styles.rpmBtn}
+                    onPress={decreaseRpm}
+                  >
+                    <Text style={styles.rpmBtnText}>−</Text>
+                  </TouchableOpacity>
+
+                  <Text style={styles.rpmValue}>
+                    {rpm} RPM
+                  </Text>
+
+                  <TouchableOpacity
+                    style={styles.rpmBtn}
+                    onPress={increaseRpm}
+                  >
+                    <Text style={styles.rpmBtnText}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              </View> */}
+
+              {/* Save Schedule */}
+              {/* <TouchableOpacity style={styles.saveBtn}>
+                <Text style={styles.saveText}>
+                  SAVE SCHEDULE
+                </Text>
+              </TouchableOpacity> */}
+            </>
+          )}
+
         </View>
 
         {/* OPERATION LOG */}
@@ -149,9 +447,19 @@ export default function StepperMotorScreen() {
             <Text style={styles.viewAll}>View All ›</Text>
           </View>
 
-          <LogItem time="Today, 08:15 AM" message="Motor Started" active />
-          <LogItem time="Yesterday, 06:15 PM" message="Motor Stopped" active={false} />
-          <LogItem time="Yesterday, 08:15 AM" message="Motor Started" active />
+          {motorLogs.map((log) => (
+            <LogItem
+              key={log.id}
+              time={new Date(log.created_at).toLocaleString([], {
+                day: '2-digit',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+              message={`Motor ${log.action === 'ON' ? 'Started' : 'Stopped'}`}
+              active={log.action === 'ON'}
+            />
+          ))}
         </View>
       </ScrollView>
     </SafeAreaView>

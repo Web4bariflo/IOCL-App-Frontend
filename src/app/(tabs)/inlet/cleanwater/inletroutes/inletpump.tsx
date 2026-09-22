@@ -904,184 +904,300 @@ export default function InletPumpScreen() {
 
 
 
+    // const handleStopPump = async () => {
+
+    //     try {
+
+    //         const stageId = await AsyncStorage.getItem(
+
+    //             'cleanWaterStageId'
+
+    //         );
+
+
+    //         const motorId = await AsyncStorage.getItem(
+
+    //             'cleanWaterPumpMotorId'
+
+    //         );
+
+
+    //         console.log('Stage ID:', stageId);
+
+    //         console.log('Motor Equipment ID:', motorId);
+
+
+    //         if (!stageId || !motorId) {
+
+    //             console.log('Stage ID or Motor ID not found');
+
+    //             return;
+
+    //         }
+
+
+    //         const response = await turnOffMotor(
+
+    //             Number(motorId),
+
+    //             Number(stageId)
+
+    //         );
+
+
+    //         console.log(
+
+    //             'Motor OFF Response:',
+
+    //             JSON.stringify(response, null, 2)
+
+    //         );
+
+
+    //         const status =
+
+    //             response?.data?.equipment?.status ??
+
+    //             response?.data?.status ??
+
+    //             response?.status;
+
+
+    //         console.log('Pump Status:', status);
+
+
+    //         if (status === 'INACTIVE') {
+
+    //             const endedAt =
+
+    //                 response?.data?.ended_at ??
+
+    //                 response?.ended_at;
+
+
+    //             const duration =
+
+    //                 response?.data?.duration_seconds ??
+
+    //                 response?.duration_seconds;
+
+
+    //             setPumpStartTime(null);
+
+    //             setPumpEndTime(endedAt ?? null);
+
+    //             setPumpDuration(
+
+    //                 duration != null ? Number(duration) : null
+
+    //             );
+
+
+    //             console.log('Pump stopped successfully');
+
+
+    //             // Wait for backend to update the log
+
+    //             setTimeout(() => {
+
+    //                 fetchActivityLogs();
+
+    //             },);
+
+
+    //             // Sensor status
+
+    //             const sensors =
+
+    //                 response?.data?.sensors ??
+
+    //                 response?.sensors ??
+
+    //                 [];
+
+
+    //             const sensor1 = sensors.find(
+
+    //                 (sensor: any) => sensor.id === 7
+
+    //             );
+
+
+    //             const sensor2 = sensors.find(
+
+    //                 (sensor: any) => sensor.id === 8
+
+    //             );
+
+
+    //             await AsyncStorage.setItem(
+
+    //                 'sensor3Status',
+
+    //                 sensor1?.status || 'INACTIVE'
+
+    //             );
+
+
+    //             await AsyncStorage.setItem(
+
+    //                 'sensor4Status',
+
+    //                 sensor2?.status || 'INACTIVE'
+
+    //             );
+
+
+    //             console.log(
+
+    //                 'Sensor 3 Status:',
+
+    //                 sensor1?.status
+
+    //             );
+
+
+    //             console.log(
+
+    //                 'Sensor 4 Status:',
+
+    //                 sensor2?.status
+
+    //             );
+
+    //         }
+
+
+    //     } catch (error: any) {
+
+    //         console.error(
+
+    //             'Failed to stop pump:',
+
+    //             error?.response?.data || error
+
+    //         );
+
+    //     }
+
+    // };
+
     const handleStopPump = async () => {
-
-        try {
-
-            const stageId = await AsyncStorage.getItem(
-
-                'cleanWaterStageId'
-
-            );
-
-
-            const motorId = await AsyncStorage.getItem(
-
-                'cleanWaterPumpMotorId'
-
-            );
-
-
-            console.log('Stage ID:', stageId);
-
-            console.log('Motor Equipment ID:', motorId);
-
-
-            if (!stageId || !motorId) {
-
-                console.log('Stage ID or Motor ID not found');
-
-                return;
-
-            }
-
-
-            const response = await turnOffMotor(
-
-                Number(motorId),
-
-                Number(stageId)
-
-            );
-
-
-            console.log(
-
-                'Motor OFF Response:',
-
-                JSON.stringify(response, null, 2)
-
-            );
-
-
-            const status =
-
-                response?.data?.equipment?.status ??
-
-                response?.data?.status ??
-
-                response?.status;
-
-
-            console.log('Pump Status:', status);
-
-
-            if (status === 'INACTIVE') {
-
-                const endedAt =
-
-                    response?.data?.ended_at ??
-
-                    response?.ended_at;
-
-
-                const duration =
-
-                    response?.data?.duration_seconds ??
-
-                    response?.duration_seconds;
-
-
-                setPumpStartTime(null);
-
-                setPumpEndTime(endedAt ?? null);
-
-                setPumpDuration(
-
-                    duration != null ? Number(duration) : null
-
-                );
-
-
-                console.log('Pump stopped successfully');
-
-
-                // Wait for backend to update the log
-
-                setTimeout(() => {
-
-                    fetchActivityLogs();
-
-                },);
-
-
-                // Sensor status
-
-                const sensors =
-
-                    response?.data?.sensors ??
-
-                    response?.sensors ??
-
-                    [];
-
-
-                const sensor1 = sensors.find(
-
-                    (sensor: any) => sensor.id === 7
-
-                );
-
-
-                const sensor2 = sensors.find(
-
-                    (sensor: any) => sensor.id === 8
-
-                );
-
-
-                await AsyncStorage.setItem(
-
-                    'sensor3Status',
-
-                    sensor1?.status || 'INACTIVE'
-
-                );
-
-
-                await AsyncStorage.setItem(
-
-                    'sensor4Status',
-
-                    sensor2?.status || 'INACTIVE'
-
-                );
-
-
-                console.log(
-
-                    'Sensor 3 Status:',
-
-                    sensor1?.status
-
-                );
-
-
-                console.log(
-
-                    'Sensor 4 Status:',
-
-                    sensor2?.status
-
-                );
-
-            }
-
-
-        } catch (error: any) {
-
-            console.error(
-
-                'Failed to stop pump:',
-
-                error?.response?.data || error
-
-            );
-
+    try {
+        const stageId = await AsyncStorage.getItem(
+            'cleanWaterStageId'
+        );
+
+        const motorId = await AsyncStorage.getItem(
+            'cleanWaterPumpMotorId'
+        );
+
+        console.log('Stage ID:', stageId);
+        console.log('Motor Equipment ID:', motorId);
+
+        if (!stageId || !motorId) {
+            console.log('Stage ID or Motor ID not found');
+            return;
         }
 
-    };
+        const response = await turnOffMotor(
+            Number(motorId),
+            Number(stageId)
+        );
 
+        console.log(
+            'Motor OFF Response:',
+            JSON.stringify(response, null, 2)
+        );
+
+        // Get actual motor state
+        const currentState =
+            response?.data?.current_state;
+
+        const endedAt =
+            response?.data?.ended_at;
+
+        const duration =
+            response?.data?.duration_seconds;
+
+        console.log('Motor Current State:', currentState);
+        console.log('Motor End Time:', endedAt);
+        console.log('Motor Duration:', duration);
+
+        // Motor successfully turned OFF
+        if (
+            response?.success &&
+            currentState === 'OFF'
+        ) {
+            // Hide start time
+            setPumpStartTime(null);
+
+            // Show end time
+            setPumpEndTime(
+                endedAt ?? null
+            );
+
+            // Show running duration
+            setPumpDuration(
+                duration !== undefined &&
+                duration !== null
+                    ? Number(duration)
+                    : null
+            );
+
+            console.log(
+                'Pump stopped successfully'
+            );
+
+            // Refresh operation logs
+            await fetchActivityLogs();
+
+
+            // =========================
+            // SENSOR STATUS
+            // =========================
+
+            const sensors =
+                response?.data?.sensors ?? [];
+
+            const sensor1 = sensors.find(
+                (sensor: any) =>
+                    sensor.equipment_id === 7
+            );
+
+            const sensor2 = sensors.find(
+                (sensor: any) =>
+                    sensor.equipment_id === 8
+            );
+
+            await AsyncStorage.setItem(
+                'sensor3Status',
+                sensor1?.current_state || 'OFF'
+            );
+
+            await AsyncStorage.setItem(
+                'sensor4Status',
+                sensor2?.current_state || 'OFF'
+            );
+
+            console.log(
+                'Sensor 3 Status:',
+                sensor1?.current_state
+            );
+
+            console.log(
+                'Sensor 4 Status:',
+                sensor2?.current_state
+            );
+        }
+
+    } catch (error: any) {
+        console.error(
+            'Failed to stop pump:',
+            error?.response?.data || error
+        );
+    }
+};
 
     return (
 

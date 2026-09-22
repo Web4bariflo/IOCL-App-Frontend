@@ -626,75 +626,76 @@ export default function SolenoidScreen() {
     const [logsLoading, setLogsLoading] = useState(false);
 
     const [logsError, setLogsError] = useState<string | null>(null);
+    const [currentState, setCurrentState] = useState<'ON' | 'OFF' | null>(null);
 
 
-    const handleOpenValve = async () => {
+    // const handleOpenValve = async () => {
 
-        try {
+    //     try {
 
-            const stageId = await AsyncStorage.getItem('selectedStageId');
-
-
-            console.log('Selected Stage ID:', stageId);
+    //         const stageId = await AsyncStorage.getItem('selectedStageId');
 
 
-            if (!stageId) {
-
-                console.log('Stage ID not found');
-
-                return;
-
-            }
+    //         console.log('Selected Stage ID:', stageId);
 
 
-            const valveId = activeTab === 'VALVE 1' ? 1 : 2;
+    //         if (!stageId) {
+
+    //             console.log('Stage ID not found');
+
+    //             return;
+
+    //         }
 
 
-            console.log('Valve ID:', valveId);
-
-            console.log('Stage ID:', Number(stageId));
+    //         const valveId = activeTab === 'VALVE 1' ? 1 : 2;
 
 
-            const response = await turnOnValve(
+    //         console.log('Valve ID:', valveId);
 
-                valveId,
-
-                Number(stageId)
-
-            );
+    //         console.log('Stage ID:', Number(stageId));
 
 
+    //         const response = await turnOnValve(
 
-            console.log('Valve ON Response:', response);
+    //             valveId,
+
+    //             Number(stageId)
+
+    //         );
 
 
 
-            if (response.success) {
-
-                setValveStartTime(response.data.started_at);
-
-
-                // Hide Close Time and Duration when valve is opened
-
-                setValveCloseTime(null);
-
-                setValveDuration(null);
-
-
-                await fetchActivityLogs();
-
-            }
+    //         console.log('Valve ON Response:', response);
 
 
 
+    //         if (response.success) {
 
-        } catch (error) {
+    //             setValveStartTime(response.data.started_at);
 
-            console.error('Failed to open valve:', error);
 
-        }
+    //             // Hide Close Time and Duration when valve is opened
 
-    };
+    //             setValveCloseTime(null);
+
+    //             setValveDuration(null);
+
+
+    //             await fetchActivityLogs();
+
+    //         }
+
+
+
+
+    //     } catch (error) {
+
+    //         console.error('Failed to open valve:', error);
+
+    //     }
+
+    // };
 
 
     // const handleCloseValve = async () => {
@@ -757,138 +758,207 @@ export default function SolenoidScreen() {
 
     // };
 
-
-    const handleCloseValve = async () => {
-
-        try {
-
-            const stageId = await AsyncStorage.getItem('selectedStageId');
-
-
-            console.log('Selected Stage ID:', stageId);
-
-
-            if (!stageId) {
-
-                console.log('Stage ID not found');
-
-                return;
-
-            }
-
-
-            const valveId = activeTab === 'VALVE 1' ? 1 : 2;
-
-
-            console.log('Closing Valve ID:', valveId);
-
-            console.log('Stage ID:', Number(stageId));
-
-
-            const response = await turnOffValve(
-
-                valveId,
-
-                Number(stageId)
-
-            );
-
-
-            console.log('Valve OFF Response:', response);
-
-            console.log('Valve OFF Response Data:', response?.data);
-
-
-            // Check status from different possible response structures
-
-            const status =
-
-                response?.data?.status ??
-
-                response?.status ??
-
-                response?.data?.equipment?.status;
-
-
-            const endedAt =
-
-                response?.data?.ended_at ??
-
-                response?.ended_at;
-
-
-            const duration =
-
-                response?.data?.duration_seconds ??
-
-                response?.duration_seconds;
-
-
-            // console.log('Close Status:', status);
-
-            // console.log('Ended At:', endedAt);
-
-            // console.log('Duration:', duration);
-
-
-            if (status === 'INACTIVE') {
-
-
-                // Show Close Time
-
-                setValveCloseTime(endedAt ?? null);
-
-
-                // Show Duration
-
-                setValveDuration(
-
-                    duration !== undefined && duration !== null
-
-                        ? Number(duration)
-
-                        : null
-
-                );
-
-
-                // Hide Open Time
-
-                setValveStartTime(null);
-
-
-                // Refresh activity log
-
-                await fetchActivityLogs();
-
-
-
-
-
-
-            } else {
-
-                console.log(
-
-                    'Valve close response did not return INACTIVE:',
-
-                    response
-
-                );
-
-            }
-
-
-        } catch (error: any) {
-
-            console.error('Failed to close valve:', error);
-
-            console.error('Close error response:', error?.response?.data);
-
+const handleOpenValve = async () => {
+    try {
+        const stageId = await AsyncStorage.getItem('selectedStageId');
+
+        if (!stageId) {
+            console.log('Stage ID not found');
+            return;
         }
 
-    };
+        const valveId = activeTab === 'VALVE 1' ? 1 : 2;
 
+        const response = await turnOnValve(
+            valveId,
+            Number(stageId)
+        );
+
+        console.log('Valve ON Response:', response);
+
+        if (response.success) {
+            setCurrentState(response.data.current_state);
+
+            setValveStartTime(response.data.started_at);
+
+            // Clear close information
+            setValveCloseTime(null);
+            setValveDuration(null);
+
+            await fetchActivityLogs();
+        }
+
+    } catch (error) {
+        console.error('Failed to open valve:', error);
+    }
+};
+
+    // const handleCloseValve = async () => {
+
+    //     try {
+
+    //         const stageId = await AsyncStorage.getItem('selectedStageId');
+
+
+    //         console.log('Selected Stage ID:', stageId);
+
+
+    //         if (!stageId) {
+
+    //             console.log('Stage ID not found');
+
+    //             return;
+
+    //         }
+
+
+    //         const valveId = activeTab === 'VALVE 1' ? 1 : 2;
+
+
+    //         console.log('Closing Valve ID:', valveId);
+
+    //         console.log('Stage ID:', Number(stageId));
+
+
+    //         const response = await turnOffValve(
+
+    //             valveId,
+
+    //             Number(stageId)
+
+    //         );
+
+
+    //         console.log('Valve OFF Response:', response);
+
+    //         console.log('Valve OFF Response Data:', response?.data);
+
+
+    //         // Check status from different possible response structures
+
+    //         const status =
+
+    //             response?.data?.status ??
+
+    //             response?.status ??
+
+    //             response?.data?.equipment?.status;
+
+
+    //         const endedAt =
+
+    //             response?.data?.ended_at ??
+
+    //             response?.ended_at;
+
+
+    //         const duration =
+
+    //             response?.data?.duration_seconds ??
+
+    //             response?.duration_seconds;
+
+
+    //         // console.log('Close Status:', status);
+
+    //         // console.log('Ended At:', endedAt);
+
+    //         // console.log('Duration:', duration);
+
+
+    //         if (status === 'INACTIVE') {
+
+
+    //             // Show Close Time
+
+    //             setValveCloseTime(endedAt ?? null);
+
+
+    //             // Show Duration
+
+    //             setValveDuration(
+
+    //                 duration !== undefined && duration !== null
+
+    //                     ? Number(duration)
+
+    //                     : null
+
+    //             );
+
+
+    //             // Hide Open Time
+
+    //             setValveStartTime(null);
+
+
+    //             // Refresh activity log
+
+    //             await fetchActivityLogs();
+
+
+
+
+
+
+    //         } else {
+
+    //             console.log(
+
+    //                 'Valve close response did not return INACTIVE:',
+
+    //                 response
+
+    //             );
+
+    //         }
+
+
+    //     } catch (error: any) {
+
+    //         console.error('Failed to close valve:', error);
+
+    //         console.error('Close error response:', error?.response?.data);
+
+    //     }
+
+    // };
+
+const handleCloseValve = async () => {
+    try {
+        const stageId = await AsyncStorage.getItem('selectedStageId');
+
+        if (!stageId) {
+            console.log('Stage ID not found');
+            return;
+        }
+
+        const valveId = activeTab === 'VALVE 1' ? 1 : 2;
+
+        const response = await turnOffValve(
+            valveId,
+            Number(stageId)
+        );
+
+        console.log('Valve OFF Response:', response);
+
+        if (response.success) {
+            setCurrentState(response.data.current_state);
+
+            setValveCloseTime(response.data.ended_at);
+
+            setValveDuration(response.data.duration_seconds);
+
+            // Clear open information
+            setValveStartTime(null);
+
+            await fetchActivityLogs();
+        }
+
+    } catch (error) {
+        console.error('Failed to close valve:', error);
+    }
+};
 
     const fetchActivityLogs = async () => {
 
@@ -1022,7 +1092,7 @@ export default function SolenoidScreen() {
 
                 {/* Valve Status Card */}
 
-                <View style={styles.card}>
+                {/* <View style={styles.card}>
 
                     <View style={styles.statusCardContent}>
 
@@ -1060,7 +1130,100 @@ export default function SolenoidScreen() {
 
                     </View>
 
+                </View> */}
+                <View style={styles.card}>
+
+    <Text style={styles.cardTitle}>Valve Schedule</Text>
+
+    <Text style={styles.cardSubtitle}>
+        Set the valve operating window
+    </Text>
+
+    {/* ON → Show Open Time */}
+    {currentState === 'ON' && valveStartTime && (
+        <View style={styles.scheduleRow}>
+
+            <View style={styles.scheduleLabelContainer}>
+                <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={22}
+                    color="#1A5B9C"
+                />
+
+                <Text style={styles.scheduleLabel}>
+                    Open Time
+                </Text>
+            </View>
+
+            <View style={styles.timeInputBox}>
+                <Text style={styles.timeInputText}>
+                    {new Date(valveStartTime).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    })}
+                </Text>
+            </View>
+
+        </View>
+    )}
+
+    {/* OFF → Show Close Time + Duration */}
+    {currentState === 'OFF' && valveCloseTime && (
+        <>
+            <View style={styles.scheduleRow}>
+
+                <View style={styles.scheduleLabelContainer}>
+                    <MaterialCommunityIcons
+                        name="clock-outline"
+                        size={22}
+                        color="#1A5B9C"
+                    />
+
+                    <Text style={styles.scheduleLabel}>
+                        Close Time
+                    </Text>
                 </View>
+
+                <View style={styles.timeInputBox}>
+                    <Text style={styles.timeInputText}>
+                        {new Date(valveCloseTime).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        })}
+                    </Text>
+                </View>
+
+            </View>
+
+            <View style={styles.divider} />
+
+            <View style={styles.scheduleRow}>
+
+                <View style={styles.scheduleLabelContainer}>
+                    <MaterialCommunityIcons
+                        name="timer-outline"
+                        size={22}
+                        color="#1A5B9C"
+                    />
+
+                    <Text style={styles.scheduleLabel}>
+                        Open Duration
+                    </Text>
+                </View>
+
+                <View style={styles.timeInputBox}>
+                    <Text style={styles.timeInputText}>
+                        {valveDuration !== null
+                            ? `${Math.floor(valveDuration / 60)} min ${valveDuration % 60} sec`
+                            : '--'}
+                    </Text>
+                </View>
+
+            </View>
+        </>
+    )}
+
+</View>
 
 
                 {/* Tabs */}

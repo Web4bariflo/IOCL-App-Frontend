@@ -1,11 +1,159 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { getSensors, getEquipmentManualLogs } from '../../../api/mixingTankApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ContactorSensorScreen() {
   const [activeTab, setActiveTab] = useState<'SENSOR 1' | 'SENSOR 2'>('SENSOR 1');
+  const [sensorCount, setSensorCount] = useState(0);
+  const [onlineSensorCount, setOnlineSensorCount] = useState(0);
+  const [sensors, setSensors] = useState<any[]>([]);
+  const [sensorLogs, setSensorLogs] = useState<any[]>([]);
+
+  const loadSensorLogs = async () => {
+    try {
+      const storedStageId = await AsyncStorage.getItem(
+        'mixingTankStageId'
+      );
+
+      const storedSensorIds = await AsyncStorage.getItem(
+        'mixingTankContactorSensorIds'
+      );
+
+      if (!storedStageId) {
+        console.log('Mixing Tank Stage ID not found');
+        return;
+      }
+
+      if (!storedSensorIds) {
+        console.log('Contactor Sensor IDs not found');
+        return;
+      }
+
+      const stageId = Number(storedStageId);
+      const sensorIds = JSON.parse(storedSensorIds);
+
+      const equipmentId =
+        activeTab === 'SENSOR 1'
+          ? sensorIds[0]
+          : sensorIds[1];
+
+      if (!equipmentId) {
+        console.log('Equipment ID not found for:', activeTab);
+        return;
+      }
+
+      console.log('Active Sensor:', activeTab);
+      console.log('Stage ID:', stageId);
+      console.log('Equipment ID:', equipmentId);
+
+      const response = await getEquipmentManualLogs(
+        equipmentId,
+        stageId
+      );
+
+      if (response.success) {
+        setSensorLogs(response.data.slice(0, 3));
+      }
+    } catch (error) {
+      console.log('Failed to load sensor logs:', error);
+    }
+  };
+
+  // useEffect(() => {
+  //   const loadSensors = async () => {
+  //     try {
+  //       const storedStageId = await AsyncStorage.getItem(
+  //         'mixingTankStageId'
+  //       );
+
+  //       if (!storedStageId) {
+  //         console.log('Mixing Tank Stage ID not found');
+  //         return;
+  //       }
+
+  //       const stageId = Number(storedStageId);
+
+  //       const response = await getSensors(stageId);
+
+  //       if (response.success) {
+  //         setSensors(response.sensors);
+  //         setSensorCount(response.sensor_count);
+
+  //         const onlineCount = response.sensors.filter(
+  //           (sensor: any) => sensor.current_state === 'ON'
+  //         ).length;
+
+  //         setOnlineSensorCount(onlineCount);
+  //       }
+  //     } catch (error) {
+  //       console.log('Failed to load sensors:', error);
+  //     }
+  //   };
+
+  //   // Call immediately
+  //   loadSensors();
+
+  //   // Call every 5 seconds
+  //   const interval = setInterval(() => {
+  //     loadSensors();
+  //   }, 5000);
+
+  //   // Clear interval when screen is removed
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    const loadSensors = async () => {
+      try {
+        const storedStageId = await AsyncStorage.getItem(
+          'mixingTankStageId'
+        );
+
+        if (!storedStageId) {
+          console.log('Mixing Tank Stage ID not found');
+          return;
+        }
+
+        const stageId = Number(storedStageId);
+
+        const response = await getSensors(stageId);
+
+        if (response.success) {
+          setSensors(response.sensors);
+          setSensorCount(response.sensor_count);
+
+          const onlineCount = response.sensors.filter(
+            (sensor: any) => sensor.current_state === 'ON'
+          ).length;
+
+          setOnlineSensorCount(onlineCount);
+        }
+      } catch (error) {
+        console.log('Failed to load sensors:', error);
+      }
+    };
+
+    // Call immediately
+    loadSensors();
+    loadSensorLogs();
+
+    // Call every 5 seconds
+    const interval = setInterval(() => {
+      loadSensors();
+      loadSensorLogs();
+    }, 5000);
+
+    // Clear interval
+    return () => {
+      clearInterval(interval);
+    };
+  }, [activeTab]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -23,32 +171,65 @@ export default function ContactorSensorScreen() {
       <View style={styles.headerBorder} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        
+
         {/* Sensor Status Card */}
         <View style={styles.card}>
           <View style={styles.statusCardContent}>
-            <Image 
-              source={require('@/assets/images/contactor.png')} 
-              style={styles.sensorLargeIcon} 
-              resizeMode="contain" 
+            <Image
+              source={require('@/assets/images/contactor.png')}
+              style={styles.sensorLargeIcon}
+              resizeMode="contain"
             />
             <View style={styles.statusTextContainer}>
               <Text style={styles.statusTitle}>Sensor Status</Text>
               <View style={styles.statusRow}>
-                <View style={styles.statusDotGreen} />
-                <Text style={styles.statusTextGreen}>Connected</Text>
+                <View
+                  style={[
+                    styles.statusDotGreen,
+                    {
+                      backgroundColor:
+                        onlineSensorCount > 0 ? '#10B981' : '#6B7280',
+                    },
+                  ]}
+                />
+
+                <Text
+                  style={[
+                    styles.statusTextGreen,
+                    {
+                      color:
+                        onlineSensorCount > 0 ? '#10B981' : '#6B7280',
+                    },
+                  ]}
+                >
+                  {onlineSensorCount > 0 ? 'Connected' : 'Disconnected'}
+                </Text>
               </View>
-              <Text style={styles.statusSubtitle}>2 sensors online</Text>
+              <Text style={styles.statusSubtitle}>
+                {onlineSensorCount === sensorCount
+                  ? `${sensorCount} sensors online`
+                  : `${sensorCount} sensors offline`}
+              </Text>
             </View>
-            <View style={styles.activeBadge}>
-              <Text style={styles.activeBadgeText}>ACTIVE</Text>
+            <View
+              style={[
+                styles.activeBadge,
+                {
+                  backgroundColor:
+                    onlineSensorCount > 0 ? '#0D9488' : '#6B7280',
+                },
+              ]}
+            >
+              <Text style={styles.activeBadgeText}>
+                {onlineSensorCount > 0 ? 'ACTIVE' : 'OFFLINE'}
+              </Text>
             </View>
           </View>
         </View>
 
         {/* Tabs */}
         <View style={styles.tabsContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.tabButton, activeTab === 'SENSOR 1' && styles.tabButtonActive]}
             onPress={() => setActiveTab('SENSOR 1')}
           >
@@ -56,7 +237,7 @@ export default function ContactorSensorScreen() {
               SENSOR 1
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.tabButton, activeTab === 'SENSOR 2' && styles.tabButtonActive]}
             onPress={() => setActiveTab('SENSOR 2')}
           >
@@ -64,72 +245,6 @@ export default function ContactorSensorScreen() {
               SENSOR 2
             </Text>
           </TouchableOpacity>
-        </View>
-
-        {/* Manual Control Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Contactless Sensor {activeTab === 'SENSOR 1' ? '1' : '2'}</Text>
-          <Text style={styles.cardSubtitle}>Manual monitoring control</Text>
-          <View style={styles.actionButtonsContainer}>
-            <TouchableOpacity style={styles.startButton}>
-              <MaterialCommunityIcons name="access-point" size={24} color="#FFFFFF" />
-              <Text style={styles.startButtonText}>START MONITORING</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.stopButton}>
-              <MaterialCommunityIcons name="stop-circle-outline" size={24} color="#DC2626" />
-              <Text style={styles.stopButtonText}>STOP MONITORING</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Monitoring Schedule Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Monitoring Schedule</Text>
-          <Text style={styles.cardSubtitle}>Set the sensor detection window</Text>
-          
-          <View style={styles.scheduleRow}>
-            <View style={styles.scheduleLabelContainer}>
-              <MaterialCommunityIcons name="clock-outline" size={22} color="#1A5B9C" />
-              <Text style={styles.scheduleLabel}>Start Time</Text>
-            </View>
-            <View style={styles.timeInputBox}>
-              <Text style={styles.timeInputText}>08:15 AM</Text>
-            </View>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.scheduleRow}>
-            <View style={styles.scheduleLabelContainer}>
-              <MaterialCommunityIcons name="clock-outline" size={22} color="#1A5B9C" />
-              <Text style={styles.scheduleLabel}>End Time</Text>
-            </View>
-            <View style={styles.timeInputBox}>
-              <Text style={styles.timeInputText}>06:15 PM</Text>
-            </View>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.scheduleRow}>
-            <View style={styles.scheduleLabelContainer}>
-              <MaterialCommunityIcons name="clock-outline" size={22} color="#1A5B9C" />
-              <Text style={styles.scheduleLabel}>Running Time</Text>
-            </View>
-            <View style={styles.timeInputBox}>
-              <Text style={styles.timeInputText}>10 hr</Text>
-            </View>
-          </View>
-
-          <TouchableOpacity style={styles.saveButton}>
-            <Text style={styles.saveButtonText}>SAVE SCHEDULE</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.infoRow}>
-          <MaterialCommunityIcons name="information-outline" size={16} color="#6B7280" />
-          <Text style={styles.infoText}>Switch to Sensor 2 to view its schedule and history.</Text>
         </View>
 
         {/* Detection Log Card */}
@@ -142,7 +257,7 @@ export default function ContactorSensorScreen() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.logRow}>
+          {/* <View style={styles.logRow}>
             <Text style={styles.logTime}>Today, 09:42 AM</Text>
             <View style={styles.logStatusContainer}>
               <Text style={styles.logStatusText}>Object Detected</Text>
@@ -168,7 +283,49 @@ export default function ContactorSensorScreen() {
               <Text style={styles.logStatusText}>Monitoring Stopped</Text>
               <View style={[styles.logStatusDot, { backgroundColor: '#6B7280' }]} />
             </View>
-          </View>
+          </View> */}
+
+          {sensorLogs.map((log, index) => (
+            <React.Fragment key={log.id}>
+              <View style={styles.logRow}>
+                <Text style={styles.logTime}>
+                  {new Date(log.created_at).toLocaleDateString([], {
+                    day: '2-digit',
+                    month: 'short',
+                  })}{' '}
+                  {new Date(log.created_at).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                  })}
+                </Text>
+
+                <View style={styles.logStatusContainer}>
+                  <Text style={styles.logStatusText}>
+                    {log.action === 'ON'
+                      ? 'Monitoring Started'
+                      : 'Monitoring Stopped'}
+                  </Text>
+
+                  <View
+                    style={[
+                      styles.logStatusDot,
+                      {
+                        backgroundColor:
+                          log.action === 'ON'
+                            ? '#10B981'
+                            : '#6B7280',
+                      },
+                    ]}
+                  />
+                </View>
+              </View>
+
+              {index < sensorLogs.length - 1 && (
+                <View style={styles.logDivider} />
+              )}
+            </React.Fragment>
+          ))}
 
         </View>
 
@@ -440,6 +597,11 @@ const styles = StyleSheet.create({
   logTime: {
     fontSize: 14,
     color: '#4B5563',
+  },
+  logDate: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginBottom: 2,
   },
   logStatusContainer: {
     flexDirection: 'row',
