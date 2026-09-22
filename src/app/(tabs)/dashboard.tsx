@@ -312,6 +312,28 @@ export default function DashboardScreen() {
             flocculationMixingStage.id
           );
         }
+
+// =========================
+// DESLUDGING STAGE
+// =========================
+
+const desludgingStage = response.data.find(
+  (stage: any) =>
+    stage.stage_type === 'DESLUDGING' &&
+    stage.name === 'Desludging'
+);
+
+if (desludgingStage) {
+  await AsyncStorage.setItem(
+    'desludgingStageId',
+    String(desludgingStage.id)
+  );
+
+  console.log(
+    'Desludging ID stored:',
+    desludgingStage.id
+  );
+}
       }
     } catch (error) {
       console.error(
@@ -320,6 +342,8 @@ export default function DashboardScreen() {
       );
     }
   };
+
+ 
 
   // =========================================================
   // SYSTEM CLICK

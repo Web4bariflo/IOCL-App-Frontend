@@ -1,1401 +1,2470 @@
-import React, { useState } from "react";
+// import React, { useState } from "react";
+// import {
+//   StyleSheet,
+//   Text,
+//   View,
+//   ScrollView,
+//   Pressable,
+//   Switch,
+//   useWindowDimensions,
+//   Image,
+//   ImageSourcePropType,
+//   Platform,
+// } from "react-native";
+// import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+// import { Ionicons } from "@expo/vector-icons";
+// import { useRouter } from "expo-router";
+
+// /* ============================================================
+//    DEVICE IMAGES
+
+//    Current file:
+//    src/app/desludging/settings.tsx
+
+//    Images:
+//    assets/images/
+// ============================================================ */
+
+// import solenoidImage from "../../../assets/images/solenoid.png";
+// import inletPumpImage from "../../../assets/images/inletpump.png";
+// import contactorImage from "../../../assets/images/contactor.png";
+// import blowerImage from "../../../assets/images/blower.png";
+// import motorImage from "../../../assets/images/motor.png";
+
+// /* ============================================================
+//    TYPES
+// ============================================================ */
+
+// type Mode = "AUTO" | "MANUAL";
+
+// interface DeviceRowProps {
+//   image: ImageSourcePropType;
+//   title: string;
+//   subtitle?: string;
+//   imageSize: number;
+//   titleSize: number;
+//   subtitleSize?: number;
+//   rowHeight: number;
+//   onPress?: () => void;
+// }
+
+// interface BottomNavItemProps {
+//   icon: keyof typeof Ionicons.glyphMap;
+//   label: string;
+//   active?: boolean;
+//   size: number;
+//   onPress?: () => void;
+// }
+
+// /* ============================================================
+//    SETTINGS SCREEN
+// ============================================================ */
+
+// export default function Settings(): React.JSX.Element {
+//   const router = useRouter();
+
+//   const { width } = useWindowDimensions();
+//   const insets = useSafeAreaInsets();
+
+//   /* ==========================================================
+//      MANUAL SELECTED BY DEFAULT
+//   ========================================================== */
+
+//   const [mode, setMode] = useState<Mode>("MANUAL");
+
+//   /* ==========================================================
+//      NOTIFICATIONS ENABLED BY DEFAULT
+//   ========================================================== */
+
+//   const [notifications, setNotifications] =
+//     useState<boolean>(true);
+
+//   /* ==========================================================
+//      RESPONSIVE SCALE
+//   ========================================================== */
+
+//   const scale = Math.min(width / 864, 1.15);
+
+//   const s = (value: number): number => {
+//     return Math.round(value * scale);
+//   };
+
+//   const horizontalPadding = Math.max(
+//     s(20),
+//     Math.min(s(40), width * 0.046)
+//   );
+
+//   const cardRadius = s(19);
+
+//   /* ==========================================================
+//      NAVIGATION
+//   ========================================================== */
+
+//   const openAuto = (): void => {
+//     setMode("AUTO");
+//     router.push("/desludging/auto");
+//   };
+
+//   const openSolenoid = (): void => {
+//     router.push("/desludging/solenoid");
+//   };
+
+//   const openInletPump = (): void => {
+//     router.push("/desludging/inletpump");
+//   };
+
+//   const openContactorSensors = (): void => {
+//     router.push("/desludging/contactorsensors");
+//   };
+
+//   const openBlower = (): void => {
+//     router.push("/desludging/blower");
+//   };
+
+//   const openMotor1 = (): void => {
+//     router.push("/desludging/motor1");
+//   };
+
+//   const openMotor2 = (): void => {
+//     router.push("/desludging/motor2");
+//   };
+
+//   return (
+//     <SafeAreaView
+//       style={styles.safeArea}
+//       edges={["top", "left", "right"]}
+//     >
+//       <View style={styles.container}>
+
+//         {/* ==================================================
+//             HEADER
+//         ================================================== */}
+
+//         <View
+//           style={[
+//             styles.header,
+//             {
+//               height: s(70),
+//               paddingHorizontal:
+//                 horizontalPadding / 2,
+//             },
+//           ]}
+//         >
+
+//           {/* BACK BUTTON */}
+
+//           <Pressable
+//             style={styles.backButton}
+//             onPress={() => {
+//               router.back();
+//             }}
+//             android_ripple={{
+//               color: "#E5E7EB",
+//             }}
+//           >
+//             <Ionicons
+//               name="arrow-back"
+//               size={s(29)}
+//               color="#0B1D3A"
+//             />
+//           </Pressable>
+
+//           {/* HEADER TITLE */}
+
+//           <Text
+//             style={[
+//               styles.headerTitle,
+//               {
+//                 fontSize: s(29),
+//               },
+//             ]}
+//           >
+//             Settings
+//           </Text>
+
+//           {/* RIGHT SPACE */}
+
+//           <View
+//             style={styles.headerPlaceholder}
+//           />
+
+//         </View>
+
+
+//         {/* ==================================================
+//             MAIN CONTENT
+//         ================================================== */}
+
+//         <ScrollView
+//           style={styles.scrollView}
+//           contentContainerStyle={[
+//             styles.contentContainer,
+//             {
+//               paddingHorizontal:
+//                 horizontalPadding,
+
+//               paddingTop: s(35),
+
+//               paddingBottom: s(30),
+//             },
+//           ]}
+//           showsVerticalScrollIndicator={false}
+//           bounces
+//         >
+
+//           {/* ==================================================
+//               GENERAL
+//           ================================================== */}
+
+//           <Text
+//             style={[
+//               styles.sectionTitle,
+//               {
+//                 fontSize: s(23),
+//                 marginBottom: s(23),
+//               },
+//             ]}
+//           >
+//             GENERAL
+//           </Text>
+
+
+//           {/* ==================================================
+//               OPERATING MODE CARD
+//           ================================================== */}
+
+//           <View
+//             style={[
+//               styles.generalCard,
+//               {
+//                 borderRadius: cardRadius,
+
+//                 paddingHorizontal: s(30),
+
+//                 paddingVertical: s(24),
+//               },
+//             ]}
+//           >
+
+//             {/* TEXT */}
+
+//             <View style={styles.generalText}>
+
+//               <Text
+//                 style={[
+//                   styles.cardTitle,
+//                   {
+//                     fontSize: s(26),
+//                   },
+//                 ]}
+//                 numberOfLines={1}
+//                 adjustsFontSizeToFit
+//               >
+//                 Operating Mode
+//               </Text>
+
+//               <Text
+//                 style={[
+//                   styles.description,
+//                   {
+//                     fontSize: s(19),
+//                     marginTop: s(8),
+//                   },
+//                 ]}
+//                 numberOfLines={2}
+//               >
+//                 Select automatic or manual control
+//               </Text>
+
+//             </View>
+
+
+//             {/* ==================================================
+//                 AUTO / MANUAL
+//             ================================================== */}
+
+//             <View
+//               style={[
+//                 styles.modeSelector,
+//                 {
+//                   height: s(74),
+
+//                   width:
+//                     width >= 600
+//                       ? s(300)
+//                       : Math.min(
+//                           s(300),
+//                           width * 0.39
+//                         ),
+
+//                   borderRadius: s(15),
+//                 },
+//               ]}
+//             >
+
+//               {/* ==================================================
+//                   AUTO
+//               ================================================== */}
+
+//               <Pressable
+//                 onPress={openAuto}
+//                 style={[
+//                   styles.modeButton,
+
+//                   mode === "AUTO"
+//                     ? styles.activeMode
+//                     : styles.inactiveMode,
+//                 ]}
+//               >
+
+//                 <Text
+//                   style={[
+//                     styles.modeText,
+
+//                     {
+//                       fontSize: s(21),
+//                     },
+
+//                     mode === "AUTO"
+//                       ? styles.activeModeText
+//                       : styles.inactiveModeText,
+//                   ]}
+//                 >
+//                   AUTO
+//                 </Text>
+
+//               </Pressable>
+
+
+//               {/* ==================================================
+//                   MANUAL
+//               ================================================== */}
+
+//               <Pressable
+//                 onPress={() => {
+//                   setMode("MANUAL");
+//                 }}
+//                 style={[
+//                   styles.modeButton,
+
+//                   mode === "MANUAL"
+//                     ? styles.activeMode
+//                     : styles.inactiveMode,
+//                 ]}
+//               >
+
+//                 <Text
+//                   style={[
+//                     styles.modeText,
+
+//                     {
+//                       fontSize: s(21),
+//                     },
+
+//                     mode === "MANUAL"
+//                       ? styles.activeModeText
+//                       : styles.inactiveModeText,
+//                   ]}
+//                 >
+//                   MANUAL
+//                 </Text>
+
+//               </Pressable>
+
+//             </View>
+
+//           </View>
+
+
+//           {/* ==================================================
+//               DEVICES
+//           ================================================== */}
+
+//           <Text
+//             style={[
+//               styles.sectionTitle,
+//               {
+//                 fontSize: s(23),
+
+//                 marginTop: s(42),
+
+//                 marginBottom: s(23),
+//               },
+//             ]}
+//           >
+//             DEVICES
+//           </Text>
+
+
+//           {/* ==================================================
+//               DEVICES CARD
+//           ================================================== */}
+
+//           <View
+//             style={[
+//               styles.devicesCard,
+//               {
+//                 borderRadius: cardRadius,
+//               },
+//             ]}
+//           >
+
+//             {/* ==================================================
+//                 1. SOLENOID VALVES
+//             ================================================== */}
+
+//             <DeviceRow
+//               image={solenoidImage}
+//               title="Solenoid Valves"
+//               subtitle="2 Valves"
+//               imageSize={s(55)}
+//               titleSize={s(25)}
+//               subtitleSize={s(20)}
+//               rowHeight={s(130)}
+//               onPress={openSolenoid}
+//             />
+
+
+//             <View style={styles.divider} />
+
+
+//             {/* ==================================================
+//                 2. INLET PUMP 1
+//             ================================================== */}
+
+//             <DeviceRow
+//               image={inletPumpImage}
+//               title="Inlet Pump 1"
+//               imageSize={s(55)}
+//               titleSize={s(25)}
+//               rowHeight={s(130)}
+//               onPress={openInletPump}
+//             />
+
+
+//             <View style={styles.divider} />
+
+
+//             {/* ==================================================
+//                 3. CONTACTOR SENSORS
+//             ================================================== */}
+
+//             <DeviceRow
+//               image={contactorImage}
+//               title="Contactor Sensors"
+//               subtitle="2 Sensors"
+//               imageSize={s(55)}
+//               titleSize={s(25)}
+//               subtitleSize={s(20)}
+//               rowHeight={s(130)}
+//               onPress={openContactorSensors}
+//             />
+
+
+//             <View style={styles.divider} />
+
+
+//             {/* ==================================================
+//                 4. BLOWER
+//             ================================================== */}
+
+//             <DeviceRow
+//               image={blowerImage}
+//               title="Blower"
+//               imageSize={s(55)}
+//               titleSize={s(25)}
+//               rowHeight={s(130)}
+//               onPress={openBlower}
+//             />
+
+
+//             <View style={styles.divider} />
+
+
+//             {/* ==================================================
+//                 5. MOTOR 1
+//             ================================================== */}
+
+//             <DeviceRow
+//               image={motorImage}
+//               title="Motor 1"
+//               imageSize={s(55)}
+//               titleSize={s(25)}
+//               rowHeight={s(130)}
+//               onPress={openMotor1}
+//             />
+
+
+//             <View style={styles.divider} />
+
+
+//             {/* ==================================================
+//                 6. MOTOR 2
+//             ================================================== */}
+
+//             <DeviceRow
+//               image={motorImage}
+//               title="Motor 2"
+//               imageSize={s(55)}
+//               titleSize={s(25)}
+//               rowHeight={s(130)}
+//               onPress={openMotor2}
+//             />
+
+//           </View>
+
+
+//           {/* ==================================================
+//               ALERTS & NOTIFICATIONS
+//           ================================================== */}
+
+//           <Text
+//             style={[
+//               styles.sectionTitle,
+//               {
+//                 fontSize: s(23),
+
+//                 marginTop: s(42),
+
+//                 marginBottom: s(23),
+//               },
+//             ]}
+//           >
+//             ALERTS & NOTIFICATIONS
+//           </Text>
+
+
+//           {/* NOTIFICATION CARD */}
+
+//           <View
+//             style={[
+//               styles.notificationCard,
+//               {
+//                 borderRadius: cardRadius,
+
+//                 paddingHorizontal: s(30),
+
+//                 paddingVertical: s(22),
+//               },
+//             ]}
+//           >
+
+//             <View
+//               style={styles.notificationText}
+//             >
+
+//               <Text
+//                 style={[
+//                   styles.cardTitle,
+//                   {
+//                     fontSize: s(26),
+//                   },
+//                 ]}
+//                 numberOfLines={1}
+//                 adjustsFontSizeToFit
+//               >
+//                 Enable Notifications
+//               </Text>
+
+
+//               <Text
+//                 style={[
+//                   styles.description,
+//                   {
+//                     fontSize: s(19),
+
+//                     marginTop: s(8),
+//                   },
+//                 ]}
+//               >
+//                 Receive alerts for status changes
+//               </Text>
+
+//             </View>
+
+
+//             {/* SWITCH */}
+
+//             <Switch
+//               value={notifications}
+//               onValueChange={
+//                 setNotifications
+//               }
+//               trackColor={{
+//                 false: "#D1D5DB",
+//                 true: "#20B5AE",
+//               }}
+//               thumbColor="#FFFFFF"
+//               ios_backgroundColor="#D1D5DB"
+//               style={{
+//                 transform: [
+//                   {
+//                     scaleX:
+//                       scale > 0.9
+//                         ? 1.15
+//                         : 1,
+//                   },
+//                   {
+//                     scaleY:
+//                       scale > 0.9
+//                         ? 1.15
+//                         : 1,
+//                   },
+//                 ],
+//               }}
+//             />
+
+//           </View>
+
+
+//           {/* ==================================================
+//               ABOUT
+//           ================================================== */}
+
+//           <Text
+//             style={[
+//               styles.sectionTitle,
+//               {
+//                 fontSize: s(23),
+
+//                 marginTop: s(42),
+
+//                 marginBottom: s(23),
+//               },
+//             ]}
+//           >
+//             ABOUT
+//           </Text>
+
+
+//           {/* ABOUT CARD */}
+
+//           <View
+//             style={[
+//               styles.aboutCard,
+//               {
+//                 borderRadius: cardRadius,
+//               },
+//             ]}
+//           >
+
+//             {/* APP VERSION */}
+
+//             <View
+//               style={[
+//                 styles.aboutRow,
+//                 {
+//                   minHeight: s(88),
+
+//                   paddingHorizontal: s(30),
+//                 },
+//               ]}
+//             >
+
+//               <Text
+//                 style={[
+//                   styles.aboutLabel,
+//                   {
+//                     fontSize: s(23),
+//                   },
+//                 ]}
+//               >
+//                 App Version
+//               </Text>
+
+
+//               <Text
+//                 style={[
+//                   styles.aboutValue,
+//                   {
+//                     fontSize: s(20),
+//                   },
+//                 ]}
+//               >
+//                 1.0.0
+//               </Text>
+
+//             </View>
+
+
+//             <View
+//               style={styles.divider}
+//             />
+
+
+//             {/* PLC / CONTROLLER */}
+
+//             <View
+//               style={[
+//                 styles.aboutRow,
+//                 {
+//                   minHeight: s(88),
+
+//                   paddingHorizontal: s(30),
+//                 },
+//               ]}
+//             >
+
+//               <Text
+//                 style={[
+//                   styles.aboutLabel,
+//                   {
+//                     fontSize: s(23),
+//                   },
+//                 ]}
+//                 numberOfLines={1}
+//                 adjustsFontSizeToFit
+//               >
+//                 PLC / Controller
+//               </Text>
+
+
+//               <View
+//                 style={styles.connectionStatus}
+//               >
+
+//                 <Text
+//                   style={[
+//                     styles.connectedText,
+//                     {
+//                       fontSize: s(21),
+//                     },
+//                   ]}
+//                 >
+//                   Connected
+//                 </Text>
+
+
+//                 <View
+//                   style={[
+//                     styles.statusDot,
+//                     {
+//                       width: s(17),
+
+//                       height: s(17),
+
+//                       borderRadius: s(9),
+
+//                       marginLeft: s(10),
+//                     },
+//                   ]}
+//                 />
+
+//               </View>
+
+//             </View>
+
+//           </View>
+
+
+//           {/* FINAL SPACE */}
+
+//           <View
+//             style={{
+//               height: s(30),
+//             }}
+//           />
+
+//         </ScrollView>
+
+
+//         {/* ==================================================
+//             BOTTOM NAVIGATION
+//         ================================================== */}
+
+//         {/* ==================================================
+//     BOTTOM NAVIGATION
+// ================================================== */}
+
+// <View
+//   style={[
+//     styles.bottomNav,
+//     {
+//       height: (Platform.OS === "ios" ? s(93) : s(78)) + insets.bottom,
+//       paddingBottom: (Platform.OS === "ios" ? s(8) : 0) + insets.bottom,
+//     },
+//   ]}
+// >
+//   {/* DASHBOARD */}
+//   <BottomNavItem
+//     icon="home-outline"
+//     label="Dashboard"
+//     size={s(31)}
+//   />
+
+//   {/* CONTROL */}
+//   <BottomNavItem
+//     icon="options-outline"
+//     label="Control"
+//     size={s(31)}
+//   />
+
+//   {/* TIMING */}
+//   <BottomNavItem
+//     icon="time-outline"
+//     label="Timing"
+//     size={s(31)}
+//   />
+
+//   {/* ALARMS */}
+//   <BottomNavItem
+//     icon="notifications-outline"
+//     label="Alarms"
+//     size={s(31)}
+//   />
+
+//   {/* SETTINGS */}
+//   <BottomNavItem
+//     icon="settings"
+//     label="Settings"
+//     active
+//     size={s(31)}
+//   />
+// </View>
+
+//       </View>
+//     </SafeAreaView>
+//   );
+// }
+
+
+// /* ============================================================
+//    DEVICE ROW
+// ============================================================ */
+
+// function DeviceRow({
+//   image,
+//   title,
+//   subtitle,
+//   imageSize,
+//   titleSize,
+//   subtitleSize = 20,
+//   rowHeight,
+//   onPress,
+// }: DeviceRowProps): React.JSX.Element {
+//   return (
+//     <Pressable
+//       style={[
+//         styles.deviceRow,
+//         {
+//           minHeight: rowHeight,
+//         },
+//       ]}
+//       onPress={onPress}
+//       android_ripple={{
+//         color: "#E5E7EB",
+//       }}
+//     >
+
+//       {/* ==================================================
+//           DEVICE IMAGE
+//       ================================================== */}
+
+//       <View
+//         style={styles.deviceIcon}
+//       >
+
+//         <Image
+//           source={image}
+//           style={{
+//             width: imageSize,
+//             height: imageSize,
+//           }}
+//           resizeMode="contain"
+//         />
+
+//       </View>
+
+
+//       {/* ==================================================
+//           DEVICE TEXT
+//       ================================================== */}
+
+//       <View
+//         style={styles.deviceText}
+//       >
+
+//         <Text
+//           style={[
+//             styles.deviceTitle,
+//             {
+//               fontSize: titleSize,
+//             },
+//           ]}
+//           numberOfLines={1}
+//           adjustsFontSizeToFit
+//         >
+//           {title}
+//         </Text>
+
+
+//         {subtitle && (
+//           <Text
+//             style={[
+//               styles.deviceSubtitle,
+//               {
+//                 fontSize:
+//                   subtitleSize,
+//               },
+//             ]}
+//           >
+//             {subtitle}
+//           </Text>
+//         )}
+
+//       </View>
+
+
+//       {/* ==================================================
+//           RIGHT ARROW
+//       ================================================== */}
+
+//       <Ionicons
+//         name="chevron-forward"
+//         size={28}
+//         color="#0B1D3A"
+//       />
+
+//     </Pressable>
+//   );
+// }
+
+
+// /* ============================================================
+//    BOTTOM NAVIGATION ITEM
+// ============================================================ */
+
+// function BottomNavItem({
+//   icon,
+//   label,
+//   active = false,
+//   size,
+//   onPress,
+// }: BottomNavItemProps): React.JSX.Element {
+//   return (
+//     <Pressable
+//       style={styles.navItem}
+//       onPress={onPress}
+//     >
+
+//       <Ionicons
+//         name={icon}
+//         size={size}
+//         color={
+//           active
+//             ? "#159F9B"
+//             : "#707988"
+//         }
+//       />
+
+
+//       <Text
+//         style={[
+//           styles.navLabel,
+//           {
+//             fontSize: Math.max(
+//               13,
+//               size * 0.52
+//             ),
+//           },
+
+//           active &&
+//             styles.activeNavLabel,
+//         ]}
+//       >
+//         {label}
+//       </Text>
+
+//     </Pressable>
+//   );
+// }
+
+
+// /* ============================================================
+//    STYLES
+// ============================================================ */
+
+// const styles = StyleSheet.create({
+
+//   /* ==========================================================
+//      MAIN
+//   ========================================================== */
+
+//   safeArea: {
+//     flex: 1,
+
+//     backgroundColor: "#F7F8FA",
+//   },
+
+//   container: {
+//     flex: 1,
+
+//     backgroundColor: "#F7F8FA",
+//   },
+
+
+//   /* ==========================================================
+//      HEADER
+//   ========================================================== */
+
+//   header: {
+//     backgroundColor: "#FFFFFF",
+
+//     flexDirection: "row",
+
+//     alignItems: "center",
+
+//     justifyContent: "space-between",
+
+//     borderBottomWidth:
+//       StyleSheet.hairlineWidth,
+
+//     borderBottomColor:
+//       "#D9DDE2",
+//   },
+
+//   backButton: {
+//     width: 46,
+
+//     height: 36,
+
+//     alignItems: "center",
+
+//     justifyContent: "center",
+
+//     borderRadius: 23,
+//   },
+
+//   headerTitle: {
+//     position: "absolute",
+
+//     left: 0,
+
+//     right: 0,
+
+//     textAlign: "center",
+
+//     fontWeight: "900",
+
+//     color: "#0B1D3A",
+//   },
+
+//   headerPlaceholder: {
+//     width: 46,
+//   },
+
+
+//   /* ==========================================================
+//      CONTENT
+//   ========================================================== */
+
+//   scrollView: {
+//     flex: 1,
+//   },
+
+//   contentContainer: {
+//     flexGrow: 1,
+//   },
+
+
+//   /* ==========================================================
+//      SECTION TITLES
+//   ========================================================== */
+
+//   sectionTitle: {
+//     fontWeight: "600",
+
+//     letterSpacing: 0.3,
+
+//     color: "#465365",
+//   },
+
+
+//   /* ==========================================================
+//      GENERAL CARD
+//   ========================================================== */
+
+//   generalCard: {
+//     width: "100%",
+
+//     backgroundColor: "#FFFFFF",
+
+//     flexDirection: "row",
+
+//     alignItems: "center",
+
+//     shadowColor: "#000",
+
+//     shadowOffset: {
+//       width: 0,
+
+//       height: 3,
+//     },
+
+//     shadowOpacity: 0.08,
+
+//     shadowRadius: 8,
+
+//     elevation: 3,
+//   },
+
+//   generalText: {
+//     flex: 1,
+
+//     minWidth: 0,
+
+//     paddingRight: 15,
+//   },
+
+//   cardTitle: {
+//     fontWeight: "700",
+
+//     color: "#0B1D3A",
+//   },
+
+//   description: {
+//     color: "#737D8D",
+
+//     lineHeight: 26,
+//   },
+
+
+//   /* ==========================================================
+//      MODE SELECTOR
+//   ========================================================== */
+
+//   modeSelector: {
+//     flexDirection: "row",
+
+//     overflow: "hidden",
+
+//     borderWidth: 1,
+
+//     borderColor: "#C9CDD3",
+
+//     flexShrink: 1,
+//   },
+
+//   modeButton: {
+//     flex: 1,
+
+//     alignItems: "center",
+
+//     justifyContent: "center",
+
+//     minWidth: 0,
+//   },
+
+//   activeMode: {
+//     backgroundColor: "#20B5AE",
+//   },
+
+//   inactiveMode: {
+//     backgroundColor: "#FFFFFF",
+//   },
+
+//   modeText: {
+//     fontWeight: "600",
+//   },
+
+//   activeModeText: {
+//     color: "#FFFFFF",
+//   },
+
+//   inactiveModeText: {
+//     color: "#0B1D3A",
+//   },
+
+
+//   /* ==========================================================
+//      DEVICES
+//   ========================================================== */
+
+//   devicesCard: {
+//     width: "100%",
+
+//     backgroundColor: "#FFFFFF",
+
+//     overflow: "hidden",
+
+//     shadowColor: "#000",
+
+//     shadowOffset: {
+//       width: 0,
+
+//       height: 3,
+//     },
+
+//     shadowOpacity: 0.08,
+
+//     shadowRadius: 8,
+
+//     elevation: 3,
+//   },
+
+//   deviceRow: {
+//     width: "100%",
+
+//     paddingHorizontal: 30,
+
+//     flexDirection: "row",
+
+//     alignItems: "center",
+//   },
+
+//   deviceIcon: {
+//     width: 75,
+
+//     alignItems: "flex-start",
+
+//     justifyContent: "center",
+
+//     marginRight: 10,
+//   },
+
+//   deviceText: {
+//     flex: 1,
+
+//     minWidth: 0,
+//   },
+
+//   deviceTitle: {
+//     fontWeight: "600",
+
+//     color: "#0B1D3A",
+//   },
+
+//   deviceSubtitle: {
+//     marginTop: 5,
+
+//     color: "#737D8D",
+//   },
+
+//   divider: {
+//     height:
+//       StyleSheet.hairlineWidth,
+
+//     backgroundColor: "#D9DDE2",
+//   },
+
+
+//   /* ==========================================================
+//      NOTIFICATIONS
+//   ========================================================== */
+
+//   notificationCard: {
+//     width: "100%",
+
+//     backgroundColor: "#FFFFFF",
+
+//     flexDirection: "row",
+
+//     alignItems: "center",
+
+//     shadowColor: "#000",
+
+//     shadowOffset: {
+//       width: 0,
+
+//       height: 3,
+//     },
+
+//     shadowOpacity: 0.08,
+
+//     shadowRadius: 8,
+
+//     elevation: 3,
+//   },
+
+//   notificationText: {
+//     flex: 1,
+
+//     minWidth: 0,
+
+//     paddingRight: 10,
+//   },
+
+
+//   /* ==========================================================
+//      ABOUT
+//   ========================================================== */
+
+//   aboutCard: {
+//     width: "100%",
+
+//     backgroundColor: "#FFFFFF",
+
+//     overflow: "hidden",
+
+//     shadowColor: "#000",
+
+//     shadowOffset: {
+//       width: 0,
+
+//       height: 3,
+//     },
+
+//     shadowOpacity: 0.08,
+
+//     shadowRadius: 8,
+
+//     elevation: 3,
+//   },
+
+//   aboutRow: {
+//     width: "100%",
+
+//     flexDirection: "row",
+
+//     alignItems: "center",
+
+//     justifyContent: "space-between",
+//   },
+
+//   aboutLabel: {
+//     fontWeight: "500",
+
+//     color: "#0B1D3A",
+
+//     flexShrink: 1,
+//   },
+
+//   aboutValue: {
+//     color: "#737D8D",
+//   },
+
+//   connectionStatus: {
+//     flexDirection: "row",
+
+//     alignItems: "center",
+
+//     marginLeft: 10,
+//   },
+
+//   connectedText: {
+//     fontWeight: "600",
+
+//     color: "#159F78",
+//   },
+
+//   statusDot: {
+//     backgroundColor: "#20B27A",
+//   },
+
+
+//   /* ==========================================================
+//      BOTTOM NAVIGATION
+//   ========================================================== */
+
+//   bottomNav: {
+//     width: "100%",
+
+//     backgroundColor: "#FFFFFF",
+
+//     borderTopWidth:
+//       StyleSheet.hairlineWidth,
+
+//     borderTopColor:
+//       "#D9DDE2",
+
+//     flexDirection: "row",
+
+//     alignItems: "center",
+
+//     justifyContent: "space-around",
+//   },
+
+//   navItem: {
+//     flex: 1,
+
+//     height: "100%",
+
+//     alignItems: "center",
+
+//     justifyContent: "center",
+//   },
+
+//   navLabel: {
+//     marginTop: 4,
+
+//     fontWeight: "500",
+
+//     color: "#707988",
+//   },
+
+//   activeNavLabel: {
+//     fontWeight: "600",
+
+//     color: "#159F9B",
+//   },
+
+// });
+
+
+import React, { useEffect, useState } from 'react';
 import {
-  StyleSheet,
-  Text,
   View,
+  Text,
+  StyleSheet,
   ScrollView,
-  Pressable,
+  TouchableOpacity,
   Switch,
-  useWindowDimensions,
   Image,
-  ImageSourcePropType,
-  Platform,
-} from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import {
+  getTreatmentStages,
+  mergeStageDuration,
+} from '../../api/coagulantApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-/* ============================================================
-   DEVICE IMAGES
+export default function SettingsScreen() {
+  // =========================
+  // GENERAL SETTINGS
+  // =========================
 
-   Current file:
-   src/app/desludging/settings.tsx
+  const [operatingMode, setOperatingMode] =
+    useState<'AUTO' | 'MANUAL'>('MANUAL');
 
-   Images:
-   assets/images/
-============================================================ */
+  const [notifications, setNotifications] = useState(true);
 
-import solenoidImage from "../../../assets/images/solenoid.png";
-import inletPumpImage from "../../../assets/images/inletpump.png";
-import contactorImage from "../../../assets/images/contactor.png";
-import blowerImage from "../../../assets/images/blower.png";
-import motorImage from "../../../assets/images/motor.png";
+  // =========================
+  // EQUIPMENT STATES
+  // =========================
 
-/* ============================================================
-   TYPES
-============================================================ */
+  const [motorEquipments, setMotorEquipments] = useState<any[]>([]);
+  const [solenoidEquipments, setSolenoidEquipments] = useState<any[]>([]);
+  const [contactorEquipments, setContactorEquipments] = useState<any[]>([]);
+  const [inletPumpEquipments, setInletPumpEquipments] = useState<any[]>([]);
 
-type Mode = "AUTO" | "MANUAL";
+  // =========================
+  // EQUIPMENT INFORMATION
+  // =========================
 
-interface DeviceRowProps {
-  image: ImageSourcePropType;
-  title: string;
-  subtitle?: string;
-  imageSize: number;
-  titleSize: number;
-  subtitleSize?: number;
-  rowHeight: number;
-  onPress?: () => void;
-}
+  const [solenoidCount, setSolenoidCount] = useState(0);
+  const [contactorCount, setContactorCount] = useState(0);
+  const [inletPumpCount, setInletPumpCount] = useState(0);
 
-interface BottomNavItemProps {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  active?: boolean;
-  size: number;
-  onPress?: () => void;
-}
+  const [solenoidTypeName, setSolenoidTypeName] = useState('');
+  const [contactorTypeName, setContactorTypeName] = useState('');
+  const [inletPumpTypeName, setInletPumpTypeName] = useState('');
 
-/* ============================================================
-   SETTINGS SCREEN
-============================================================ */
+  // =========================
+  // MERGE
+  // =========================
 
-export default function Settings(): React.JSX.Element {
-  const router = useRouter();
+  const [merging, setMerging] = useState(false);
 
-  const { width } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
+  // =========================================================
+  // HANDLE MERGE
+  // =========================================================
 
-  /* ==========================================================
-     MANUAL SELECTED BY DEFAULT
-  ========================================================== */
+  const handleMerge = async () => {
+    try {
+      setMerging(true);
 
-  const [mode, setMode] = useState<Mode>("MANUAL");
+      // Get Desludging Stage ID
+      const stageId = await AsyncStorage.getItem(
+        'desludgingStageId'
+      );
 
-  /* ==========================================================
-     NOTIFICATIONS ENABLED BY DEFAULT
-  ========================================================== */
+      console.log(
+        'Desludging Stage ID:',
+        stageId
+      );
 
-  const [notifications, setNotifications] =
-    useState<boolean>(true);
+      if (!stageId) {
+        console.log(
+          'Desludging Stage ID not found'
+        );
+        return;
+      }
 
-  /* ==========================================================
-     RESPONSIVE SCALE
-  ========================================================== */
+      // Call Merge Duration API
+      const response = await mergeStageDuration(
+        Number(stageId)
+      );
 
-  const scale = Math.min(width / 864, 1.15);
+      console.log(
+        'Desludging Merge Duration Response:',
+        JSON.stringify(response, null, 2)
+      );
 
-  const s = (value: number): number => {
-    return Math.round(value * scale);
+      if (response?.success) {
+        console.log(
+          'Desludging equipment durations merged successfully'
+        );
+
+        console.log(
+          'Merged Equipment Count:',
+          response.count
+        );
+
+        console.log(
+          'Merged Equipment Data:',
+          response.data
+        );
+      }
+    } catch (error: any) {
+      console.error(
+        'Desludging Merge Duration Failed:',
+        error?.response?.data || error?.message
+      );
+    } finally {
+      setMerging(false);
+    }
   };
 
-  const horizontalPadding = Math.max(
-    s(20),
-    Math.min(s(40), width * 0.046)
-  );
+  // =========================================================
+  // MODE SELECTION
+  // =========================================================
 
-  const cardRadius = s(19);
+  const handleModeSelect = (
+    mode: 'AUTO' | 'MANUAL'
+  ) => {
+    setOperatingMode(mode);
 
-  /* ==========================================================
-     NAVIGATION
-  ========================================================== */
-
-  const openAuto = (): void => {
-    setMode("AUTO");
-    router.push("/desludging/auto");
+    if (mode === 'AUTO') {
+      router.push('/desludging/auto');
+    } else {
+      router.push('/desludging/settings');
+    }
   };
 
-  const openSolenoid = (): void => {
-    router.push("/desludging/solenoid");
+  // =========================================================
+  // FETCH DESLUDGING EQUIPMENTS
+  // =========================================================
+
+  const fetchEquipments = async () => {
+    try {
+      // Get Desludging Stage ID
+      const desludgingStageId =
+        await AsyncStorage.getItem(
+          'desludgingStageId'
+        );
+
+      console.log(
+        'Desludging Stage ID:',
+        desludgingStageId
+      );
+
+      // Check stage ID
+      if (!desludgingStageId) {
+        console.error(
+          'Desludging stage ID not found'
+        );
+        return;
+      }
+
+      // =====================================================
+      // CALL API USING DESLUDGING STAGE ID
+      // =====================================================
+
+      const response = await getTreatmentStages(
+        Number(desludgingStageId)
+      );
+
+      console.log(
+        'Desludging Equipment API Response:',
+        JSON.stringify(response, null, 2)
+      );
+
+      if (!response?.success) {
+        console.error(
+          'Desludging Equipment API failed'
+        );
+        return;
+      }
+
+      const equipmentTypes =
+        response.data?.equipment_types || [];
+
+      console.log(
+        'Desludging Equipment Types:',
+        JSON.stringify(
+          equipmentTypes,
+          null,
+          2
+        )
+      );
+
+      // =====================================================
+      // FIND MOTOR
+      // =====================================================
+
+      const motorType =
+        equipmentTypes.find(
+          (item: any) =>
+            item.equipment_type?.name === 'Motor'
+        );
+
+      // =====================================================
+      // FIND SOLENOID VALVES
+      // =====================================================
+
+      const solenoidType =
+        equipmentTypes.find(
+          (item: any) =>
+            item.equipment_type?.name ===
+            'Solenoid Valves'
+        );
+
+      // =====================================================
+      // FIND CONTACTOR SENSORS
+      // =====================================================
+
+      const contactorType =
+        equipmentTypes.find(
+          (item: any) =>
+            item.equipment_type?.name ===
+            'Contactor Sensors'
+        );
+
+      // =====================================================
+      // FIND INLET PUMP
+      // =====================================================
+
+      const inletPumpType =
+        equipmentTypes.find(
+          (item: any) =>
+            item.equipment_type?.name ===
+            'Inlet Pump 1'
+        );
+
+      // =====================================================
+      // MOTOR
+      // =====================================================
+
+      setMotorEquipments(
+        motorType?.equipments || []
+      );
+
+      // Store Motor ID
+      if (
+        motorType?.equipments?.length > 0
+      ) {
+        await AsyncStorage.setItem(
+          'desludgingMotorId',
+          String(
+            motorType.equipments[0].id
+          )
+        );
+
+        console.log(
+          'Desludging Motor ID:',
+          motorType.equipments[0].id
+        );
+      }
+
+      // =====================================================
+      // SOLENOID
+      // =====================================================
+
+      setSolenoidTypeName(
+        solenoidType?.equipment_type?.name ||
+          ''
+      );
+
+      setSolenoidEquipments(
+        solenoidType?.equipments || []
+      );
+
+      setSolenoidCount(
+        solenoidType?.count || 0
+      );
+
+      // Store Solenoid ID
+      if (
+        solenoidType?.equipments?.length > 0
+      ) {
+        await AsyncStorage.setItem(
+          'desludgingSolenoidId',
+          String(
+            solenoidType.equipments[0].id
+          )
+        );
+
+        console.log(
+          'Desludging Solenoid ID:',
+          solenoidType.equipments[0].id
+        );
+      }
+
+      // =====================================================
+      // CONTACTOR SENSOR
+      // =====================================================
+
+      setContactorTypeName(
+        contactorType?.equipment_type?.name ||
+          ''
+      );
+
+      setContactorEquipments(
+        contactorType?.equipments || []
+      );
+
+      setContactorCount(
+        contactorType?.count || 0
+      );
+
+      // Store Contactor ID
+      if (
+        contactorType?.equipments?.length > 0
+      ) {
+        await AsyncStorage.setItem(
+          'desludgingContactorSensorId',
+          String(
+            contactorType.equipments[0].id
+          )
+        );
+
+        console.log(
+          'Desludging Contactor Sensor ID:',
+          contactorType.equipments[0].id
+        );
+      }
+
+      // =====================================================
+      // INLET PUMP
+      // =====================================================
+
+      setInletPumpTypeName(
+        inletPumpType?.equipment_type?.name ||
+          ''
+      );
+
+      setInletPumpEquipments(
+        inletPumpType?.equipments || []
+      );
+
+      setInletPumpCount(
+        inletPumpType?.count || 0
+      );
+
+      // Store Inlet Pump ID
+      if (
+        inletPumpType?.equipments?.length > 0
+      ) {
+        await AsyncStorage.setItem(
+          'desludgingInletPumpId',
+          String(
+            inletPumpType.equipments[0].id
+          )
+        );
+
+        console.log(
+          'Desludging Inlet Pump ID:',
+          inletPumpType.equipments[0].id
+        );
+      }
+
+    } catch (error) {
+      console.error(
+        'Failed to fetch Desludging equipment:',
+        error
+      );
+    }
   };
 
-  const openInletPump = (): void => {
-    router.push("/desludging/inletpump");
-  };
+  // =========================================================
+  // LOAD DATA
+  // =========================================================
 
-  const openContactorSensors = (): void => {
-    router.push("/desludging/contactorsensors");
-  };
+  useEffect(() => {
+    fetchEquipments();
+  }, []);
 
-  const openBlower = (): void => {
-    router.push("/desludging/blower");
-  };
-
-  const openMotor1 = (): void => {
-    router.push("/desludging/motor1");
-  };
-
-  const openMotor2 = (): void => {
-    router.push("/desludging/motor2");
-  };
+  // =========================================================
+  // UI
+  // =========================================================
 
   return (
-    <SafeAreaView
-      style={styles.safeArea}
-      edges={["top", "left", "right"]}
-    >
-      <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
 
-        {/* ==================================================
-            HEADER
-        ================================================== */}
+      {/* ================= HEADER ================= */}
 
-        <View
-          style={[
-            styles.header,
-            {
-              height: s(70),
-              paddingHorizontal:
-                horizontalPadding / 2,
-            },
-          ]}
+      <View style={styles.header}>
+
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() =>
+            router.navigate('/dashboard')
+          }
         >
-
-          {/* BACK BUTTON */}
-
-          <Pressable
-            style={styles.backButton}
-            onPress={() => {
-              router.back();
-            }}
-            android_ripple={{
-              color: "#E5E7EB",
-            }}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={s(29)}
-              color="#0B1D3A"
-            />
-          </Pressable>
-
-          {/* HEADER TITLE */}
-
-          <Text
-            style={[
-              styles.headerTitle,
-              {
-                fontSize: s(29),
-              },
-            ]}
-          >
-            Settings
-          </Text>
-
-          {/* RIGHT SPACE */}
-
-          <View
-            style={styles.headerPlaceholder}
+          <MaterialCommunityIcons
+            name="arrow-left"
+            size={24}
+            color="#001133"
           />
+        </TouchableOpacity>
 
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>
+            Desludging Settings
+          </Text>
         </View>
 
+        <View style={styles.backButton} />
 
-        {/* ==================================================
-            MAIN CONTENT
-        ================================================== */}
+      </View>
 
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={[
-            styles.contentContainer,
-            {
-              paddingHorizontal:
-                horizontalPadding,
+      <View style={styles.headerBorder} />
 
-              paddingTop: s(35),
+      <ScrollView
+        contentContainerStyle={
+          styles.scrollContent
+        }
+        showsVerticalScrollIndicator={false}
+      >
 
-              paddingBottom: s(30),
-            },
+        {/* ================= MERGE ================= */}
+
+        <TouchableOpacity
+          style={[
+            styles.mergeButton,
+            merging &&
+              styles.mergeButtonDisabled,
           ]}
-          showsVerticalScrollIndicator={false}
-          bounces
+          onPress={handleMerge}
+          disabled={merging}
+          activeOpacity={0.8}
         >
+          <MaterialCommunityIcons
+            name="merge"
+            size={22}
+            color="#FFFFFF"
+          />
 
-          {/* ==================================================
-              GENERAL
-          ================================================== */}
-
-          <Text
-            style={[
-              styles.sectionTitle,
-              {
-                fontSize: s(23),
-                marginBottom: s(23),
-              },
-            ]}
-          >
-            GENERAL
+          <Text style={styles.mergeButtonText}>
+            {merging
+              ? 'MERGING...'
+              : 'MERGE'}
           </Text>
+        </TouchableOpacity>
 
+        {/* ================= GENERAL ================= */}
 
-          {/* ==================================================
-              OPERATING MODE CARD
-          ================================================== */}
+        <Text style={styles.sectionTitle}>
+          GENERAL
+        </Text>
 
-          <View
-            style={[
-              styles.generalCard,
-              {
-                borderRadius: cardRadius,
+        <View style={styles.card}>
 
-                paddingHorizontal: s(30),
+          <View style={styles.settingRow}>
 
-                paddingVertical: s(24),
-              },
-            ]}
-          >
-
-            {/* TEXT */}
-
-            <View style={styles.generalText}>
-
+            <View
+              style={
+                styles.settingTextContainer
+              }
+            >
               <Text
-                style={[
-                  styles.cardTitle,
-                  {
-                    fontSize: s(26),
-                  },
-                ]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
+                style={styles.settingTitle}
               >
                 Operating Mode
               </Text>
 
               <Text
-                style={[
-                  styles.description,
-                  {
-                    fontSize: s(19),
-                    marginTop: s(8),
-                  },
-                ]}
-                numberOfLines={2}
+                style={styles.settingSubtitle}
               >
-                Select automatic or manual control
+                Select automatic or manual
+                control
+              </Text>
+            </View>
+
+            <View
+              style={styles.toggleContainer}
+            >
+
+              <TouchableOpacity
+                style={[
+                  styles.toggleButton,
+                  operatingMode ===
+                    'AUTO' &&
+                    styles.toggleButtonActive,
+                ]}
+                onPress={() =>
+                  handleModeSelect(
+                    'AUTO'
+                  )
+                }
+              >
+                <Text
+                  style={[
+                    styles.toggleText,
+                    operatingMode ===
+                      'AUTO' &&
+                      styles.toggleTextActive,
+                  ]}
+                >
+                  AUTO
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.toggleButton,
+                  operatingMode ===
+                    'MANUAL' &&
+                    styles.toggleButtonActive,
+                ]}
+                onPress={() =>
+                  handleModeSelect(
+                    'MANUAL'
+                  )
+                }
+              >
+                <Text
+                  style={[
+                    styles.toggleText,
+                    operatingMode ===
+                      'MANUAL' &&
+                      styles.toggleTextActive,
+                  ]}
+                >
+                  MANUAL
+                </Text>
+              </TouchableOpacity>
+
+            </View>
+
+          </View>
+
+        </View>
+
+        {/* ================= DEVICES ================= */}
+
+        <Text style={styles.sectionTitle}>
+          DEVICES
+        </Text>
+
+        <View style={styles.card}>
+
+          {/* ================= MOTOR ================= */}
+
+          <TouchableOpacity
+            style={styles.deviceItem}
+            onPress={() =>
+              router.push(
+                '/desludging/motor1'
+              )
+            }
+          >
+
+            <Image
+              source={require(
+                '@/assets/images/motor.png'
+              )}
+              style={styles.deviceIcon}
+              resizeMode="contain"
+            />
+
+            <Text style={styles.deviceName}>
+              {motorEquipments[0]?.name ||
+                'Motor'}
+            </Text>
+
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={24}
+              color="#001133"
+            />
+
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          {/* ================= SOLENOID ================= */}
+
+          <TouchableOpacity
+            style={styles.deviceItem}
+            onPress={() =>
+              router.push(
+                '/desludging/solenoid'
+              )
+            }
+          >
+
+            <Image
+              source={require(
+                '@/assets/images/solenoid.png'
+              )}
+              style={styles.deviceIconSmall}
+              resizeMode="contain"
+            />
+
+            <View
+              style={styles.deviceInfo}
+            >
+
+              <Text
+                style={styles.deviceTitle}
+              >
+                {solenoidTypeName ||
+                  'Solenoid Valves'}
+              </Text>
+
+              <Text
+                style={
+                  styles.deviceSubtitle
+                }
+              >
+                {solenoidCount}{' '}
+                {solenoidCount === 1
+                  ? 'Valve'
+                  : 'Valves'}
               </Text>
 
             </View>
 
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={24}
+              color="#111827"
+            />
 
-            {/* ==================================================
-                AUTO / MANUAL
-            ================================================== */}
+          </TouchableOpacity>
 
-            <View
+          <View style={styles.divider} />
+
+          {/* ================= INLET PUMP ================= */}
+
+          <TouchableOpacity
+            style={styles.deviceItem}
+            onPress={() =>
+              router.push(
+                '/desludging/inletpump'
+              )
+            }
+          >
+
+            <Image
+              source={require(
+                '@/assets/images/inletpump.png'
+              )}
               style={[
-                styles.modeSelector,
+                styles.deviceIcon,
                 {
-                  height: s(74),
-
-                  width:
-                    width >= 600
-                      ? s(300)
-                      : Math.min(
-                          s(300),
-                          width * 0.39
-                        ),
-
-                  borderRadius: s(15),
+                  width: 24,
+                  height: 24,
                 },
               ]}
-            >
-
-              {/* ==================================================
-                  AUTO
-              ================================================== */}
-
-              <Pressable
-                onPress={openAuto}
-                style={[
-                  styles.modeButton,
-
-                  mode === "AUTO"
-                    ? styles.activeMode
-                    : styles.inactiveMode,
-                ]}
-              >
-
-                <Text
-                  style={[
-                    styles.modeText,
-
-                    {
-                      fontSize: s(21),
-                    },
-
-                    mode === "AUTO"
-                      ? styles.activeModeText
-                      : styles.inactiveModeText,
-                  ]}
-                >
-                  AUTO
-                </Text>
-
-              </Pressable>
-
-
-              {/* ==================================================
-                  MANUAL
-              ================================================== */}
-
-              <Pressable
-                onPress={() => {
-                  setMode("MANUAL");
-                }}
-                style={[
-                  styles.modeButton,
-
-                  mode === "MANUAL"
-                    ? styles.activeMode
-                    : styles.inactiveMode,
-                ]}
-              >
-
-                <Text
-                  style={[
-                    styles.modeText,
-
-                    {
-                      fontSize: s(21),
-                    },
-
-                    mode === "MANUAL"
-                      ? styles.activeModeText
-                      : styles.inactiveModeText,
-                  ]}
-                >
-                  MANUAL
-                </Text>
-
-              </Pressable>
-
-            </View>
-
-          </View>
-
-
-          {/* ==================================================
-              DEVICES
-          ================================================== */}
-
-          <Text
-            style={[
-              styles.sectionTitle,
-              {
-                fontSize: s(23),
-
-                marginTop: s(42),
-
-                marginBottom: s(23),
-              },
-            ]}
-          >
-            DEVICES
-          </Text>
-
-
-          {/* ==================================================
-              DEVICES CARD
-          ================================================== */}
-
-          <View
-            style={[
-              styles.devicesCard,
-              {
-                borderRadius: cardRadius,
-              },
-            ]}
-          >
-
-            {/* ==================================================
-                1. SOLENOID VALVES
-            ================================================== */}
-
-            <DeviceRow
-              image={solenoidImage}
-              title="Solenoid Valves"
-              subtitle="2 Valves"
-              imageSize={s(55)}
-              titleSize={s(25)}
-              subtitleSize={s(20)}
-              rowHeight={s(130)}
-              onPress={openSolenoid}
+              resizeMode="contain"
             />
-
-
-            <View style={styles.divider} />
-
-
-            {/* ==================================================
-                2. INLET PUMP 1
-            ================================================== */}
-
-            <DeviceRow
-              image={inletPumpImage}
-              title="Inlet Pump 1"
-              imageSize={s(55)}
-              titleSize={s(25)}
-              rowHeight={s(130)}
-              onPress={openInletPump}
-            />
-
-
-            <View style={styles.divider} />
-
-
-            {/* ==================================================
-                3. CONTACTOR SENSORS
-            ================================================== */}
-
-            <DeviceRow
-              image={contactorImage}
-              title="Contactor Sensors"
-              subtitle="2 Sensors"
-              imageSize={s(55)}
-              titleSize={s(25)}
-              subtitleSize={s(20)}
-              rowHeight={s(130)}
-              onPress={openContactorSensors}
-            />
-
-
-            <View style={styles.divider} />
-
-
-            {/* ==================================================
-                4. BLOWER
-            ================================================== */}
-
-            <DeviceRow
-              image={blowerImage}
-              title="Blower"
-              imageSize={s(55)}
-              titleSize={s(25)}
-              rowHeight={s(130)}
-              onPress={openBlower}
-            />
-
-
-            <View style={styles.divider} />
-
-
-            {/* ==================================================
-                5. MOTOR 1
-            ================================================== */}
-
-            <DeviceRow
-              image={motorImage}
-              title="Motor 1"
-              imageSize={s(55)}
-              titleSize={s(25)}
-              rowHeight={s(130)}
-              onPress={openMotor1}
-            />
-
-
-            <View style={styles.divider} />
-
-
-            {/* ==================================================
-                6. MOTOR 2
-            ================================================== */}
-
-            <DeviceRow
-              image={motorImage}
-              title="Motor 2"
-              imageSize={s(55)}
-              titleSize={s(25)}
-              rowHeight={s(130)}
-              onPress={openMotor2}
-            />
-
-          </View>
-
-
-          {/* ==================================================
-              ALERTS & NOTIFICATIONS
-          ================================================== */}
-
-          <Text
-            style={[
-              styles.sectionTitle,
-              {
-                fontSize: s(23),
-
-                marginTop: s(42),
-
-                marginBottom: s(23),
-              },
-            ]}
-          >
-            ALERTS & NOTIFICATIONS
-          </Text>
-
-
-          {/* NOTIFICATION CARD */}
-
-          <View
-            style={[
-              styles.notificationCard,
-              {
-                borderRadius: cardRadius,
-
-                paddingHorizontal: s(30),
-
-                paddingVertical: s(22),
-              },
-            ]}
-          >
 
             <View
-              style={styles.notificationText}
+              style={
+                styles.settingTextContainer
+              }
             >
 
               <Text
-                style={[
-                  styles.cardTitle,
-                  {
-                    fontSize: s(26),
-                  },
-                ]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
+                style={styles.settingTitle}
+              >
+                {inletPumpTypeName ||
+                  'Inlet Pump'}
+              </Text>
+
+            </View>
+
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={24}
+              color="#111827"
+            />
+
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          {/* ================= CONTACTOR SENSOR ================= */}
+
+          <TouchableOpacity
+            style={styles.deviceItem}
+            onPress={() =>
+              router.push(
+                '/desludging/contactorsensors'
+              )
+            }
+          >
+
+            <Image
+              source={require(
+                '@/assets/images/contactor.png'
+              )}
+              style={styles.deviceIconSmall}
+              resizeMode="contain"
+            />
+
+            <View
+              style={styles.deviceInfo}
+            >
+
+              <Text
+                style={styles.deviceTitle}
+              >
+                {contactorTypeName ||
+                  'Contactor Sensors'}
+              </Text>
+
+              <Text
+                style={
+                  styles.deviceSubtitle
+                }
+              >
+                {contactorCount}{' '}
+                {contactorCount === 1
+                  ? 'Sensor'
+                  : 'Sensors'}
+              </Text>
+
+            </View>
+
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={24}
+              color="#111827"
+            />
+
+          </TouchableOpacity>
+
+        </View>
+
+        {/* ================= ALERTS ================= */}
+
+        <Text style={styles.sectionTitle}>
+          ALERTS & NOTIFICATIONS
+        </Text>
+
+        <View style={styles.card}>
+
+          <View style={styles.settingRow}>
+
+            <View
+              style={
+                styles.settingTextContainer
+              }
+            >
+
+              <Text
+                style={styles.settingTitle}
               >
                 Enable Notifications
               </Text>
 
-
               <Text
-                style={[
-                  styles.description,
-                  {
-                    fontSize: s(19),
-
-                    marginTop: s(8),
-                  },
-                ]}
+                style={styles.settingSubtitle}
               >
-                Receive alerts for status changes
+                Receive alerts for status
+                changes
               </Text>
 
             </View>
 
-
-            {/* SWITCH */}
-
             <Switch
-              value={notifications}
+              trackColor={{
+                false: '#E5E7EB',
+                true: '#009688',
+              }}
+              thumbColor="#FFFFFF"
               onValueChange={
                 setNotifications
               }
-              trackColor={{
-                false: "#D1D5DB",
-                true: "#20B5AE",
-              }}
-              thumbColor="#FFFFFF"
-              ios_backgroundColor="#D1D5DB"
-              style={{
-                transform: [
-                  {
-                    scaleX:
-                      scale > 0.9
-                        ? 1.15
-                        : 1,
-                  },
-                  {
-                    scaleY:
-                      scale > 0.9
-                        ? 1.15
-                        : 1,
-                  },
-                ],
-              }}
+              value={notifications}
             />
 
           </View>
 
+        </View>
 
-          {/* ==================================================
-              ABOUT
-          ================================================== */}
+        {/* ================= ABOUT ================= */}
 
-          <Text
-            style={[
-              styles.sectionTitle,
-              {
-                fontSize: s(23),
+        <Text style={styles.sectionTitle}>
+          ABOUT
+        </Text>
 
-                marginTop: s(42),
+        <View style={styles.card}>
 
-                marginBottom: s(23),
-              },
-            ]}
-          >
-            ABOUT
-          </Text>
+          <View style={styles.aboutRow}>
 
-
-          {/* ABOUT CARD */}
-
-          <View
-            style={[
-              styles.aboutCard,
-              {
-                borderRadius: cardRadius,
-              },
-            ]}
-          >
-
-            {/* APP VERSION */}
-
-            <View
-              style={[
-                styles.aboutRow,
-                {
-                  minHeight: s(88),
-
-                  paddingHorizontal: s(30),
-                },
-              ]}
+            <Text
+              style={styles.settingTitle}
             >
+              App Version
+            </Text>
 
-              <Text
-                style={[
-                  styles.aboutLabel,
-                  {
-                    fontSize: s(23),
-                  },
-                ]}
-              >
-                App Version
-              </Text>
-
-
-              <Text
-                style={[
-                  styles.aboutValue,
-                  {
-                    fontSize: s(20),
-                  },
-                ]}
-              >
-                1.0.0
-              </Text>
-
-            </View>
-
-
-            <View
-              style={styles.divider}
-            />
-
-
-            {/* PLC / CONTROLLER */}
-
-            <View
-              style={[
-                styles.aboutRow,
-                {
-                  minHeight: s(88),
-
-                  paddingHorizontal: s(30),
-                },
-              ]}
+            <Text
+              style={styles.aboutValueText}
             >
-
-              <Text
-                style={[
-                  styles.aboutLabel,
-                  {
-                    fontSize: s(23),
-                  },
-                ]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
-                PLC / Controller
-              </Text>
-
-
-              <View
-                style={styles.connectionStatus}
-              >
-
-                <Text
-                  style={[
-                    styles.connectedText,
-                    {
-                      fontSize: s(21),
-                    },
-                  ]}
-                >
-                  Connected
-                </Text>
-
-
-                <View
-                  style={[
-                    styles.statusDot,
-                    {
-                      width: s(17),
-
-                      height: s(17),
-
-                      borderRadius: s(9),
-
-                      marginLeft: s(10),
-                    },
-                  ]}
-                />
-
-              </View>
-
-            </View>
+              1.0.0
+            </Text>
 
           </View>
 
-
-          {/* FINAL SPACE */}
-
           <View
-            style={{
-              height: s(30),
-            }}
+            style={[
+              styles.divider,
+              {
+                marginVertical: 12,
+              },
+            ]}
           />
 
-        </ScrollView>
+          <View style={styles.aboutRow}>
 
+            <Text
+              style={styles.settingTitle}
+            >
+              PLC / Controller
+            </Text>
 
-        {/* ==================================================
-            BOTTOM NAVIGATION
-        ================================================== */}
+            <View
+              style={
+                styles.connectedContainer
+              }
+            >
 
-        {/* ==================================================
-    BOTTOM NAVIGATION
-================================================== */}
+              <Text
+                style={styles.connectedText}
+              >
+                Connected
+              </Text>
 
-<View
-  style={[
-    styles.bottomNav,
-    {
-      height: (Platform.OS === "ios" ? s(93) : s(78)) + insets.bottom,
-      paddingBottom: (Platform.OS === "ios" ? s(8) : 0) + insets.bottom,
-    },
-  ]}
->
-  {/* DASHBOARD */}
-  <BottomNavItem
-    icon="home-outline"
-    label="Dashboard"
-    size={s(31)}
-  />
+              <View
+                style={styles.connectedDot}
+              />
 
-  {/* CONTROL */}
-  <BottomNavItem
-    icon="options-outline"
-    label="Control"
-    size={s(31)}
-  />
+            </View>
 
-  {/* TIMING */}
-  <BottomNavItem
-    icon="time-outline"
-    label="Timing"
-    size={s(31)}
-  />
+          </View>
 
-  {/* ALARMS */}
-  <BottomNavItem
-    icon="notifications-outline"
-    label="Alarms"
-    size={s(31)}
-  />
+        </View>
 
-  {/* SETTINGS */}
-  <BottomNavItem
-    icon="settings"
-    label="Settings"
-    active
-    size={s(31)}
-  />
-</View>
+      </ScrollView>
 
-      </View>
     </SafeAreaView>
   );
 }
 
-
-/* ============================================================
-   DEVICE ROW
-============================================================ */
-
-function DeviceRow({
-  image,
-  title,
-  subtitle,
-  imageSize,
-  titleSize,
-  subtitleSize = 20,
-  rowHeight,
-  onPress,
-}: DeviceRowProps): React.JSX.Element {
-  return (
-    <Pressable
-      style={[
-        styles.deviceRow,
-        {
-          minHeight: rowHeight,
-        },
-      ]}
-      onPress={onPress}
-      android_ripple={{
-        color: "#E5E7EB",
-      }}
-    >
-
-      {/* ==================================================
-          DEVICE IMAGE
-      ================================================== */}
-
-      <View
-        style={styles.deviceIcon}
-      >
-
-        <Image
-          source={image}
-          style={{
-            width: imageSize,
-            height: imageSize,
-          }}
-          resizeMode="contain"
-        />
-
-      </View>
-
-
-      {/* ==================================================
-          DEVICE TEXT
-      ================================================== */}
-
-      <View
-        style={styles.deviceText}
-      >
-
-        <Text
-          style={[
-            styles.deviceTitle,
-            {
-              fontSize: titleSize,
-            },
-          ]}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-        >
-          {title}
-        </Text>
-
-
-        {subtitle && (
-          <Text
-            style={[
-              styles.deviceSubtitle,
-              {
-                fontSize:
-                  subtitleSize,
-              },
-            ]}
-          >
-            {subtitle}
-          </Text>
-        )}
-
-      </View>
-
-
-      {/* ==================================================
-          RIGHT ARROW
-      ================================================== */}
-
-      <Ionicons
-        name="chevron-forward"
-        size={28}
-        color="#0B1D3A"
-      />
-
-    </Pressable>
-  );
-}
-
-
-/* ============================================================
-   BOTTOM NAVIGATION ITEM
-============================================================ */
-
-function BottomNavItem({
-  icon,
-  label,
-  active = false,
-  size,
-  onPress,
-}: BottomNavItemProps): React.JSX.Element {
-  return (
-    <Pressable
-      style={styles.navItem}
-      onPress={onPress}
-    >
-
-      <Ionicons
-        name={icon}
-        size={size}
-        color={
-          active
-            ? "#159F9B"
-            : "#707988"
-        }
-      />
-
-
-      <Text
-        style={[
-          styles.navLabel,
-          {
-            fontSize: Math.max(
-              13,
-              size * 0.52
-            ),
-          },
-
-          active &&
-            styles.activeNavLabel,
-        ]}
-      >
-        {label}
-      </Text>
-
-    </Pressable>
-  );
-}
-
-
-/* ============================================================
-   STYLES
-============================================================ */
+// =========================================================
+// STYLES
+// =========================================================
 
 const styles = StyleSheet.create({
-
-  /* ==========================================================
-     MAIN
-  ========================================================== */
-
-  safeArea: {
-    flex: 1,
-
-    backgroundColor: "#F7F8FA",
-  },
-
   container: {
     flex: 1,
-
-    backgroundColor: "#F7F8FA",
+    backgroundColor: '#F8F9FA',
   },
 
-
-  /* ==========================================================
-     HEADER
-  ========================================================== */
-
   header: {
-    backgroundColor: "#FFFFFF",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 16,
+    backgroundColor: '#FFFFFF',
+  },
 
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    justifyContent: "space-between",
-
-    borderBottomWidth:
-      StyleSheet.hairlineWidth,
-
-    borderBottomColor:
-      "#D9DDE2",
+  headerBorder: {
+    height: 1,
+    backgroundColor: '#E5E7EB',
   },
 
   backButton: {
-    width: 46,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+  },
 
-    height: 36,
-
-    alignItems: "center",
-
-    justifyContent: "center",
-
-    borderRadius: 23,
+  headerTitleContainer: {
+    flex: 1,
+    alignItems: 'center',
   },
 
   headerTitle: {
-    position: "absolute",
-
-    left: 0,
-
-    right: 0,
-
-    textAlign: "center",
-
-    fontWeight: "900",
-
-    color: "#0B1D3A",
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#001133',
   },
 
-  headerPlaceholder: {
-    width: 46,
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 40,
   },
-
-
-  /* ==========================================================
-     CONTENT
-  ========================================================== */
-
-  scrollView: {
-    flex: 1,
-  },
-
-  contentContainer: {
-    flexGrow: 1,
-  },
-
-
-  /* ==========================================================
-     SECTION TITLES
-  ========================================================== */
 
   sectionTitle: {
-    fontWeight: "600",
-
-    letterSpacing: 0.3,
-
-    color: "#465365",
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#6B7280',
+    marginTop: 24,
+    marginBottom: 8,
+    marginLeft: 4,
   },
 
-
-  /* ==========================================================
-     GENERAL CARD
-  ========================================================== */
-
-  generalCard: {
-    width: "100%",
-
-    backgroundColor: "#FFFFFF",
-
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    shadowColor: "#000",
-
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-
-      height: 3,
+      height: 1,
     },
-
-    shadowOpacity: 0.08,
-
-    shadowRadius: 8,
-
-    elevation: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
 
-  generalText: {
+  settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+  },
+
+  settingTextContainer: {
     flex: 1,
-
-    minWidth: 0,
-
-    paddingRight: 15,
+    paddingRight: 16,
   },
 
-  cardTitle: {
-    fontWeight: "700",
-
-    color: "#0B1D3A",
+  settingTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#001133',
   },
 
-  description: {
-    color: "#737D8D",
-
-    lineHeight: 26,
+  settingSubtitle: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginTop: 4,
   },
 
-
-  /* ==========================================================
-     MODE SELECTOR
-  ========================================================== */
-
-  modeSelector: {
-    flexDirection: "row",
-
-    overflow: "hidden",
-
+  toggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 6,
     borderWidth: 1,
-
-    borderColor: "#C9CDD3",
-
-    flexShrink: 1,
+    borderColor: '#E5E7EB',
+    overflow: 'hidden',
   },
 
-  modeButton: {
-    flex: 1,
-
-    alignItems: "center",
-
-    justifyContent: "center",
-
-    minWidth: 0,
+  toggleButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#FFFFFF',
   },
 
-  activeMode: {
-    backgroundColor: "#20B5AE",
+  toggleButtonActive: {
+    backgroundColor: '#009688',
   },
 
-  inactiveMode: {
-    backgroundColor: "#FFFFFF",
+  toggleText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#001133',
   },
 
-  modeText: {
-    fontWeight: "600",
+  toggleTextActive: {
+    color: '#FFFFFF',
   },
 
-  activeModeText: {
-    color: "#FFFFFF",
-  },
-
-  inactiveModeText: {
-    color: "#0B1D3A",
-  },
-
-
-  /* ==========================================================
-     DEVICES
-  ========================================================== */
-
-  devicesCard: {
-    width: "100%",
-
-    backgroundColor: "#FFFFFF",
-
-    overflow: "hidden",
-
-    shadowColor: "#000",
-
-    shadowOffset: {
-      width: 0,
-
-      height: 3,
-    },
-
-    shadowOpacity: 0.08,
-
-    shadowRadius: 8,
-
-    elevation: 3,
-  },
-
-  deviceRow: {
-    width: "100%",
-
-    paddingHorizontal: 30,
-
-    flexDirection: "row",
-
-    alignItems: "center",
+  deviceItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
   },
 
   deviceIcon: {
-    width: 75,
-
-    alignItems: "flex-start",
-
-    justifyContent: "center",
-
-    marginRight: 10,
+    width: 40,
+    height: 40,
   },
 
-  deviceText: {
-    flex: 1,
+  deviceIconSmall: {
+    width: 30,
+    height: 30,
+  },
 
-    minWidth: 0,
+  deviceName: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#001133',
+    marginLeft: 12,
+  },
+
+  deviceInfo: {
+    flex: 1,
+    marginLeft: 12,
   },
 
   deviceTitle: {
-    fontWeight: "600",
-
-    color: "#0B1D3A",
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#001133',
   },
 
   deviceSubtitle: {
-    marginTop: 5,
-
-    color: "#737D8D",
+    fontSize: 13,
+    color: '#6B7280',
+    marginTop: 4,
   },
 
   divider: {
-    height:
-      StyleSheet.hairlineWidth,
-
-    backgroundColor: "#D9DDE2",
-  },
-
-
-  /* ==========================================================
-     NOTIFICATIONS
-  ========================================================== */
-
-  notificationCard: {
-    width: "100%",
-
-    backgroundColor: "#FFFFFF",
-
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    shadowColor: "#000",
-
-    shadowOffset: {
-      width: 0,
-
-      height: 3,
-    },
-
-    shadowOpacity: 0.08,
-
-    shadowRadius: 8,
-
-    elevation: 3,
-  },
-
-  notificationText: {
-    flex: 1,
-
-    minWidth: 0,
-
-    paddingRight: 10,
-  },
-
-
-  /* ==========================================================
-     ABOUT
-  ========================================================== */
-
-  aboutCard: {
-    width: "100%",
-
-    backgroundColor: "#FFFFFF",
-
-    overflow: "hidden",
-
-    shadowColor: "#000",
-
-    shadowOffset: {
-      width: 0,
-
-      height: 3,
-    },
-
-    shadowOpacity: 0.08,
-
-    shadowRadius: 8,
-
-    elevation: 3,
+    height: 1,
+    backgroundColor: '#F3F4F6',
   },
 
   aboutRow: {
-    width: "100%",
-
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
   },
 
-  aboutLabel: {
-    fontWeight: "500",
-
-    color: "#0B1D3A",
-
-    flexShrink: 1,
+  aboutValueText: {
+    fontSize: 14,
+    color: '#6B7280',
   },
 
-  aboutValue: {
-    color: "#737D8D",
-  },
-
-  connectionStatus: {
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    marginLeft: 10,
+  connectedContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 
   connectedText: {
-    fontWeight: "600",
-
-    color: "#159F78",
+    fontSize: 14,
+    color: '#10B981',
+    fontWeight: '500',
+    marginRight: 6,
   },
 
-  statusDot: {
-    backgroundColor: "#20B27A",
+  connectedDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10B981',
   },
 
-
-  /* ==========================================================
-     BOTTOM NAVIGATION
-  ========================================================== */
-
-  bottomNav: {
-    width: "100%",
-
-    backgroundColor: "#FFFFFF",
-
-    borderTopWidth:
-      StyleSheet.hairlineWidth,
-
-    borderTopColor:
-      "#D9DDE2",
-
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    justifyContent: "space-around",
+  mergeButton: {
+    backgroundColor: '#14B8A6',
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 13,
+    marginBottom: 8,
   },
 
-  navItem: {
-    flex: 1,
-
-    height: "100%",
-
-    alignItems: "center",
-
-    justifyContent: "center",
+  mergeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 
-  navLabel: {
-    marginTop: 4,
-
-    fontWeight: "500",
-
-    color: "#707988",
+  mergeButtonDisabled: {
+    opacity: 0.6,
   },
-
-  activeNavLabel: {
-    fontWeight: "600",
-
-    color: "#159F9B",
-  },
-
 });

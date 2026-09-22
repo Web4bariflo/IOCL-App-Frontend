@@ -1,1955 +1,2410 @@
-import React from "react";
+import React, {
+  useCallback,
+  useState,
+} from 'react';
+
 import {
-  StyleSheet,
-  Text,
   View,
+  Text,
+  StyleSheet,
   ScrollView,
-  Pressable,
-  useWindowDimensions,
-  Image,
-  ImageSourcePropType,
-  Platform,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+  TouchableOpacity,
+  StatusBar,
+  SafeAreaView,
+} from 'react-native';
 
-/* ============================================================
-   DEVICE IMAGES
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+} from '@expo/vector-icons';
 
-   Project structure:
+import { router } from 'expo-router';
 
-   assets/
-   └── images/
-       ├── blower.png
-       ├── inletpump.png
-       └── motor.png
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-   Current file:
+import { useFocusEffect } from '@react-navigation/native';
 
-   src/app/desludging/auto.tsx
+import {
+  getStageStatus,
+  startTreatmentStage,
+  stopTreatmentStage,
+  getStageProcessLogs,
+} from '@/api/inletApi';
 
-   Correct relative path:
-   ../../../assets/images/
-============================================================ */
+export default function DesludgingScreen() {
 
-import motorImage from "../../../assets/images/motor.png";
-import blowerImage from "../../../assets/images/blower.png";
-import pumpImage from "../../../assets/images/inletpump.png";
+  // =====================================================
+  // UI TOGGLE STATES
+  // =====================================================
 
-/* ============================================================
-   TYPES
-============================================================ */
+  const [solenoidActive, setSolenoidActive] =
+    useState(false);
 
-interface DeviceCardProps {
-  image: ImageSourcePropType;
-  title: string;
-  subtitle: string;
-  status: string;
-  since: string;
-  scale: number;
-  marginTop: number;
-}
+  const [inletPumpActive, setInletPumpActive] =
+    useState(false);
 
-interface ProcessRowProps {
-  step: string;
-  image: ImageSourcePropType;
-  title: string;
-  status: "ON" | "OFF";
-  scale: number;
-  last?: boolean;
-}
+  const [contactorActive, setContactorActive] =
+    useState(false);
 
-interface BottomNavItemProps {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  active?: boolean;
-  size: number;
-  onPress?: () => void;
-}
+  const [motorActive, setMotorActive] =
+    useState(false);
 
-/* ============================================================
-   AUTO SCREEN
-============================================================ */
+  // =====================================================
+  // SYSTEM RUNNING
+  // =====================================================
 
-export default function Auto(): React.JSX.Element {
-  const router = useRouter();
+  const [isSystemRunning, setIsSystemRunning] =
+    useState(false);
 
-  const { width } = useWindowDimensions();
+  // =====================================================
+  // API DATA
+  // =====================================================
 
-  /* ==========================================================
-     RESPONSIVE SCALE
-  ========================================================== */
+  const [stageData, setStageData] =
+    useState<any>(null);
 
-  const scale = Math.min(width / 853, 1.12);
+  const [processLogs, setProcessLogs] =
+    useState<any[]>([]);
 
-  const s = (value: number): number => {
-    return Math.round(value * scale);
+  // =====================================================
+  // FETCH DESLUDGING STAGE STATUS
+  // =====================================================
+
+  const fetchStageStatus =
+    useCallback(async () => {
+      try {
+
+        const stageId =
+          await AsyncStorage.getItem(
+            'desludgingStageId'
+          );
+
+        console.log(
+          'Stored Desludging Stage ID:',
+          stageId
+        );
+
+        if (!stageId) {
+          console.log(
+            '❌ Desludging Stage ID not found'
+          );
+
+          return;
+        }
+
+        const numericStageId =
+          Number(stageId);
+
+        if (isNaN(numericStageId)) {
+          console.log(
+            '❌ Invalid Desludging Stage ID:',
+            stageId
+          );
+
+          return;
+        }
+
+        console.log(
+          'Calling Desludging Stage Status API:',
+          numericStageId
+        );
+
+        const response =
+          await getStageStatus(
+            numericStageId
+          );
+
+        console.log(
+          'Desludging Stage Status:',
+          JSON.stringify(
+            response,
+            null,
+            2
+          )
+        );
+
+        if (
+          response?.success &&
+          response?.data
+        ) {
+
+          setStageData(
+            response.data
+          );
+
+          const stageStatus =
+            String(
+              response.data?.status || ''
+            ).toUpperCase();
+
+          console.log(
+            'Current Desludging Status:',
+            stageStatus
+          );
+
+          // ==========================================
+          // SYSTEM STATUS
+          // ==========================================
+
+          if (
+            stageStatus === 'RUNNING' ||
+            stageStatus === 'IN_PROGRESS'
+          ) {
+            setIsSystemRunning(true);
+          }
+
+          if (
+            stageStatus === 'COMPLETED' ||
+            stageStatus === 'STOPPED'
+          ) {
+            setIsSystemRunning(false);
+          }
+
+          // ==========================================
+          // EQUIPMENT
+          // ==========================================
+
+          console.log(
+            'Desludging Equipment:',
+            JSON.stringify(
+              response.data?.equipment,
+              null,
+              2
+            )
+          );
+
+          // ==========================================
+          // PROCESSES
+          // ==========================================
+
+          console.log(
+            'Desludging Processes:',
+            JSON.stringify(
+              response.data?.processes,
+              null,
+              2
+            )
+          );
+        }
+
+      } catch (error: any) {
+
+        console.log(
+          '❌ Desludging Stage Status Error:',
+          error.response?.data ||
+            error.message
+        );
+
+      }
+    }, []);
+
+  // =====================================================
+  // FETCH PROCESS LOGS
+  // =====================================================
+
+  const fetchStageProcessLogs =
+    useCallback(async () => {
+
+      try {
+
+        const stageId =
+          await AsyncStorage.getItem(
+            'desludgingStageId'
+          );
+
+        console.log(
+          'Desludging Process Logs Stage ID:',
+          stageId
+        );
+
+        if (!stageId) {
+
+          console.log(
+            '❌ Desludging Stage ID not found'
+          );
+
+          return;
+        }
+
+        const numericStageId =
+          Number(stageId);
+
+        if (isNaN(numericStageId)) {
+
+          console.log(
+            '❌ Invalid Desludging Stage ID:',
+            stageId
+          );
+
+          return;
+        }
+
+        const response =
+          await getStageProcessLogs(
+            numericStageId
+          );
+
+        console.log(
+          'Desludging Process Logs:',
+          JSON.stringify(
+            response,
+            null,
+            2
+          )
+        );
+
+        if (
+          response?.success &&
+          Array.isArray(
+            response?.data
+          )
+        ) {
+
+          setProcessLogs(
+            response.data
+          );
+
+        } else {
+
+          setProcessLogs([]);
+
+        }
+
+      } catch (error: any) {
+
+        console.log(
+          '❌ Desludging Process Logs Error:',
+          error.response?.data ||
+            error.message
+        );
+
+      }
+
+    }, []);
+
+  // =====================================================
+  // START SYSTEM
+  // =====================================================
+
+  const handleStartSystem =
+    async () => {
+
+      try {
+
+        if (isSystemRunning) {
+          return;
+        }
+
+        const stageId =
+          await AsyncStorage.getItem(
+            'desludgingStageId'
+          );
+
+        console.log(
+          'Start Desludging Stage ID:',
+          stageId
+        );
+
+        if (!stageId) {
+
+          console.log(
+            '❌ Desludging Stage ID not found'
+          );
+
+          return;
+        }
+
+        const numericStageId =
+          Number(stageId);
+
+        if (isNaN(numericStageId)) {
+
+          console.log(
+            '❌ Invalid Desludging Stage ID'
+          );
+
+          return;
+        }
+
+        console.log(
+          '🚀 Starting Desludging Stage:',
+          numericStageId
+        );
+
+        const response =
+          await startTreatmentStage(
+            numericStageId
+          );
+
+        console.log(
+          'Start Desludging Response:',
+          JSON.stringify(
+            response,
+            null,
+            2
+          )
+        );
+
+        if (response?.success) {
+
+          setIsSystemRunning(true);
+
+          await fetchStageProcessLogs();
+
+          await fetchStageStatus();
+        }
+
+      } catch (error: any) {
+
+        console.log(
+          '❌ Start Desludging Error:',
+          error.response?.data ||
+            error.message
+        );
+
+      }
+    };
+
+  // =====================================================
+  // STOP SYSTEM
+  // =====================================================
+
+  const handleStopSystem =
+    async () => {
+
+      try {
+
+        const stageId =
+          await AsyncStorage.getItem(
+            'desludgingStageId'
+          );
+
+        console.log(
+          'Stop Desludging Stage ID:',
+          stageId
+        );
+
+        if (!stageId) {
+
+          console.log(
+            '❌ Desludging Stage ID not found'
+          );
+
+          return;
+        }
+
+        const numericStageId =
+          Number(stageId);
+
+        if (isNaN(numericStageId)) {
+
+          console.log(
+            '❌ Invalid Desludging Stage ID'
+          );
+
+          return;
+        }
+
+        console.log(
+          '🛑 Stopping Desludging Stage:',
+          numericStageId
+        );
+
+        const response =
+          await stopTreatmentStage(
+            numericStageId
+          );
+
+        console.log(
+          'Stop Desludging Response:',
+          JSON.stringify(
+            response,
+            null,
+            2
+          )
+        );
+
+        if (response?.success) {
+
+          setIsSystemRunning(false);
+
+          await fetchStageStatus();
+
+          await fetchStageProcessLogs();
+        }
+
+      } catch (error: any) {
+
+        console.log(
+          '❌ Stop Desludging Error:',
+          error.response?.data ||
+            error.message
+        );
+
+      }
+    };
+
+  // =====================================================
+  // FORMAT ISO TIME
+  // =====================================================
+
+  const formatTime = (
+    timestamp?: string | null
+  ) => {
+
+    if (!timestamp) {
+      return '--';
+    }
+
+    const date =
+      new Date(timestamp);
+
+    if (
+      isNaN(
+        date.getTime()
+      )
+    ) {
+      return '--';
+    }
+
+    return date.toLocaleTimeString(
+      'en-IN',
+      {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+      }
+    );
   };
 
-  /* ==========================================================
-     IMPORTANT:
-     HORIZONTAL PADDING IS DEFINED HERE
-  ========================================================== */
+  // =====================================================
+  // FORMAT HH:MM:SS TIME
+  // =====================================================
 
-  const horizontalPadding = s(27);
+  const formatOnlyTime = (
+    time?: string | null
+  ) => {
 
-  return (
-    <SafeAreaView
-      style={styles.safeArea}
-      edges={["top", "left", "right"]}
-    >
-      <View style={styles.container}>
+    if (!time) {
+      return '--';
+    }
 
-        {/* ==================================================
-            HEADER
-        ================================================== */}
+    const parts =
+      time.split(':');
 
-        <View
-          style={[
-            styles.header,
-            {
-              paddingHorizontal: s(38),
-              paddingTop: s(5),
-              paddingBottom: s(8),
-            },
-          ]}
-        >
+    if (parts.length < 2) {
+      return '--';
+    }
 
-          {/* MENU BUTTON */}
-{/* 
-          <Pressable
-            style={styles.menuButton}
-            onPress={() => {}}
-          >
-            <View style={styles.menuLine} />
-            <View style={styles.menuLine} />
-            <View style={styles.menuLine} />
-          </Pressable> */}
+    const hours =
+      Number(parts[0]);
 
-          <Pressable
-  style={styles.backButton}
-  onPress={() => router.push("/(tabs)/dashboard")}
->
-  <Ionicons
-    name="arrow-back"
-    size={s(32)}
-    color="#0B1D3A"
-  />
-</Pressable>
+    const minutes =
+      Number(parts[1]);
 
+    const seconds =
+      Number(parts[2] || 0);
 
-          {/* HEADER CENTER */}
+    if (
+      isNaN(hours) ||
+      isNaN(minutes) ||
+      isNaN(seconds)
+    ) {
+      return '--';
+    }
 
-          <View style={styles.headerCenter}>
+    const date =
+      new Date();
 
-            <Text
-              style={[
-                styles.headerTitle,
-                {
-                  fontSize: s(29),
-                },
-              ]}
-              numberOfLines={1}
-              adjustsFontSizeToFit
-            >
-              Dissolved Aeration System
-            </Text>
+    date.setHours(
+      hours,
+      minutes,
+      seconds,
+      0
+    );
 
-            <Text
-              style={[
-                styles.headerMode,
-                {
-                  fontSize: s(23),
-                  marginTop: s(4),
-                },
-              ]}
-            >
-              Automatic Mode
-            </Text>
+    return date.toLocaleTimeString(
+      'en-IN',
+      {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+      }
+    );
+  };
 
-          </View>
+  // =====================================================
+  // POLLING
+  // =====================================================
 
+  useFocusEffect(
+    useCallback(() => {
 
-          {/* OFFLINE BADGE */}
+      fetchStageStatus();
 
-          <View
-            style={[
-              styles.offlineBadge,
-              {
-                paddingHorizontal: s(19),
-                paddingVertical: s(9),
-                borderRadius: s(25),
-              },
-            ]}
-          >
-            <Text
-              style={[
-                styles.offlineText,
-                {
-                  fontSize: s(19),
-                },
-              ]}
-            >
-              Offline
-            </Text>
-          </View>
+      fetchStageProcessLogs();
 
-        </View>
+      const interval =
+        setInterval(() => {
 
+          fetchStageStatus();
 
-        {/* ==================================================
-            MAIN CONTENT
-        ================================================== */}
+          fetchStageProcessLogs();
 
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={[
-            styles.contentContainer,
-            {
-              paddingHorizontal: horizontalPadding,
-              paddingBottom: s(25),
-            },
-          ]}
-          showsVerticalScrollIndicator={false}
-          bounces
-        >
+        }, 3000);
 
-          {/* ==================================================
-              SYSTEM OVERVIEW
-          ================================================== */}
+      return () => {
 
-          <View
-            style={[
-              styles.overviewCard,
-              {
-                marginTop: s(16),
-                borderRadius: s(14),
-                padding: s(32),
-              },
-            ]}
-          >
+        clearInterval(
+          interval
+        );
 
-            <Text
-              style={[
-                styles.overviewTitle,
-                {
-                  fontSize: s(25),
-                  marginBottom: s(22),
-                },
-              ]}
-            >
-              System Overview
-            </Text>
+      };
 
-
-            {/* START SYSTEM */}
-
-            <Pressable
-              style={[
-                styles.startButton,
-                {
-                  height: s(58),
-                  borderRadius: s(10),
-                },
-              ]}
-              onPress={() => {}}
-            >
-
-              <Ionicons
-                name="power"
-                size={s(35)}
-                color="#FFFFFF"
-              />
-
-              <Text
-                style={[
-                  styles.startText,
-                  {
-                    fontSize: s(22),
-                    marginLeft: s(25),
-                  },
-                ]}
-              >
-                START SYSTEM
-              </Text>
-
-            </Pressable>
-
-
-            {/* STOP */}
-
-            <Pressable
-              style={[
-                styles.stopButton,
-                {
-                  height: s(58),
-                  borderRadius: s(10),
-                  marginTop: s(14),
-                },
-              ]}
-              onPress={() => {}}
-            >
-
-              <View
-                style={[
-                  styles.stopSquare,
-                  {
-                    width: s(20),
-                    height: s(20),
-                    borderRadius: s(2),
-                  },
-                ]}
-              />
-
-              <Text
-                style={[
-                  styles.stopText,
-                  {
-                    fontSize: s(21),
-                    marginLeft: s(22),
-                  },
-                ]}
-              >
-                STOP
-              </Text>
-
-            </Pressable>
-
-          </View>
-
-
-          {/* ==================================================
-              MOTOR 1
-          ================================================== */}
-
-          <DeviceCard
-            image={motorImage}
-            title="Motor 1"
-            subtitle="Disabled"
-            status="Disabled"
-            since="08:15 AM"
-            scale={scale}
-            marginTop={s(14)}
-          />
-
-
-          {/* ==================================================
-              MOTOR 2
-          ================================================== */}
-
-          <DeviceCard
-            image={motorImage}
-            title="Motor 2"
-            subtitle="Disabled"
-            status="Disabled"
-            since="08:15 AM"
-            scale={scale}
-            marginTop={s(14)}
-          />
-
-
-          {/* ==================================================
-              BLOWER 1
-          ================================================== */}
-
-          <DeviceCard
-            image={blowerImage}
-            title="Blower 1"
-            subtitle="Stopped"
-            status="Stopped"
-            since="08:15 AM"
-            scale={scale}
-            marginTop={s(14)}
-          />
-
-
-          {/* ==================================================
-              PUMP 1
-          ================================================== */}
-
-          <DeviceCard
-            image={pumpImage}
-            title="Pump 1"
-            subtitle="Stopped"
-            status="Stopped"
-            since="08:15 AM"
-            scale={scale}
-            marginTop={s(14)}
-          />
-
-
-          {/* ==================================================
-              AUTOMATIC PROCESS
-          ================================================== */}
-
-          <View
-            style={[
-              styles.processCard,
-              {
-                marginTop: s(14),
-                borderRadius: s(14),
-                paddingHorizontal: s(32),
-                paddingTop: s(18),
-                paddingBottom: s(12),
-              },
-            ]}
-          >
-
-            <Text
-              style={[
-                styles.processTitle,
-                {
-                  fontSize: s(23),
-                  marginBottom: s(5),
-                },
-              ]}
-            >
-              Automatic Process
-            </Text>
-
-
-            {/* STEP 01 */}
-
-            <ProcessRow
-              step="01"
-              image={pumpImage}
-              title="Pump 1"
-              status="OFF"
-              scale={scale}
-            />
-
-
-            {/* STEP 02 */}
-
-            <ProcessRow
-              step="02"
-              image={motorImage}
-              title="Motor 1"
-              status="ON"
-              scale={scale}
-            />
-
-
-            {/* STEP 03 */}
-
-            <ProcessRow
-              step="03"
-              image={motorImage}
-              title="Motor 2"
-              status="ON"
-              scale={scale}
-            />
-
-
-            {/* STEP 04 */}
-
-            <ProcessRow
-              step="04"
-              image={blowerImage}
-              title="Blower 1"
-              status="OFF"
-              scale={scale}
-              last
-            />
-
-          </View>
-
-
-          {/* ==================================================
-              TANK FILLING
-          ================================================== */}
-
-          <View
-            style={[
-              styles.tankCard,
-              {
-                marginTop: s(14),
-                borderRadius: s(14),
-                paddingHorizontal: s(32),
-                paddingVertical: s(18),
-              },
-            ]}
-          >
-
-            <Text
-              style={[
-                styles.tankTitle,
-                {
-                  fontSize: s(22),
-                  marginBottom: s(8),
-                },
-              ]}
-            >
-              Tank Filling
-            </Text>
-
-
-            {/* WASTEWATER TANK */}
-
-            <View style={styles.tankLabelRow}>
-
-              <Text
-                style={[
-                  styles.tankLabel,
-                  {
-                    fontSize: s(20),
-                  },
-                ]}
-              >
-                Wastewater Tank
-              </Text>
-
-              <Text
-                style={[
-                  styles.tankPercentage,
-                  {
-                    fontSize: s(20),
-                  },
-                ]}
-              >
-                65%
-              </Text>
-
-            </View>
-
-
-            <ProgressBar
-              percentage={65}
-              scale={scale}
-            />
-
-
-            {/* NORMAL WATER TANK */}
-
-            <View
-              style={[
-                styles.tankLabelRow,
-                {
-                  marginTop: s(11),
-                },
-              ]}
-            >
-
-              <Text
-                style={[
-                  styles.tankLabel,
-                  {
-                    fontSize: s(20),
-                  },
-                ]}
-              >
-                Normal Water Tank
-              </Text>
-
-              <Text
-                style={[
-                  styles.tankPercentage,
-                  {
-                    fontSize: s(20),
-                  },
-                ]}
-              >
-                42%
-              </Text>
-
-            </View>
-
-
-            <ProgressBar
-              percentage={42}
-              scale={scale}
-              second
-            />
-
-          </View>
-
-
-          {/* ==================================================
-              LOG
-          ================================================== */}
-
-          <View
-            style={[
-              styles.logCard,
-              {
-                marginTop: s(14),
-                borderRadius: s(14),
-                paddingHorizontal: s(30),
-                paddingTop: s(17),
-                paddingBottom: s(7),
-              },
-            ]}
-          >
-
-            {/* LOG HEADER */}
-
-            <View style={styles.logHeader}>
-
-              <View
-                style={styles.logTitleContainer}
-              >
-
-                <Ionicons
-                  name="document-text-outline"
-                  size={s(39)}
-                  color="#168BE5"
-                />
-
-                <View
-                  style={{
-                    marginLeft: s(16),
-                  }}
-                >
-
-                  <Text
-                    style={[
-                      styles.logTitle,
-                      {
-                        fontSize: s(22),
-                      },
-                    ]}
-                  >
-                    Log
-                  </Text>
-
-                  <Text
-                    style={[
-                      styles.logSubtitle,
-                      {
-                        fontSize: s(17),
-                      },
-                    ]}
-                  >
-                    Recent Activity
-                  </Text>
-
-                </View>
-
-              </View>
-
-
-              {/* VIEW ALL */}
-
-              <Pressable
-                style={styles.viewAllButton}
-                onPress={() => {}}
-              >
-
-                <Text
-                  style={[
-                    styles.viewAllText,
-                    {
-                      fontSize: s(17),
-                    },
-                  ]}
-                >
-                  View All
-                </Text>
-
-                <Ionicons
-                  name="chevron-forward"
-                  size={s(25)}
-                  color="#159F9B"
-                />
-
-              </Pressable>
-
-            </View>
-
-
-            <View
-              style={styles.logDivider}
-            />
-
-
-            {/* LOG 1 */}
-
-            <View style={styles.logRow}>
-
-              <Text
-                style={[
-                  styles.logTime,
-                  {
-                    fontSize: s(17),
-                  },
-                ]}
-              >
-                9:15 AM
-              </Text>
-
-              <Text
-                style={[
-                  styles.logActivity,
-                  {
-                    fontSize: s(18),
-                  },
-                ]}
-              >
-                Motor 1 Started
-              </Text>
-
-              <Ionicons
-                name="chevron-forward"
-                size={s(24)}
-                color="#0B1D3A"
-              />
-
-            </View>
-
-
-            <View
-              style={styles.logDivider}
-            />
-
-
-            {/* LOG 2 */}
-
-            <View style={styles.logRow}>
-
-              <Text
-                style={[
-                  styles.logTime,
-                  {
-                    fontSize: s(17),
-                  },
-                ]}
-              >
-                9:12 AM
-              </Text>
-
-              <Text
-                style={[
-                  styles.logActivity,
-                  {
-                    fontSize: s(18),
-                  },
-                ]}
-              >
-                Blower 1 Stopped
-              </Text>
-
-              <Ionicons
-                name="chevron-forward"
-                size={s(24)}
-                color="#0B1D3A"
-              />
-
-            </View>
-
-          </View>
-
-
-          {/* BOTTOM SPACE */}
-
-          <View
-            style={{
-              height: s(20),
-            }}
-          />
-
-        </ScrollView>
-
-
-        {/* ==================================================
-            BOTTOM NAVIGATION
-        ================================================== */}
-
-        <View
-          style={[
-            styles.bottomNav,
-            {
-              height:
-                Platform.OS === "ios"
-                  ? s(94)
-                  : s(82),
-            },
-          ]}
-        >
-
-          {/* HOME */}
-
-          <BottomNavItem
-            icon="home-outline"
-            label="Home"
-            active
-            size={s(32)}
-          />
-
-
-          {/* SYSTEM */}
-
-          <BottomNavItem
-            icon="options-outline"
-            label="System"
-            size={s(32)}
-          />
-
-
-          {/* HISTORY */}
-
-          <BottomNavItem
-            icon="time-outline"
-            label="History"
-            size={s(32)}
-          />
-
-
-          {/* ALARMS */}
-
-          <BottomNavItem
-            icon="notifications-outline"
-            label="Alarms"
-            size={s(32)}
-          />
-
-
-          {/* SETTINGS */}
-
-          <BottomNavItem
-            icon="settings-outline"
-            label="Settings"
-            size={s(32)}
-            onPress={() => {
-              router.push("/desludging/settings");
-            }}
-          />
-
-        </View>
-
-      </View>
-    </SafeAreaView>
+    }, [
+      fetchStageStatus,
+      fetchStageProcessLogs,
+    ])
   );
-}
 
+  // =====================================================
+  // EQUIPMENT
+  // =====================================================
 
-/* ============================================================
-   DEVICE CARD
-============================================================ */
+  const equipment =
+    stageData?.equipment || [];
 
-function DeviceCard({
-  image,
-  title,
-  subtitle,
-  status,
-  since,
-  scale,
-  marginTop,
-}: DeviceCardProps): React.JSX.Element {
-  return (
-    <View
-      style={[
-        styles.deviceCard,
-        {
-          marginTop,
-          borderRadius: Math.round(
-            14 * scale
-          ),
-          paddingHorizontal:
-            Math.round(32 * scale),
-          paddingTop:
-            Math.round(13 * scale),
-          paddingBottom:
-            Math.round(12 * scale),
-        },
-      ]}
+  // =====================================================
+  // SOLENOID VALVES
+  // =====================================================
+
+  const valves =
+    equipment.filter(
+      (item: any) =>
+        item.equipment_type ===
+        'Solenoid Valves'
+    );
+
+  // =====================================================
+  // INLET PUMP
+  // =====================================================
+
+  const inletPump =
+    equipment.find(
+      (item: any) =>
+        item.equipment_type ===
+        'Inlet Pump 1'
+    );
+
+  // =====================================================
+  // CONTACTOR SENSORS
+  // =====================================================
+
+  const contactorSensors =
+    equipment.filter(
+      (item: any) =>
+        item.equipment_type ===
+        'Contactor Sensors'
+    );
+
+  // =====================================================
+  // MOTOR
+  // =====================================================
+
+  const motor =
+    equipment.find(
+      (item: any) =>
+        item.equipment_type ===
+        'Motor'
+    );
+
+  // =====================================================
+  // GET PROCESS EQUIPMENT
+  // =====================================================
+
+  const getProcessEquipment =
+    (processName: string) => {
+
+      const name =
+        processName
+          .toLowerCase()
+          .trim();
+
+      if (
+        name === 'valve open' ||
+        name === 'valve close'
+      ) {
+        return valves;
+      }
+
+      if (
+        name === 'pump motor start' ||
+        name === 'pump motor stop'
+      ) {
+        return inletPump
+          ? [inletPump]
+          : [];
+      }
+
+      if (
+        name === 'sensor on' ||
+        name === 'sensor off'
+      ) {
+        return contactorSensors;
+      }
+
+      if (
+        name === 'motor on' ||
+        name === 'motor off'
+      ) {
+        return motor
+          ? [motor]
+          : [];
+      }
+
+      return [];
+    };
+
+  // =====================================================
+  // TOGGLE
+  // =====================================================
+
+  const Toggle = ({
+    active,
+    onPress,
+  }: {
+    active: boolean;
+    onPress: () => void;
+  }) => (
+
+    <TouchableOpacity
+      style={
+        styles.toggleContainer
+      }
+      onPress={onPress}
+      activeOpacity={0.8}
     >
 
-      {/* TOP AREA */}
-
-      <View style={styles.deviceTop}>
-
-        {/* IMAGE */}
-
-        <Image
-          source={image}
-          style={{
-            width: Math.round(
-              82 * scale
-            ),
-            height: Math.round(
-              68 * scale
-            ),
-          }}
-          resizeMode="contain"
-        />
-
-
-        {/* NAME */}
-
-        <View
-          style={[
-            styles.deviceNameContainer,
-            {
-              marginLeft:
-                Math.round(16 * scale),
-            },
-          ]}
-        >
-
-          <Text
-            style={[
-              styles.deviceName,
-              {
-                fontSize:
-                  Math.round(23 * scale),
-              },
-            ]}
-          >
-            {title}
-          </Text>
-
-
-          <Text
-            style={[
-              styles.deviceSubName,
-              {
-                fontSize:
-                  Math.round(20 * scale),
-                marginTop:
-                  Math.round(4 * scale),
-              },
-            ]}
-          >
-            {subtitle}
-          </Text>
-
-        </View>
-
-
-        {/* DEACTIVE */}
-
-        <View
-          style={[
-            styles.deactiveBadge,
-            {
-              paddingHorizontal:
-                Math.round(17 * scale),
-
-              paddingVertical:
-                Math.round(8 * scale),
-
-              borderRadius:
-                Math.round(22 * scale),
-            },
-          ]}
-        >
-
-          <Text
-            style={[
-              styles.deactiveText,
-              {
-                fontSize:
-                  Math.round(16 * scale),
-              },
-            ]}
-          >
-            DEACTIVE
-          </Text>
-
-        </View>
-
-      </View>
-
-
-      {/* DIVIDER */}
-
-      <View
-        style={styles.deviceDivider}
-      />
-
-
-      {/* BOTTOM STATUS */}
-
-      <View
-        style={styles.deviceBottom}
-      >
-
-        {/* STATUS */}
-
-        <View>
-
-          <Text
-            style={[
-              styles.statusLabel,
-              {
-                fontSize:
-                  Math.round(16 * scale),
-              },
-            ]}
-          >
-            Status
-          </Text>
-
-          <Text
-            style={[
-              styles.statusValue,
-              {
-                fontSize:
-                  Math.round(19 * scale),
-              },
-            ]}
-          >
-            {status}
-          </Text>
-
-        </View>
-
-
-        {/* SINCE */}
-
-        <View>
-
-          <Text
-            style={[
-              styles.statusLabel,
-              {
-                fontSize:
-                  Math.round(16 * scale),
-              },
-            ]}
-          >
-            Since
-          </Text>
-
-          <Text
-            style={[
-              styles.statusValue,
-              {
-                fontSize:
-                  Math.round(19 * scale),
-              },
-            ]}
-          >
-            {since}
-          </Text>
-
-        </View>
-
-      </View>
-
-    </View>
-  );
-}
-
-
-/* ============================================================
-   AUTOMATIC PROCESS ROW
-============================================================ */
-
-function ProcessRow({
-  step,
-  image,
-  title,
-  status,
-  scale,
-  last = false,
-}: ProcessRowProps): React.JSX.Element {
-  const isOn = status === "ON";
-
-  return (
-    <View
-      style={[
-        styles.processRow,
-        {
-          height:
-            Math.round(57 * scale),
-        },
-      ]}
-    >
-
-      {/* STEP NUMBER */}
-
       <View
         style={[
-          styles.stepContainer,
-          {
-            width:
-              Math.round(68 * scale),
-          },
-        ]}
-      >
-
-        <View
-          style={[
-            styles.stepCircle,
-            {
-              width:
-                Math.round(43 * scale),
-
-              height:
-                Math.round(43 * scale),
-
-              borderRadius:
-                Math.round(22 * scale),
-
-              borderWidth:
-                Math.max(
-                  1,
-                  Math.round(2 * scale)
-                ),
-            },
-          ]}
-        >
-
-          <Text
-            style={[
-              styles.stepText,
-              {
-                fontSize:
-                  Math.round(16 * scale),
-              },
-            ]}
-          >
-            {step}
-          </Text>
-
-        </View>
-
-
-        {/* CONNECTING LINE */}
-
-        {!last && (
-          <>
-            <View
-              style={[
-                styles.stepLine,
-                {
-                  height:
-                    Math.round(18 * scale),
-                },
-              ]}
-            />
-
-            <Text
-              style={[
-                styles.downArrow,
-                {
-                  fontSize:
-                    Math.round(23 * scale),
-                },
-              ]}
-            >
-              ↓
-            </Text>
-          </>
-        )}
-
-      </View>
-
-
-      {/* DEVICE IMAGE */}
-
-      <View
-        style={[
-          styles.processImageContainer,
-          {
-            width:
-              Math.round(82 * scale),
-          },
-        ]}
-      >
-
-        <Image
-          source={image}
-          style={{
-            width:
-              Math.round(55 * scale),
-
-            height:
-              Math.round(48 * scale),
-          }}
-          resizeMode="contain"
-        />
-
-      </View>
-
-
-      {/* DEVICE NAME */}
-
-      <Text
-        style={[
-          styles.processDeviceTitle,
-          {
-            fontSize:
-              Math.round(18 * scale),
-          },
-        ]}
-        numberOfLines={1}
-      >
-        {title}
-      </Text>
-
-
-      {/* ON / OFF */}
-
-      <View
-        style={[
-          styles.processStatus,
-          {
-            width:
-              Math.round(82 * scale),
-          },
+          styles.toggleSide,
+          active &&
+            styles.toggleSideActive,
         ]}
       >
 
         <Text
           style={[
-            styles.processStatusText,
-            {
-              color: isOn
-                ? "#159F4A"
-                : "#EF2025",
-
-              fontSize:
-                Math.round(18 * scale),
-            },
+            styles.toggleText,
+            active &&
+              styles.toggleTextActive,
           ]}
         >
-          {status}
+          ACTIVE
         </Text>
-
-
-        <View
-          style={[
-            styles.processStatusDot,
-            {
-              width:
-                Math.round(15 * scale),
-
-              height:
-                Math.round(15 * scale),
-
-              borderRadius:
-                Math.round(8 * scale),
-
-              backgroundColor: isOn
-                ? "#159F4A"
-                : "#EF2025",
-            },
-          ]}
-        />
 
       </View>
 
-    </View>
-  );
-}
-
-
-/* ============================================================
-   PROGRESS BAR
-============================================================ */
-
-function ProgressBar({
-  percentage,
-  scale,
-  second = false,
-}: {
-  percentage: number;
-  scale: number;
-  second?: boolean;
-}): React.JSX.Element {
-  return (
-    <View
-      style={[
-        styles.progressBackground,
-        {
-          height:
-            Math.round(7 * scale),
-
-          borderRadius:
-            Math.round(5 * scale),
-
-          marginTop:
-            Math.round(6 * scale),
-        },
-      ]}
-    >
-
       <View
         style={[
-          styles.progressFill,
-          {
-            width: `${percentage}%`,
-
-            height:
-              Math.round(7 * scale),
-
-            borderRadius:
-              Math.round(5 * scale),
-
-            backgroundColor: second
-              ? "#159E9D"
-              : "#1989E6",
-          },
-        ]}
-      />
-
-    </View>
-  );
-}
-
-
-/* ============================================================
-   BOTTOM NAV ITEM
-============================================================ */
-
-function BottomNavItem({
-  icon,
-  label,
-  active = false,
-  size,
-  onPress,
-}: BottomNavItemProps): React.JSX.Element {
-  return (
-    <Pressable
-      style={styles.navItem}
-      onPress={onPress}
-    >
-
-      <Ionicons
-        name={icon}
-        size={size}
-        color={
-          active
-            ? "#159F9B"
-            : "#0B1D3A"
-        }
-      />
-
-      <Text
-        style={[
-          styles.navLabel,
-          {
-            fontSize: Math.max(
-              15,
-              size * 0.5
-            ),
-          },
-
-          active &&
-            styles.activeNavLabel,
+          styles.toggleSide,
+          !active &&
+            styles.toggleSideActive,
         ]}
       >
-        {label}
-      </Text>
 
-    </Pressable>
+        <Text
+          style={[
+            styles.toggleText,
+            !active &&
+              styles.toggleTextActive,
+          ]}
+        >
+          DEACTIVE
+        </Text>
+
+      </View>
+
+    </TouchableOpacity>
+  );
+
+  // =====================================================
+  // UI
+  // =====================================================
+
+  return (
+
+    <SafeAreaView
+      style={styles.container}
+    >
+
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="#fff"
+      />
+
+      {/* =================================================
+          HEADER
+      ================================================= */}
+
+      <View style={styles.header}>
+
+        <TouchableOpacity
+          style={styles.menuBtn}
+          onPress={() =>
+            router.replace(
+              '/(tabs)/dashboard'
+            )
+          }
+          activeOpacity={0.7}
+        >
+
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color="#1a1a1a"
+          />
+
+        </TouchableOpacity>
+
+        <View
+          style={
+            styles.headerTitle
+          }
+        >
+
+          <Text
+            style={styles.title}
+          >
+            Desludging
+          </Text>
+
+          <Text
+            style={styles.subtitle}
+          >
+            Automatic Mode
+          </Text>
+
+        </View>
+
+        <View
+          style={
+            styles.offlineBadge
+          }
+        >
+
+          <Text
+            style={
+              styles.offlineText
+            }
+          >
+            Offline
+          </Text>
+
+        </View>
+
+      </View>
+
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={
+          styles.scrollContent
+        }
+        showsVerticalScrollIndicator={
+          false
+        }
+      >
+
+        {/* =================================================
+            SYSTEM OVERVIEW
+        ================================================= */}
+
+        <View style={styles.card}>
+
+          <Text
+            style={
+              styles.cardTitle
+            }
+          >
+            System Overview
+          </Text>
+
+          <TouchableOpacity
+            style={[
+              styles.startBtn,
+              isSystemRunning &&
+                styles.startBtnDisabled,
+            ]}
+            activeOpacity={0.85}
+            onPress={
+              handleStartSystem
+            }
+            disabled={
+              isSystemRunning
+            }
+          >
+
+            <Ionicons
+              name="power"
+              size={20}
+              color="#fff"
+            />
+
+            <Text
+              style={
+                styles.startBtnText
+              }
+            >
+              {isSystemRunning
+                ? 'SYSTEM RUNNING'
+                : 'START SYSTEM'}
+            </Text>
+
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={
+              styles.stopBtn
+            }
+            activeOpacity={0.85}
+            onPress={
+              handleStopSystem
+            }
+            disabled={
+              !isSystemRunning
+            }
+          >
+
+            <Ionicons
+              name="stop"
+              size={20}
+              color="#ef5350"
+            />
+
+            <Text
+              style={
+                styles.stopBtnText
+              }
+            >
+              STOP SYSTEM
+            </Text>
+
+          </TouchableOpacity>
+
+        </View>
+
+        {/* =================================================
+            SOLENOID VALVES
+        ================================================= */}
+
+        <View style={styles.card}>
+
+          <View
+            style={
+              styles.rowBetween
+            }
+          >
+
+            <View
+              style={styles.row}
+            >
+
+              <MaterialCommunityIcons
+                name="pipe-valve"
+                size={28}
+                color="#1e88e5"
+              />
+
+              <View
+                style={{
+                  marginLeft: 12,
+                }}
+              >
+
+                <Text
+                  style={
+                    styles.sectionTitle
+                  }
+                >
+                  Solenoid Valves
+                </Text>
+
+                <Text
+                  style={
+                    styles.sectionSub
+                  }
+                >
+                  {valves.length}{' '}
+                  Valve
+                  {valves.length !== 1
+                    ? 's'
+                    : ''}
+                </Text>
+
+              </View>
+
+            </View>
+
+            <Toggle
+              active={valves.some(
+                (valve: any) =>
+                  String(
+                    valve.status
+                  ).toUpperCase() ===
+                  'ACTIVE'
+              )}
+              onPress={() =>
+                setSolenoidActive(
+                  !solenoidActive
+                )
+              }
+            />
+
+          </View>
+
+          <View
+            style={
+              styles.divider
+            }
+          />
+
+          {valves.map(
+            (valve: any) => {
+
+              const isOn =
+                String(
+                  valve.current_state
+                ).toUpperCase() ===
+                'ON';
+
+              return (
+
+                <View
+                  key={valve.id}
+                  style={
+                    styles.itemRow
+                  }
+                >
+
+                  <Text
+                    style={
+                      styles.itemLabel
+                    }
+                  >
+                    {valve.name}
+                  </Text>
+
+                  <View
+                    style={
+                      styles.statusRight
+                    }
+                  >
+
+                    <Text
+                      style={[
+                        styles.statusText,
+                        {
+                          color: isOn
+                            ? '#2e7d32'
+                            : '#616161',
+                        },
+                      ]}
+                    >
+                      {isOn
+                        ? 'Open'
+                        : 'Closed'}
+                    </Text>
+
+                    <View
+                      style={[
+                        styles.dot,
+                        {
+                          backgroundColor:
+                            isOn
+                              ? '#2e7d32'
+                              : '#9e9e9e',
+                        },
+                      ]}
+                    />
+
+                  </View>
+
+                </View>
+              );
+            }
+          )}
+
+        </View>
+
+        {/* =================================================
+            INLET PUMP
+        ================================================= */}
+
+        <View style={styles.card}>
+
+          <View
+            style={
+              styles.rowBetween
+            }
+          >
+
+            <View
+              style={styles.row}
+            >
+
+              <MaterialCommunityIcons
+                name="pump"
+                size={28}
+                color="#1e88e5"
+              />
+
+              <View
+                style={{
+                  marginLeft: 12,
+                }}
+              >
+
+                <Text
+                  style={
+                    styles.sectionTitle
+                  }
+                >
+                  Inlet Pump 1
+                </Text>
+
+                <Text
+                  style={
+                    styles.sectionSub
+                  }
+                >
+                  {inletPump?.status ||
+                    'INACTIVE'}
+                </Text>
+
+              </View>
+
+            </View>
+
+            <Toggle
+              active={
+                String(
+                  inletPump?.status
+                ).toUpperCase() ===
+                'ACTIVE'
+              }
+              onPress={() =>
+                setInletPumpActive(
+                  !inletPumpActive
+                )
+              }
+            />
+
+          </View>
+
+          <View
+            style={
+              styles.divider
+            }
+          />
+
+          <View
+            style={
+              styles.itemRow
+            }
+          >
+
+            <View>
+
+              <Text
+                style={
+                  styles.itemLabelSmall
+                }
+              >
+                Status
+              </Text>
+
+              <Text
+                style={
+                  styles.itemLabel
+                }
+              >
+                {inletPump?.current_state ||
+                  '--'}
+              </Text>
+
+            </View>
+
+            <View
+              style={{
+                alignItems:
+                  'flex-end',
+              }}
+            >
+
+              <Text
+                style={
+                  styles.itemLabelSmall
+                }
+              >
+                {String(
+                  inletPump?.current_state
+                ).toUpperCase() ===
+                'ON'
+                  ? 'Start Time'
+                  : 'End Time'}
+              </Text>
+
+              <Text
+                style={
+                  styles.itemLabel
+                }
+              >
+                {String(
+                  inletPump?.current_state
+                ).toUpperCase() ===
+                'ON'
+                  ? formatOnlyTime(
+                      inletPump?.start_time
+                    )
+                  : formatOnlyTime(
+                      inletPump?.end_time
+                    )}
+              </Text>
+
+            </View>
+
+          </View>
+
+        </View>
+
+        {/* =================================================
+            CONTACTOR SENSORS
+        ================================================= */}
+
+        <View style={styles.card}>
+
+          <View
+            style={
+              styles.rowBetween
+            }
+          >
+
+            <View
+              style={styles.row}
+            >
+
+              <Ionicons
+                name="swap-vertical"
+                size={28}
+                color="#1e88e5"
+              />
+
+              <View
+                style={{
+                  marginLeft: 12,
+                }}
+              >
+
+                <Text
+                  style={
+                    styles.sectionTitle
+                  }
+                >
+                  Contactor Sensors
+                </Text>
+
+                <Text
+                  style={
+                    styles.sectionSub
+                  }
+                >
+                  {contactorSensors.length}{' '}
+                  Sensors
+                </Text>
+
+              </View>
+
+            </View>
+
+            <Toggle
+              active={contactorSensors.some(
+                (sensor: any) =>
+                  String(
+                    sensor.status
+                  ).toUpperCase() ===
+                  'ACTIVE'
+              )}
+              onPress={() =>
+                setContactorActive(
+                  !contactorActive
+                )
+              }
+            />
+
+          </View>
+
+          <View
+            style={
+              styles.divider
+            }
+          />
+
+          {contactorSensors.map(
+            (sensor: any) => {
+
+              const isOn =
+                String(
+                  sensor.current_state
+                ).toUpperCase() ===
+                'ON';
+
+              return (
+
+                <View
+                  key={sensor.id}
+                  style={
+                    styles.itemRow
+                  }
+                >
+
+                  <Text
+                    style={
+                      styles.itemLabel
+                    }
+                  >
+                    {sensor.name}
+                  </Text>
+
+                  <View
+                    style={
+                      styles.statusRight
+                    }
+                  >
+
+                    <Text
+                      style={[
+                        styles.statusText,
+                        {
+                          color: isOn
+                            ? '#2e7d32'
+                            : '#616161',
+                        },
+                      ]}
+                    >
+                      {sensor.current_state ||
+                        '--'}
+                    </Text>
+
+                    <View
+                      style={[
+                        styles.dot,
+                        {
+                          backgroundColor:
+                            isOn
+                              ? '#2e7d32'
+                              : '#9e9e9e',
+                        },
+                      ]}
+                    />
+
+                  </View>
+
+                </View>
+              );
+            }
+          )}
+
+        </View>
+
+        {/* =================================================
+            MOTOR 1
+        ================================================= */}
+
+        <View style={styles.card}>
+
+          <View
+            style={
+              styles.rowBetween
+            }
+          >
+
+            <View
+              style={styles.row}
+            >
+
+              <MaterialCommunityIcons
+                name="engine"
+                size={28}
+                color="#1e88e5"
+              />
+
+              <View
+                style={{
+                  marginLeft: 12,
+                }}
+              >
+
+                <Text
+                  style={
+                    styles.sectionTitle
+                  }
+                >
+                  Motor 1
+                </Text>
+
+                <Text
+                  style={
+                    styles.sectionSub
+                  }
+                >
+                  {motor?.status ||
+                    'INACTIVE'}
+                </Text>
+
+              </View>
+
+            </View>
+
+            <Toggle
+              active={
+                String(
+                  motor?.status
+                ).toUpperCase() ===
+                'ACTIVE'
+              }
+              onPress={() =>
+                setMotorActive(
+                  !motorActive
+                )
+              }
+            />
+
+          </View>
+
+          <View
+            style={
+              styles.divider
+            }
+          />
+
+          <View
+            style={
+              styles.itemRow
+            }
+          >
+
+            <View>
+
+              <Text
+                style={
+                  styles.itemLabelSmall
+                }
+              >
+                Status
+              </Text>
+
+              <Text
+                style={
+                  styles.itemLabel
+                }
+              >
+                {motor?.current_state ||
+                  '--'}
+              </Text>
+
+            </View>
+
+            <View
+              style={{
+                alignItems:
+                  'flex-end',
+              }}
+            >
+
+              <Text
+                style={
+                  styles.itemLabelSmall
+                }
+              >
+                {String(
+                  motor?.current_state
+                ).toUpperCase() ===
+                'ON'
+                  ? 'Start Time'
+                  : 'End Time'}
+              </Text>
+
+              <Text
+                style={
+                  styles.itemLabel
+                }
+              >
+                {String(
+                  motor?.current_state
+                ).toUpperCase() ===
+                'ON'
+                  ? formatOnlyTime(
+                      motor?.start_time
+                    )
+                  : formatOnlyTime(
+                      motor?.end_time
+                    )}
+              </Text>
+
+            </View>
+
+          </View>
+
+        </View>
+
+        {/* =================================================
+            AUTOMATIC PROCESS
+        ================================================= */}
+
+        <View style={styles.card}>
+
+          <Text style={styles.cardTitle}>
+            Automatic Process
+          </Text>
+
+          {(() => {
+
+            let stepNumber = 0;
+
+            return stageData?.processes?.map(
+              (
+                process: any,
+                index: number
+              ) => {
+
+                const processName =
+                  process?.process_name ||
+                  '--';
+
+                const processEquipment =
+                  process?.equipment || [];
+
+                const processStatus =
+                  String(
+                    process?.status || ''
+                  ).toUpperCase();
+
+                const isRunning =
+                  processStatus === 'RUNNING' ||
+                  processStatus === 'IN_PROGRESS';
+
+                const displayTime =
+                  isRunning
+                    ? process?.started_at
+                    : process?.completed_at;
+
+                return (
+
+                  <React.Fragment
+                    key={
+                      process?.execution_id ||
+                      index
+                    }
+                  >
+
+                    {processEquipment.map(
+                      (item: any) => {
+
+                        stepNumber += 1;
+
+                        const equipmentName =
+                          item?.name || '--';
+
+                        const equipmentType =
+                          item?.equipment_type ||
+                          '--';
+
+                        const equipmentState =
+                          String(
+                            item?.state ?? ''
+                          ).toUpperCase();
+
+                        return (
+
+                          <View
+                            key={`${process?.execution_id}-${item?.id || stepNumber}`}
+                            style={
+                              styles.processRow
+                            }
+                          >
+
+                            {/* STEP NUMBER */}
+
+                            <View
+                              style={
+                                styles.processNumber
+                              }
+                            >
+
+                              <Text
+                                style={
+                                  styles.processNumberText
+                                }
+                              >
+                                {String(
+                                  stepNumber
+                                ).padStart(
+                                  2,
+                                  '0'
+                                )}
+                              </Text>
+
+                            </View>
+
+                            {/* ICON */}
+
+                            <View
+                              style={
+                                styles.processIcon
+                              }
+                            >
+
+                              {equipmentType ===
+                              'Solenoid Valves' ? (
+
+                                <MaterialCommunityIcons
+                                  name="pipe-valve"
+                                  size={20}
+                                  color="#1e88e5"
+                                />
+
+                              ) : equipmentType ===
+                                'Inlet Pump 1' ? (
+
+                                <MaterialCommunityIcons
+                                  name="pump"
+                                  size={20}
+                                  color="#1e88e5"
+                                />
+
+                              ) : equipmentType ===
+                                'Contactor Sensors' ? (
+
+                                <Ionicons
+                                  name="wifi"
+                                  size={20}
+                                  color="#1e88e5"
+                                />
+
+                              ) : equipmentType ===
+                                'Motor' ? (
+
+                                <MaterialCommunityIcons
+                                  name="engine"
+                                  size={20}
+                                  color="#1e88e5"
+                                />
+
+                              ) : (
+
+                                <Ionicons
+                                  name="hardware-chip-outline"
+                                  size={20}
+                                  color="#1e88e5"
+                                />
+
+                              )}
+
+                            </View>
+
+                            {/* PROCESS + EQUIPMENT */}
+
+                            <View
+                              style={
+                                styles.processInfo
+                              }
+                            >
+
+                              <Text
+                                style={
+                                  styles.processTitle
+                                }
+                              >
+                                {equipmentName}
+                              </Text>
+
+                              <Text
+                                style={
+                                  styles.processType
+                                }
+                              >
+                                {equipmentType}
+                              </Text>
+
+                            </View>
+
+                            {/* STATE + TIME */}
+
+                            <View
+                              style={
+                                styles.processStatusContainer
+                              }
+                            >
+
+                              <Text
+                                style={[
+                                  styles.processState,
+                                  {
+                                    color:
+                                      equipmentState ===
+                                      'ON'
+                                        ? '#16A34A'
+                                        : equipmentState ===
+                                          'OFF'
+                                          ? '#DC2626'
+                                          : '#6B7280',
+                                  },
+                                ]}
+                              >
+                                {equipmentState ||
+                                  '--'}
+                              </Text>
+
+                              <Text
+                                style={
+                                  styles.processTimeLabel
+                                }
+                              >
+                                {equipmentState ===
+                                'ON'
+                                  ? 'Start Time'
+                                  : equipmentState ===
+                                    'OFF'
+                                    ? 'End Time'
+                                    : '--'}
+                              </Text>
+
+                              <Text
+                                style={
+                                  styles.processTime
+                                }
+                              >
+                                {equipmentState ===
+                                'ON'
+                                  ? formatTime(
+                                      item?.started_at
+                                    )
+                                  : equipmentState ===
+                                    'OFF'
+                                    ? formatTime(
+                                        item?.completed_at
+                                      )
+                                    : '--'}
+                              </Text>
+
+                            </View>
+
+                          </View>
+
+                        );
+                      }
+                    )}
+
+                  </React.Fragment>
+
+                );
+              }
+            );
+
+          })()}
+
+          {/* NO DATA */}
+
+          {(!stageData?.processes ||
+            stageData.processes.length === 0) && (
+
+            <Text
+              style={
+                styles.noDataText
+              }
+            >
+              No automatic process data
+            </Text>
+
+          )}
+
+        </View>
+
+        {/* =================================================
+            TANK FILLING
+        ================================================= */}
+
+        <View style={styles.card}>
+
+          <Text
+            style={
+              styles.cardTitle
+            }
+          >
+            Tank Filling
+          </Text>
+
+          <View
+            style={
+              styles.tankRow
+            }
+          >
+
+            <Text
+              style={
+                styles.tankLabel
+              }
+            >
+              Wastewater Tank
+            </Text>
+
+            <Text
+              style={
+                styles.tankPercent
+              }
+            >
+              65%
+            </Text>
+
+          </View>
+
+          <View
+            style={
+              styles.progressBg
+            }
+          >
+
+            <View
+              style={[
+                styles.progressFill,
+                {
+                  width: '65%',
+                  backgroundColor:
+                    '#1e88e5',
+                },
+              ]}
+            />
+
+          </View>
+
+          <View
+            style={[
+              styles.tankRow,
+              {
+                marginTop: 18,
+              },
+            ]}
+          >
+
+            <Text
+              style={
+                styles.tankLabel
+              }
+            >
+              Normal Water Tank
+            </Text>
+
+            <Text
+              style={
+                styles.tankPercent
+              }
+            >
+              42%
+            </Text>
+
+          </View>
+
+          <View
+            style={
+              styles.progressBg
+            }
+          >
+
+            <View
+              style={[
+                styles.progressFill,
+                {
+                  width: '42%',
+                  backgroundColor:
+                    '#26a69a',
+                },
+              ]}
+            />
+
+          </View>
+
+        </View>
+
+        {/* =================================================
+            LOG
+        ================================================= */}
+
+        <View style={styles.card}>
+
+          <View
+            style={
+              styles.rowBetween
+            }
+          >
+
+            <View
+              style={styles.row}
+            >
+
+              <Ionicons
+                name="document-text-outline"
+                size={22}
+                color="#00897b"
+              />
+
+              <View
+                style={{
+                  marginLeft: 10,
+                }}
+              >
+
+                <Text
+                  style={
+                    styles.sectionTitle
+                  }
+                >
+                  Log
+                </Text>
+
+                <Text
+                  style={
+                    styles.sectionSub
+                  }
+                >
+                  Recent Activity
+                </Text>
+
+              </View>
+
+            </View>
+
+            <TouchableOpacity>
+
+              <Text
+                style={
+                  styles.viewAll
+                }
+              >
+                View All ›
+              </Text>
+
+            </TouchableOpacity>
+
+          </View>
+
+          <View
+            style={
+              styles.divider
+            }
+          />
+
+          {processLogs.map(
+            (
+              log: any,
+              index: number
+            ) => {
+
+              const processName =
+                log?.process_name ||
+                '--';
+
+              const logTime =
+                log?.started_at ||
+                log?.completed_at ||
+                null;
+
+              return (
+
+                <TouchableOpacity
+                  style={
+                    styles.logRow
+                  }
+                  key={
+                    log?.id ||
+                    log?.execution_id ||
+                    index
+                  }
+                >
+
+                  <Text
+                    style={
+                      styles.logTime
+                    }
+                  >
+                    {formatTime(
+                      logTime
+                    )}
+                  </Text>
+
+                  <Text
+                    style={
+                      styles.logText
+                    }
+                  >
+                    {processName}
+                  </Text>
+
+                  <Ionicons
+                    name="chevron-forward"
+                    size={18}
+                    color="#bdbdbd"
+                  />
+
+                </TouchableOpacity>
+
+              );
+
+            }
+          )}
+
+          {processLogs.length ===
+            0 && (
+
+            <Text
+              style={
+                styles.noDataText
+              }
+            >
+              No recent activity
+            </Text>
+
+          )}
+
+        </View>
+
+        <View
+          style={{
+            height: 40,
+          }}
+        />
+
+      </ScrollView>
+
+    </SafeAreaView>
   );
 }
 
+// ======================================================
+// STYLES
+// ======================================================
 
-/* ============================================================
-   STYLES
-============================================================ */
+const styles =
+  StyleSheet.create({
 
-const styles = StyleSheet.create({
-
-  /* ==========================================================
-     MAIN
-  ========================================================== */
-
-  safeArea: {
-    flex: 1,
-
-    backgroundColor: "#F9FAFB",
-  },
-
-  container: {
-    flex: 1,
-
-    backgroundColor: "#F9FAFB",
-  },
-
-  scrollView: {
-    flex: 1,
-  },
-
-  contentContainer: {
-    flexGrow: 1,
-  },
-
-
-  /* ==========================================================
-     HEADER
-  ========================================================== */
-
-  header: {
-    minHeight: 76,
-
-    backgroundColor: "#FFFFFF",
-
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    justifyContent: "space-between",
-  },
-
-  menuButton: {
-    width: 42,
-
-    height: 42,
-
-    justifyContent: "center",
-  },
-
-  menuLine: {
-    width: 35,
-
-    height: 4,
-
-    backgroundColor: "#0B1D3A",
-
-    borderRadius: 3,
-
-    marginVertical: 3,
-  },
-
-  headerCenter: {
-    flex: 1,
-
-    alignItems: "center",
-
-    justifyContent: "center",
-
-    paddingHorizontal: 10,
-  },
-
-  headerTitle: {
-    color: "#0B1D3A",
-
-    fontWeight: "700",
-
-    textAlign: "center",
-  },
-
-  headerMode: {
-    color: "#159F9B",
-
-    fontWeight: "400",
-
-    textAlign: "center",
-  },
-
-  offlineBadge: {
-    backgroundColor: "#A1A1A5",
-
-    alignItems: "center",
-
-    justifyContent: "center",
-  },
-
-  offlineText: {
-    color: "#FFFFFF",
-
-    fontWeight: "500",
-  },
-
-
-  /* ==========================================================
-     SYSTEM OVERVIEW
-  ========================================================== */
-
-  overviewCard: {
-    backgroundColor: "#FFFFFF",
-
-    shadowColor: "#000",
-
-    shadowOffset: {
-      width: 0,
-
-      height: 2,
+    container: {
+      flex: 1,
+      backgroundColor:
+        '#f5f7fa',
     },
 
-    shadowOpacity: 0.08,
-
-    shadowRadius: 7,
-
-    elevation: 3,
-  },
-
-  overviewTitle: {
-    color: "#0B1D3A",
-
-    fontWeight: "700",
-  },
-
-  startButton: {
-    width: "100%",
-
-    backgroundColor: "#00B341",
-
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    justifyContent: "center",
-
-    shadowColor: "#000",
-
-    shadowOffset: {
-      width: 0,
-
-      height: 2,
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      backgroundColor: '#fff',
+      borderBottomWidth: 1,
+      borderBottomColor:
+        '#eee',
     },
 
-    shadowOpacity: 0.08,
-
-    shadowRadius: 3,
-
-    elevation: 2,
-  },
-
-  startText: {
-    color: "#FFFFFF",
-
-    fontWeight: "600",
-  },
-
-  stopButton: {
-    width: "100%",
-
-    backgroundColor: "#FFFFFF",
-
-    borderWidth: 2,
-
-    borderColor: "#EF2025",
-
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    justifyContent: "center",
-  },
-
-  stopSquare: {
-    backgroundColor: "#EF2025",
-  },
-
-  stopText: {
-    color: "#E51F24",
-
-    fontWeight: "600",
-  },
-
-
-  /* ==========================================================
-     DEVICE CARD
-  ========================================================== */
-
-  deviceCard: {
-    width: "100%",
-
-    backgroundColor: "#FFFFFF",
-
-    shadowColor: "#000",
-
-    shadowOffset: {
-      width: 0,
-
-      height: 2,
+    menuBtn: {
+      padding: 4,
     },
 
-    shadowOpacity: 0.07,
-
-    shadowRadius: 7,
-
-    elevation: 3,
-  },
-
-  deviceTop: {
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    minHeight: 75,
-  },
-
-  deviceNameContainer: {
-    flex: 1,
-
-    minWidth: 0,
-  },
-
-  deviceName: {
-    color: "#0B1D3A",
-
-    fontWeight: "700",
-  },
-
-  deviceSubName: {
-    color: "#687084",
-
-    fontWeight: "400",
-  },
-
-  deactiveBadge: {
-    backgroundColor: "#A1A1A5",
-
-    alignItems: "center",
-
-    justifyContent: "center",
-
-    marginLeft: 8,
-  },
-
-  deactiveText: {
-    color: "#FFFFFF",
-
-    fontWeight: "500",
-  },
-
-  deviceDivider: {
-    height: StyleSheet.hairlineWidth,
-
-    backgroundColor: "#D8DCE1",
-
-    marginTop: 6,
-
-    marginBottom: 9,
-  },
-
-  deviceBottom: {
-    flexDirection: "row",
-
-    justifyContent: "space-between",
-
-    paddingHorizontal: 1,
-  },
-
-  statusLabel: {
-    color: "#6E7788",
-
-    fontWeight: "400",
-  },
-
-  statusValue: {
-    color: "#0B1D3A",
-
-    marginTop: 4,
-
-    fontWeight: "400",
-  },
-
-
-  /* ==========================================================
-     AUTOMATIC PROCESS
-  ========================================================== */
-
-  processCard: {
-    backgroundColor: "#FFFFFF",
-
-    shadowColor: "#000",
-
-    shadowOffset: {
-      width: 0,
-
-      height: 2,
+    headerTitle: {
+      flex: 1,
+      alignItems:
+        'center',
     },
 
-    shadowOpacity: 0.07,
-
-    shadowRadius: 7,
-
-    elevation: 3,
-  },
-
-  processTitle: {
-    color: "#0B1D3A",
-
-    fontWeight: "700",
-  },
-
-  processRow: {
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    borderBottomWidth:
-      StyleSheet.hairlineWidth,
-
-    borderBottomColor: "#D8DCE1",
-  },
-
-  stepContainer: {
-    height: "100%",
-
-    alignItems: "center",
-
-    justifyContent: "center",
-  },
-
-  stepCircle: {
-    borderColor: "#159F4A",
-
-    alignItems: "center",
-
-    justifyContent: "center",
-
-    backgroundColor: "#FFFFFF",
-  },
-
-  stepText: {
-    color: "#159F4A",
-
-    fontWeight: "600",
-  },
-
-  stepLine: {
-    position: "absolute",
-
-    top: "50%",
-
-    width: 2,
-
-    backgroundColor: "#159F4A",
-
-    zIndex: -1,
-  },
-
-  downArrow: {
-    position: "absolute",
-
-    bottom: -3,
-
-    color: "#159F4A",
-
-    fontWeight: "700",
-
-    backgroundColor: "#FFFFFF",
-  },
-
-  processImageContainer: {
-    alignItems: "center",
-
-    justifyContent: "center",
-  },
-
-  processDeviceTitle: {
-    flex: 1,
-
-    color: "#0B1D3A",
-
-    fontWeight: "400",
-  },
-
-  processStatus: {
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    justifyContent: "flex-end",
-  },
-
-  processStatusText: {
-    fontWeight: "500",
-
-    marginRight: 8,
-  },
-
-  processStatusDot: {
-    flexShrink: 0,
-  },
-
-
-  /* ==========================================================
-     TANK FILLING
-  ========================================================== */
-
-  tankCard: {
-    backgroundColor: "#FFFFFF",
-
-    shadowColor: "#000",
-
-    shadowOffset: {
-      width: 0,
-
-      height: 2,
+    title: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: '#1a1a1a',
     },
 
-    shadowOpacity: 0.07,
-
-    shadowRadius: 7,
-
-    elevation: 3,
-  },
-
-  tankTitle: {
-    color: "#0B1D3A",
-
-    fontWeight: "700",
-  },
-
-  tankLabelRow: {
-    flexDirection: "row",
-
-    alignItems: "center",
-
-    justifyContent: "space-between",
-  },
-
-  tankLabel: {
-    color: "#0B1D3A",
-  },
-
-  tankPercentage: {
-    color: "#0B1D3A",
-  },
-
-  progressBackground: {
-    width: "100%",
-
-    backgroundColor: "#E2E4E8",
-
-    overflow: "hidden",
-  },
-
-  progressFill: {
-    maxWidth: "100%",
-  },
-
-
-  /* ==========================================================
-     LOG
-  ========================================================== */
-
-  logCard: {
-    backgroundColor: "#FFFFFF",
-
-    shadowColor: "#000",
-
-    shadowOffset: {
-      width: 0,
-
-      height: 2,
+    subtitle: {
+      fontSize: 13,
+      color: '#00897b',
+      marginTop: 2,
     },
 
-    shadowOpacity: 0.07,
+    offlineBadge: {
+      backgroundColor:
+        '#616161',
+      paddingHorizontal: 12,
+      paddingVertical: 5,
+      borderRadius: 20,
+    },
 
-    shadowRadius: 7,
+    offlineText: {
+      color: '#fff',
+      fontSize: 12,
+      fontWeight: '600',
+    },
 
-    elevation: 3,
-  },
+    scroll: {
+      flex: 1,
+    },
 
-  logHeader: {
-    flexDirection: "row",
+    scrollContent: {
+      padding: 16,
+    },
 
-    alignItems: "center",
+    card: {
+      backgroundColor: '#fff',
+      borderRadius: 14,
+      padding: 16,
+      marginBottom: 14,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 2,
+    },
 
-    justifyContent: "space-between",
-  },
+    cardTitle: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: '#1a1a1a',
+      marginBottom: 14,
+    },
 
-  logTitleContainer: {
-    flexDirection: "row",
+    startBtn: {
+      backgroundColor:
+        '#2e7d32',
+      borderRadius: 10,
+      height: 52,
+      flexDirection:
+        'row',
+      alignItems:
+        'center',
+      justifyContent:
+        'center',
+      marginBottom: 12,
+    },
 
-    alignItems: "center",
-  },
+    startBtnDisabled: {
+      backgroundColor:
+        '#9e9e9e',
+      opacity: 0.7,
+    },
 
-  logTitle: {
-    color: "#0B1D3A",
+    startBtnText: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: '700',
+      marginLeft: 8,
+    },
 
-    fontWeight: "700",
-  },
+    stopBtn: {
+      borderWidth: 1.5,
+      borderColor:
+        '#ef5350',
+      borderRadius: 10,
+      height: 48,
+      flexDirection:
+        'row',
+      alignItems:
+        'center',
+      justifyContent:
+        'center',
+    },
 
-  logSubtitle: {
-    color: "#737D8D",
+    stopBtnText: {
+      color: '#ef5350',
+      fontSize: 15,
+      fontWeight: '700',
+      marginLeft: 8,
+    },
 
-    marginTop: 1,
-  },
+    row: {
+      flexDirection:
+        'row',
+      alignItems:
+        'center',
+    },
 
-  viewAllButton: {
-    flexDirection: "row",
+    rowBetween: {
+      flexDirection:
+        'row',
+      alignItems:
+        'center',
+      justifyContent:
+        'space-between',
+    },
 
-    alignItems: "center",
-  },
+    sectionTitle: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: '#1a1a1a',
+    },
 
-  viewAllText: {
-    color: "#159F9B",
+    sectionSub: {
+      fontSize: 12,
+      color: '#757575',
+      marginTop: 2,
+    },
 
-    marginRight: 4,
-  },
+    toggleContainer: {
+      flexDirection:
+        'row',
+      borderRadius: 8,
+      overflow:
+        'hidden',
+      borderWidth: 1,
+      borderColor:
+        '#e0e0e0',
+    },
 
-  logDivider: {
-    height: StyleSheet.hairlineWidth,
+    toggleSide: {
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      backgroundColor:
+        '#f5f5f5',
+    },
 
-    backgroundColor: "#D8DCE1",
+    toggleSideActive: {
+      backgroundColor:
+        '#00897b',
+    },
 
-    marginTop: 9,
-  },
+    toggleText: {
+      fontSize: 11,
+      fontWeight: '600',
+      color: '#757575',
+    },
 
-  logRow: {
-    minHeight: 50,
+    toggleTextActive: {
+      color: '#fff',
+    },
 
-    flexDirection: "row",
+    divider: {
+      height: 1,
+      backgroundColor:
+        '#eee',
+      marginVertical: 14,
+    },
 
-    alignItems: "center",
-  },
+    itemRow: {
+      flexDirection:
+        'row',
+      justifyContent:
+        'space-between',
+      alignItems:
+        'center',
+      marginBottom: 12,
+    },
 
-  logTime: {
-    width: "17%",
+    itemLabel: {
+      fontSize: 14,
+      color: '#424242',
+    },
 
-    color: "#0B1D3A",
-  },
+    itemLabelSmall: {
+      fontSize: 12,
+      color: '#9e9e9e',
+      marginBottom: 2,
+    },
 
-  logActivity: {
-    flex: 1,
+    statusRight: {
+      flexDirection:
+        'row',
+      alignItems:
+        'center',
+    },
 
-    color: "#0B1D3A",
-  },
+    statusText: {
+      fontSize: 14,
+      color: '#616161',
+      marginRight: 8,
+    },
 
+    dot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+    },
 
-  /* ==========================================================
-     BOTTOM NAVIGATION
-  ========================================================== */
+    // ==================================================
+    // AUTOMATIC PROCESS
+    // ==================================================
 
-  bottomNav: {
-    width: "100%",
+    processRow: {
+      flexDirection:
+        'row',
+      alignItems:
+        'center',
+      marginBottom: 18,
+    },
 
-    backgroundColor: "#FFFFFF",
+    processNumber: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor:
+        '#F3F4F6',
+      alignItems:
+        'center',
+      justifyContent:
+        'center',
+      marginRight: 10,
+    },
 
-    borderTopWidth:
-      StyleSheet.hairlineWidth,
+    processNumberText: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: '#6B7280',
+    },
 
-    borderTopColor: "#D9DDE2",
+    processIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor:
+        '#F3F4F6',
+      alignItems:
+        'center',
+      justifyContent:
+        'center',
+      marginRight: 12,
+    },
 
-    flexDirection: "row",
+    processInfo: {
+      flex: 1,
+      justifyContent:
+        'center',
+    },
 
-    alignItems: "center",
+    processTitle: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#111827',
+      marginBottom: 3,
+    },
 
-    justifyContent: "space-around",
-  },
+    processType: {
+      fontSize: 12,
+      color: '#374151',
+    },
 
-  navItem: {
-    flex: 1,
+    processEquipmentType: {
+      fontSize: 11,
+      color: '#9CA3AF',
+      marginTop: 2,
+    },
 
-    height: "100%",
+    processStatusContainer: {
+      width: 100,
+      alignItems:
+        'flex-end',
+      justifyContent:
+        'center',
+    },
 
-    alignItems: "center",
+    processState: {
+      fontSize: 13,
+      fontWeight: '700',
+    },
 
-    justifyContent: "center",
-  },
+    processTimeLabel: {
+      fontSize: 11,
+      color: '#9CA3AF',
+      marginTop: 5,
+      marginBottom: 2,
+    },
 
-  navLabel: {
-    marginTop: 4,
+    processTime: {
+      fontSize: 12,
+      color: '#374151',
+      fontWeight: '500',
+    },
 
-    color: "#0B1D3A",
+    // ==================================================
+    // TANK
+    // ==================================================
 
-    fontWeight: "400",
-  },
+    tankRow: {
+      flexDirection:
+        'row',
+      justifyContent:
+        'space-between',
+      marginBottom: 6,
+    },
 
-  activeNavLabel: {
-    color: "#159F9B",
+    tankLabel: {
+      fontSize: 14,
+      color: '#424242',
+    },
 
-    fontWeight: "500",
-  },
+    tankPercent: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#1a1a1a',
+    },
 
-  backButton: {
-  width: 42,
-  height: 42,
-  alignItems: "center",
-  justifyContent: "center",
-},
+    progressBg: {
+      height: 8,
+      backgroundColor:
+        '#e0e0e0',
+      borderRadius: 4,
+      overflow:
+        'hidden',
+    },
 
-});
+    progressFill: {
+      height: '100%',
+      borderRadius: 4,
+    },
+
+    // ==================================================
+    // LOG
+    // ==================================================
+
+    viewAll: {
+      fontSize: 13,
+      color: '#00897b',
+      fontWeight: '600',
+    },
+
+    logRow: {
+      flexDirection:
+        'row',
+      alignItems:
+        'center',
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor:
+        '#f0f0f0',
+    },
+
+    logTime: {
+      width: 90,
+      fontSize: 12,
+      color: '#757575',
+    },
+
+    logText: {
+      flex: 1,
+      fontSize: 14,
+      color: '#424242',
+    },
+
+    noDataText: {
+      fontSize: 13,
+      color: '#9CA3AF',
+      paddingVertical: 10,
+    },
+
+  });

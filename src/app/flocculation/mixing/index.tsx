@@ -30,7 +30,7 @@ import {
   startTreatmentStage,
   stopTreatmentStage,
   getStageProcessLogs,
-} from '@/api/inletApi';
+} from '../../../api/inletApi';
 
 export default function FlocculationMixingScreen() {
   // =====================================================
@@ -707,7 +707,7 @@ export default function FlocculationMixingScreen() {
           <Text
             style={styles.title}
           >
-            Coagulant Mixing
+            Flocculation Mixing
           </Text>
 
           <Text
@@ -1377,6 +1377,7 @@ export default function FlocculationMixingScreen() {
           </View>
 
         </View>
+
 
         {/* =================================================
             AUTOMATIC PROCESS
