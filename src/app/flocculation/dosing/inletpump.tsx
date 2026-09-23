@@ -17,7 +17,7 @@ import {
     getEquipmentManualLogs,
     turnOffMotor,
     turnOnMotor,
-} from '../../../api/inletApi';
+} from '../../../api/flocculationApi';
 
 export default function InletPumpScreen() {
     const [equipmentName, setEquipmentName] = useState<string>('Motor 1');
@@ -40,6 +40,24 @@ export default function InletPumpScreen() {
             minute: '2-digit',
             hour12: true,
         });
+    };
+
+    const formatLogDateTime = (dateString?: string | null) => {
+        if (!dateString) return '';
+
+        const date = new Date(dateString);
+
+        if (isNaN(date.getTime())) return dateString;
+
+        return date.toLocaleDateString('en-IN', {
+            day: '2-digit',
+            month: 'short',
+        }) + ', ' +
+            date.toLocaleTimeString('en-IN', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+            });
     };
 
     const formatDuration = (seconds?: number | null) => {
@@ -340,116 +358,116 @@ export default function InletPumpScreen() {
                 </View>
 
                 {/* Operating Schedule Card */}
-                <View style={styles.card}>
-                    <Text style={styles.cardTitle}>Operating Schedule</Text>
-                    <Text style={styles.cardSubtitle}>
-                        {isMotorRunning
-                            ? 'Motor currently running'
-                            : 'Set the motor operation window'}
+               {/* Operating Schedule Card */}
+<View style={styles.card}>
+    <Text style={styles.cardTitle}>Operating Schedule</Text>
+
+    <Text style={styles.cardSubtitle}>
+        Set the motor operation window'
+    </Text>
+
+    {/* MOTOR RUNNING → Show ONLY Start Time */}
+    {isMotorRunning && (
+        <View style={styles.scheduleRow}>
+            <View style={styles.scheduleLabelContainer}>
+                <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={22}
+                    color="#1A5B9C"
+                />
+                <Text style={styles.scheduleLabel}>
+                    Start Time
+                </Text>
+            </View>
+
+            <View style={styles.timeInputBox}>
+                <Text style={styles.timeInputText}>
+                    {startTime || '-- : --'}
+                </Text>
+            </View>
+        </View>
+    )}
+
+    {/* MOTOR STOPPED AFTER A RUN → Show ONLY End Time + Duration */}
+    {!isMotorRunning && endTime && (
+        <>
+            {/* End Time */}
+            <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLabelContainer}>
+                    <MaterialCommunityIcons
+                        name="clock-outline"
+                        size={22}
+                        color="#1A5B9C"
+                    />
+                    <Text style={styles.scheduleLabel}>
+                        End Time
                     </Text>
-
-                    {/* When Motor is Running: Show Start Time */}
-                    {isMotorRunning && (
-                        <View style={styles.scheduleRow}>
-                            <View style={styles.scheduleLabelContainer}>
-                                <MaterialCommunityIcons
-                                    name="clock-outline"
-                                    size={22}
-                                    color="#1A5B9C"
-                                />
-                                <Text style={styles.scheduleLabel}>Start Time</Text>
-                            </View>
-                            <View style={styles.timeInputBox}>
-                                <Text style={styles.timeInputText}>
-                                    {startTime || 'Active'}
-                                </Text>
-                            </View>
-                        </View>
-                    )}
-
-                    {/* When Motor is Stopped: Show Start Time, End Time & Running Time if available */}
-                    {!isMotorRunning && (
-                        <>
-                            {startTime ? (
-                                <>
-                                    <View style={styles.scheduleRow}>
-                                        <View style={styles.scheduleLabelContainer}>
-                                            <MaterialCommunityIcons
-                                                name="clock-outline"
-                                                size={22}
-                                                color="#1A5B9C"
-                                            />
-                                            <Text style={styles.scheduleLabel}>Start Time</Text>
-                                        </View>
-                                        <View style={styles.timeInputBox}>
-                                            <Text style={styles.timeInputText}>{startTime}</Text>
-                                        </View>
-                                    </View>
-                                    <View style={styles.divider} />
-                                </>
-                            ) : null}
-
-                            {endTime ? (
-                                <View style={styles.scheduleRow}>
-                                    <View style={styles.scheduleLabelContainer}>
-                                        <MaterialCommunityIcons
-                                            name="clock-outline"
-                                            size={22}
-                                            color="#1A5B9C"
-                                        />
-                                        <Text style={styles.scheduleLabel}>End Time</Text>
-                                    </View>
-                                    <View style={styles.timeInputBox}>
-                                        <Text style={styles.timeInputText}>{endTime}</Text>
-                                    </View>
-                                </View>
-                            ) : null}
-
-                            {runningTime ? (
-                                <>
-                                    <View style={styles.divider} />
-                                    <View style={styles.scheduleRow}>
-                                        <View style={styles.scheduleLabelContainer}>
-                                            <MaterialCommunityIcons
-                                                name="timer-outline"
-                                                size={22}
-                                                color="#1A5B9C"
-                                            />
-                                            <Text style={styles.scheduleLabel}>Duration</Text>
-                                        </View>
-                                        <View style={styles.timeInputBox}>
-                                            <Text style={styles.timeInputText}>{runningTime}</Text>
-                                        </View>
-                                    </View>
-                                </>
-                            ) : null}
-
-                            {!startTime && !endTime && (
-                                <View style={styles.scheduleRow}>
-                                    <View style={styles.scheduleLabelContainer}>
-                                        <MaterialCommunityIcons
-                                            name="clock-outline"
-                                            size={22}
-                                            color="#9CA3AF"
-                                        />
-                                        <Text style={[styles.scheduleLabel, { color: '#9CA3AF' }]}>
-                                            No recent run
-                                        </Text>
-                                    </View>
-                                    <View style={styles.timeInputBox}>
-                                        <Text style={[styles.timeInputText, { color: '#9CA3AF' }]}>
-                                            -- : --
-                                        </Text>
-                                    </View>
-                                </View>
-                            )}
-                        </>
-                    )}
-
-                    <TouchableOpacity style={styles.saveButton}>
-                        <Text style={styles.saveButtonText}>SAVE SCHEDULE</Text>
-                    </TouchableOpacity>
                 </View>
+
+                <View style={styles.timeInputBox}>
+                    <Text style={styles.timeInputText}>
+                        {endTime}
+                    </Text>
+                </View>
+            </View>
+
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* Duration */}
+            <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLabelContainer}>
+                    <MaterialCommunityIcons
+                        name="timer-outline"
+                        size={22}
+                        color="#1A5B9C"
+                    />
+                    <Text style={styles.scheduleLabel}>
+                        Duration
+                    </Text>
+                </View>
+
+                <View style={styles.timeInputBox}>
+                    <Text style={styles.timeInputText}>
+                        {runningTime || '--'}
+                    </Text>
+                </View>
+            </View>
+        </>
+    )}
+
+    {/* Initially → Show nothing */}
+    {!isMotorRunning && !endTime && (
+        <View style={styles.scheduleRow}>
+            <View style={styles.scheduleLabelContainer}>
+                <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={22}
+                    color="#9CA3AF"
+                />
+                <Text
+                    style={[
+                        styles.scheduleLabel,
+                        { color: '#9CA3AF' },
+                    ]}
+                >
+                    No recent run
+                </Text>
+            </View>
+
+            <View style={styles.timeInputBox}>
+                <Text
+                    style={[
+                        styles.timeInputText,
+                        { color: '#9CA3AF' },
+                    ]}
+                >
+                    -- : --
+                </Text>
+            </View>
+        </View>
+    )}
+</View>
 
                 {/* Operation Log Card */}
                 <View style={styles.card}>
@@ -471,7 +489,7 @@ export default function InletPumpScreen() {
                             const timeText =
                                 log.started_at || log.ended_at || log.created_at;
                             const formattedLogTime = timeText
-                                ? formatTimeOnly(timeText)
+                                ? formatLogDateTime(timeText)
                                 : 'Recent';
 
                             return (

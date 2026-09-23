@@ -210,6 +210,25 @@ export default function SettingsScreen() {
         <View style={styles.card}>
           <TouchableOpacity
             style={styles.deviceRow}
+            onPress={() => router.push('/mixingtank/mixingtank-setting/solenoid')}
+          >
+            <Image source={require('@/assets/images/solenoid.png')} style={[styles.deviceIcon, { width: 24, height: 24 }]} resizeMode="contain" />
+            <View style={styles.settingTextContainer}>
+              <Text style={styles.settingTitle}>
+                {solenoidValveData?.equipment_type.name || 'Solenoid Valves'}
+              </Text>
+
+              <Text style={styles.settingSubtitle}>
+                {solenoidValveData?.count || 0} Valves
+              </Text>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#111827" />
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          <TouchableOpacity
+            style={styles.deviceRow}
             onPress={() => router.push('/mixingtank/mixingtank-setting/inletpump')}
           >
             <Image source={require('@/assets/images/inletpump.png')} style={[styles.deviceIcon, { width: 24, height: 24 }]} resizeMode="contain" />
@@ -246,22 +265,7 @@ export default function SettingsScreen() {
 
           <View style={styles.divider} />
 
-          <TouchableOpacity
-            style={styles.deviceRow}
-            onPress={() => router.push('/mixingtank/mixingtank-setting/solenoid')}
-          >
-            <Image source={require('@/assets/images/solenoid.png')} style={[styles.deviceIcon, { width: 24, height: 24 }]} resizeMode="contain" />
-            <View style={styles.settingTextContainer}>
-              <Text style={styles.settingTitle}>
-                {solenoidValveData?.equipment_type.name || 'Solenoid Valves'}
-              </Text>
-
-              <Text style={styles.settingSubtitle}>
-                {solenoidValveData?.count || 0} Valves
-              </Text>
-            </View>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#111827" />
-          </TouchableOpacity>
+          
 
           <View style={styles.divider} />
 

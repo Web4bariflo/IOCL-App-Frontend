@@ -12,8 +12,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
-  getStageEquipments,
-  mergeStageDuration,
+    getStageEquipments,
+    mergeStageDuration,
 } from '../../../../api/inletApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -36,63 +36,63 @@ export default function SettingsScreen() {
     const [merging, setMerging] = useState(false);
 
     const handleMerge = async () => {
-  try {
-    setMerging(true);
+        try {
+            setMerging(true);
 
-    // Get stage ID according to selected module
-    const stageIdKey =
-      selectedModule === 'Waste Water'
-        ? 'selectedStageId'
-        : 'cleanWaterStageId';
+            // Get stage ID according to selected module
+            const stageIdKey =
+                selectedModule === 'Waste Water'
+                    ? 'selectedStageId'
+                    : 'cleanWaterStageId';
 
-    const stageId = await AsyncStorage.getItem(stageIdKey);
+            const stageId = await AsyncStorage.getItem(stageIdKey);
 
-    console.log(
-      `${selectedModule} Stage ID:`,
-      stageId
-    );
+            console.log(
+                `${selectedModule} Stage ID:`,
+                stageId
+            );
 
-    if (!stageId) {
-      console.log(
-        `${selectedModule} Stage ID not found`
-      );
-      return;
-    }
+            if (!stageId) {
+                console.log(
+                    `${selectedModule} Stage ID not found`
+                );
+                return;
+            }
 
-    // Call Merge Duration API
-    const response = await mergeStageDuration(
-      Number(stageId)
-    );
+            // Call Merge Duration API
+            const response = await mergeStageDuration(
+                Number(stageId)
+            );
 
-    console.log(
-      'Merge Duration Response:',
-      JSON.stringify(response, null, 2)
-    );
+            console.log(
+                'Merge Duration Response:',
+                JSON.stringify(response, null, 2)
+            );
 
-    if (response?.success) {
-      console.log(
-        'Stage equipment durations merged successfully'
-      );
+            if (response?.success) {
+                console.log(
+                    'Stage equipment durations merged successfully'
+                );
 
-      console.log(
-        'Merged Equipment Count:',
-        response.count
-      );
+                console.log(
+                    'Merged Equipment Count:',
+                    response.count
+                );
 
-      console.log(
-        'Merged Equipment Data:',
-        response.data
-      );
-    }
-  } catch (error: any) {
-    console.error(
-      'Merge Duration Failed:',
-      error?.response?.data || error?.message
-    );
-  } finally {
-    setMerging(false);
-  }
-};
+                console.log(
+                    'Merged Equipment Data:',
+                    response.data
+                );
+            }
+        } catch (error: any) {
+            console.error(
+                'Merge Duration Failed:',
+                error?.response?.data || error?.message
+            );
+        } finally {
+            setMerging(false);
+        }
+    };
 
     useEffect(() => {
         fetchStageEquipments();
@@ -115,22 +115,101 @@ export default function SettingsScreen() {
 
             console.log('Stage Equipment Response:', response);
 
+            // if (response.success) {
+            //     // Store the stage ID from API response
+            //     await AsyncStorage.setItem(
+            //         'selectedStageId',
+            //         String(response.data.stage.id)
+            //     );
+
+            //     console.log(
+            //         'Stored Stage ID:',
+            //         response.data.stage.id
+            //     );
+
+            //     // Store equipment types
+            //     setEquipmentTypes(
+            //         response.data.equipment_types || []
+            //     );
+            // }
             if (response.success) {
-                // Store the stage ID from API response
+                const stage = response.data.stage;
+                const equipmentTypes = response.data.equipment_types || [];
+
+                // Store Stage ID
                 await AsyncStorage.setItem(
                     'selectedStageId',
-                    String(response.data.stage.id)
+                    String(stage.id)
                 );
 
-                console.log(
-                    'Stored Stage ID:',
-                    response.data.stage.id
+                console.log('Stored Stage ID:', stage.id);
+
+                // Find Inlet Pump
+                const inletPumpType = equipmentTypes.find(
+                    (item: any) =>
+                        item.equipment_type?.name === 'Inlet Pump 1'
                 );
 
-                // Store equipment types
-                setEquipmentTypes(
-                    response.data.equipment_types || []
+                if (inletPumpType?.equipments?.length > 0) {
+                    const inletPumpId = inletPumpType.equipments[0].id;
+
+                    await AsyncStorage.setItem(
+                        'inletPumpId',
+                        String(inletPumpId)
+                    );
+
+                    console.log(
+                        'Stored Inlet Pump ID:',
+                        inletPumpId
+                    );
+                }
+
+                // Find Contactor Sensors
+                const contactorType = equipmentTypes.find(
+                    (item: any) =>
+                        item.equipment_type?.name === 'Contactor Sensors'
                 );
+
+                if (contactorType?.equipments?.length > 0) {
+                    const contactorIds =
+                        contactorType.equipments.map(
+                            (equipment: any) => equipment.id
+                        );
+
+                    await AsyncStorage.setItem(
+                        'contactorSensorIds',
+                        JSON.stringify(contactorIds)
+                    );
+
+                    console.log(
+                        'Stored Contactor Sensor IDs:',
+                        contactorIds
+                    );
+                }
+
+                // Find Solenoid Valves
+                const solenoidType = equipmentTypes.find(
+                    (item: any) =>
+                        item.equipment_type?.name === 'Solenoid Valves'
+                );
+
+                if (solenoidType?.equipments?.length > 0) {
+                    const solenoidValveId =
+                        solenoidType.equipments[0].id;
+
+                    await AsyncStorage.setItem(
+                        'solenoidValveId',
+                        String(solenoidValveId)
+                    );
+
+                    console.log(
+                        'Stored Solenoid Valve ID:',
+                        solenoidValveId
+                    );
+                }
+
+                // Store equipment types for UI
+                setEquipmentTypes(equipmentTypes);
             }
         } catch (error) {
             console.error('Failed to fetch stage equipments:', error);
@@ -173,25 +252,25 @@ export default function SettingsScreen() {
             >
 
                 {/* Merge Button */}
-              <TouchableOpacity
-  style={[
-    styles.mergeButton,
-    merging && styles.mergeButtonDisabled,
-  ]}
-  onPress={handleMerge}
-  disabled={merging}
-  activeOpacity={0.8}
->
-  <MaterialCommunityIcons
-    name="merge"
-    size={22}
-    color="#FFFFFF"
-  />
+                <TouchableOpacity
+                    style={[
+                        styles.mergeButton,
+                        merging && styles.mergeButtonDisabled,
+                    ]}
+                    onPress={handleMerge}
+                    disabled={merging}
+                    activeOpacity={0.8}
+                >
+                    <MaterialCommunityIcons
+                        name="merge"
+                        size={22}
+                        color="#FFFFFF"
+                    />
 
-  <Text style={styles.mergeButtonText}>
-    {merging ? 'MERGING...' : 'MERGE'}
-  </Text>
-</TouchableOpacity>
+                    <Text style={styles.mergeButtonText}>
+                        {merging ? 'MERGING...' : 'MERGE'}
+                    </Text>
+                </TouchableOpacity>
                 {/* General */}
                 <Text style={styles.sectionTitle}>GENERAL</Text>
 
@@ -371,11 +450,11 @@ export default function SettingsScreen() {
                         />
                     </TouchableOpacity>
 
-                    
 
-                    
 
-                    
+
+
+
 
                 </View>
 
@@ -642,6 +721,6 @@ const styles = StyleSheet.create({
         marginLeft: 8,
     },
     mergeButtonDisabled: {
-    opacity: 0.6,
-},
+        opacity: 0.6,
+    },
 });

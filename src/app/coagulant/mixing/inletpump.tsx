@@ -19,6 +19,7 @@ export default function InletPumpScreen() {
   const [operationLogs, setOperationLogs] = useState<any[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
 
+
   const handleStartPump = async () => {
     try {
       setLoading(true);
@@ -196,13 +197,42 @@ export default function InletPumpScreen() {
             <View style={styles.statusTextContainer}>
               <Text style={styles.statusTitle}>Pump Status</Text>
               <View style={styles.statusRow}>
-                <View style={styles.statusDotGreen} />
-                <Text style={styles.statusTextGreen}>Ready</Text>
+                <View
+                  style={[
+                    styles.statusDotGreen,
+                    motorState === 'OFF' && styles.readyDot,
+                  ]}
+                />
+
+                <Text
+                  style={[
+                    styles.statusTextGreen,
+                    motorState === 'OFF' && styles.readyText,
+                  ]}
+                >
+                  {motorState === 'ON' ? 'Running' : 'Ready'}
+                </Text>
               </View>
-              <Text style={styles.statusSubtitle}>PLC connection active</Text>
+
+              <Text style={styles.statusSubtitle}>
+                PLC connection active
+              </Text>
             </View>
-            <View style={styles.offBadge}>
-              <Text style={styles.offBadgeText}>OFF</Text>
+
+            <View
+              style={[
+                styles.offBadge,
+                motorState === 'ON' && styles.onBadge,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.offBadgeText,
+                  motorState === 'ON' && styles.onBadgeText,
+                ]}
+              >
+                {motorState}
+              </Text>
             </View>
           </View>
         </View>
@@ -578,6 +608,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#4B5563',
+  },
+  readyDot: {
+    backgroundColor: '#6B7280',
+  },
+
+  readyText: {
+    color: '#6B7280',
+  },
+
+  onBadge: {
+    backgroundColor: '#D1FAE5',
+    borderColor: '#A7F3D0',
+  },
+
+  onBadgeText: {
+    color: '#059669',
   },
   cardTitle: {
     fontSize: 16,

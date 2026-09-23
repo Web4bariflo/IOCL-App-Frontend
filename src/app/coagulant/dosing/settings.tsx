@@ -72,61 +72,61 @@ export default function DosingSettingsScreen() {
   //     loadCoagulationDosingData();
   //   }, [])
   // );
-const handleMerge = async () => {
-  try {
-    setMerging(true);
+  const handleMerge = async () => {
+    try {
+      setMerging(true);
 
-    // Get Coagulation Dosing Stage ID
-    const stageId = await AsyncStorage.getItem(
-      'coagulationDosingStageId'
-    );
-
-    console.log(
-      'Coagulation Dosing Stage ID:',
-      stageId
-    );
-
-    if (!stageId) {
-      console.log(
-        'Coagulation Dosing Stage ID not found'
+      // Get Coagulation Dosing Stage ID
+      const stageId = await AsyncStorage.getItem(
+        'coagulationDosingStageId'
       );
-      return;
+
+      console.log(
+        'Coagulation Dosing Stage ID:',
+        stageId
+      );
+
+      if (!stageId) {
+        console.log(
+          'Coagulation Dosing Stage ID not found'
+        );
+        return;
+      }
+
+      // Call Merge Duration API
+      const response = await mergeStageDuration(
+        Number(stageId)
+      );
+
+      console.log(
+        'Merge Duration Response:',
+        JSON.stringify(response, null, 2)
+      );
+
+      if (response?.success) {
+        console.log(
+          'Coagulation Dosing equipment durations merged successfully'
+        );
+
+        console.log(
+          'Merged Equipment Count:',
+          response.count
+        );
+
+        console.log(
+          'Merged Equipment Data:',
+          response.data
+        );
+      }
+    } catch (error: any) {
+      console.error(
+        'Merge Duration Failed:',
+        error?.response?.data || error?.message
+      );
+    } finally {
+      setMerging(false);
     }
-
-    // Call Merge Duration API
-    const response = await mergeStageDuration(
-      Number(stageId)
-    );
-
-    console.log(
-      'Merge Duration Response:',
-      JSON.stringify(response, null, 2)
-    );
-
-    if (response?.success) {
-      console.log(
-        'Coagulation Dosing equipment durations merged successfully'
-      );
-
-      console.log(
-        'Merged Equipment Count:',
-        response.count
-      );
-
-      console.log(
-        'Merged Equipment Data:',
-        response.data
-      );
-    }
-  } catch (error: any) {
-    console.error(
-      'Merge Duration Failed:',
-      error?.response?.data || error?.message
-    );
-  } finally {
-    setMerging(false);
-  }
-};
+  };
 
 
   useFocusEffect(
@@ -210,25 +210,25 @@ const handleMerge = async () => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
 
         {/* Merge Button */}
-<TouchableOpacity
-  style={[
-    styles.mergeButton,
-    merging && styles.mergeButtonDisabled,
-  ]}
-  onPress={handleMerge}
-  disabled={merging}
-  activeOpacity={0.8}
->
-  <MaterialCommunityIcons
-    name="merge"
-    size={22}
-    color="#FFFFFF"
-  />
+        <TouchableOpacity
+          style={[
+            styles.mergeButton,
+            merging && styles.mergeButtonDisabled,
+          ]}
+          onPress={handleMerge}
+          disabled={merging}
+          activeOpacity={0.8}
+        >
+          <MaterialCommunityIcons
+            name="merge"
+            size={22}
+            color="#FFFFFF"
+          />
 
-  <Text style={styles.mergeButtonText}>
-    {merging ? 'MERGING...' : 'MERGE'}
-  </Text>
-</TouchableOpacity>
+          <Text style={styles.mergeButtonText}>
+            {merging ? 'MERGING...' : 'MERGE'}
+          </Text>
+        </TouchableOpacity>
 
         {/* General */}
         <Text style={styles.sectionTitle}>GENERAL</Text>
@@ -286,10 +286,10 @@ const handleMerge = async () => {
         <View style={styles.card}>
           <TouchableOpacity
             style={styles.deviceRow}
-            onPress={() => router.push('/coagulant/dosing/inletpump')}
+            onPress={() => router.push('/coagulant/dosing/motor')}
           >
             <Image
-              source={require('@/assets/images/inletpump.png')}
+              source={require('@/assets/images/motor.png')}
               style={[styles.deviceIcon, { width: 24, height: 24 }]}
               resizeMode="contain"
             />
@@ -307,7 +307,7 @@ const handleMerge = async () => {
             />
           </TouchableOpacity>
 
-          <View style={styles.divider} />
+          {/* <View style={styles.divider} />
 
           <TouchableOpacity
             style={styles.deviceRow}
@@ -329,9 +329,9 @@ const handleMerge = async () => {
               size={24}
               color="#111827"
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
-          <View style={styles.divider} />
+          {/* <View style={styles.divider} />
 
           <TouchableOpacity
             style={styles.deviceRow}
@@ -353,7 +353,7 @@ const handleMerge = async () => {
               size={24}
               color="#111827"
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         {/* Alerts & Notifications */}
@@ -541,22 +541,22 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   mergeButton: {
-  backgroundColor: '#14B8A6',
-  borderRadius: 8,
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  paddingVertical: 13,
-  marginBottom: 8,
-},
+    backgroundColor: '#14B8A6',
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 13,
+    marginBottom: 8,
+  },
 
-mergeButtonText: {
-  color: '#FFFFFF',
-  fontSize: 14,
-  fontWeight: '600',
-  marginLeft: 8,
-},
-mergeButtonDisabled: {
-  opacity: 0.6,
-},
+  mergeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  mergeButtonDisabled: {
+    opacity: 0.6,
+  },
 });

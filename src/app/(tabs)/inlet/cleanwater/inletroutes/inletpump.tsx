@@ -693,7 +693,7 @@ export default function InletPumpScreen() {
             );
 
 
-            const motorId = await AsyncStorage.getItem(
+            const pumpId = await AsyncStorage.getItem(
 
                 'cleanWaterPumpMotorId'
 
@@ -702,7 +702,7 @@ export default function InletPumpScreen() {
 
             console.log('Clean Water Stage ID:', stageId);
 
-            console.log('Clean Water Pump Equipment ID:', motorId);
+            console.log('Clean Water Pump Equipment ID:', pumpId);
 
 
             if (!stageId) {
@@ -716,7 +716,7 @@ export default function InletPumpScreen() {
             }
 
 
-            if (!motorId) {
+            if (!pumpId) {
 
                 console.log('Clean Water Pump Motor ID not found');
 
@@ -729,7 +729,7 @@ export default function InletPumpScreen() {
 
             const response = await getEquipmentManualLogs(
 
-                Number(motorId),
+                Number(pumpId),
 
                 Number(stageId)
 
@@ -841,20 +841,20 @@ export default function InletPumpScreen() {
       'cleanWaterStageId'
     );
 
-    const motorId = await AsyncStorage.getItem(
+    const pumpId = await AsyncStorage.getItem(
       'cleanWaterPumpMotorId'
     );
 
     console.log('Stage ID:', stageId);
-    console.log('Motor Equipment ID:', motorId);
+    console.log('Motor Equipment ID:', pumpId);
 
-    if (!stageId || !motorId) {
+    if (!stageId || !pumpId) {
       console.log('Stage ID or Motor ID not found');
       return;
     }
 
     const response = await turnOnMotor(
-      Number(motorId),
+      Number(pumpId),
       Number(stageId)
     );
 
@@ -1088,20 +1088,20 @@ export default function InletPumpScreen() {
             'cleanWaterStageId'
         );
 
-        const motorId = await AsyncStorage.getItem(
+        const pumpId = await AsyncStorage.getItem(
             'cleanWaterPumpMotorId'
         );
 
         console.log('Stage ID:', stageId);
-        console.log('Motor Equipment ID:', motorId);
+        console.log('Motor Equipment ID:', pumpId);
 
-        if (!stageId || !motorId) {
+        if (!stageId || !pumpId) {
             console.log('Stage ID or Motor ID not found');
             return;
         }
 
         const response = await turnOffMotor(
-            Number(motorId),
+            Number(pumpId),
             Number(stageId)
         );
 

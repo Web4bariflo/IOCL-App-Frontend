@@ -30,71 +30,62 @@ export default function SettingsScreen() {
 
   const [merging, setMerging] = useState(false);
 
-  // const handleModeSelect = (mode: 'AUTO' | 'MANUAL') => {
-  //   setOperatingMode(mode);
-  //   if (mode === 'AUTO') {
-  //     router.push('/coagulant/automatic');
-  //   } else {
-  //     router.push('/coagulant/manual');
-  //   }
-  // };
-
 
   const handleMerge = async () => {
-  try {
-    setMerging(true);
+    try {
+      setMerging(true);
 
-    // Get Coagulation Mixing Stage ID
-    const stageId = await AsyncStorage.getItem(
-      'coagulationMixingStageId'
-    );
-
-    console.log(
-      'Coagulation Mixing Stage ID:',
-      stageId
-    );
-
-    if (!stageId) {
-      console.log(
-        'Coagulation Mixing Stage ID not found'
+      // Get Coagulation Mixing Stage ID
+      const stageId = await AsyncStorage.getItem(
+        'coagulationMixingStageId'
       );
-      return;
+
+      console.log(
+        'Coagulation Mixing Stage ID:',
+        stageId
+      );
+
+      if (!stageId) {
+        console.log(
+          'Coagulation Mixing Stage ID not found'
+        );
+        return;
+      }
+
+      // Call Merge Duration API
+      const response = await mergeStageDuration(
+        Number(stageId)
+      );
+
+      console.log(
+        'Merge Duration Response:',
+        JSON.stringify(response, null, 2)
+      );
+
+      if (response?.success) {
+        console.log(
+          'Coagulation Mixing equipment durations merged successfully'
+        );
+
+        console.log(
+          'Merged Equipment Count:',
+          response.count
+        );
+
+        console.log(
+          'Merged Equipment Data:',
+          response.data
+        );
+      }
+    } catch (error: any) {
+      console.error(
+        'Merge Duration Failed:',
+        error?.response?.data || error?.message
+      );
+    } finally {
+      setMerging(false);
     }
-
-    // Call Merge Duration API
-    const response = await mergeStageDuration(
-      Number(stageId)
-    );
-
-    console.log(
-      'Merge Duration Response:',
-      JSON.stringify(response, null, 2)
-    );
-
-    if (response?.success) {
-      console.log(
-        'Coagulation Mixing equipment durations merged successfully'
-      );
-
-      console.log(
-        'Merged Equipment Count:',
-        response.count
-      );
-
-      console.log(
-        'Merged Equipment Data:',
-        response.data
-      );
-    }
-  } catch (error: any) {
-    console.error(
-      'Merge Duration Failed:',
-      error?.response?.data || error?.message
-    );
-  } finally {
-    setMerging(false);
-  }
-};
+  };
 
 
 
@@ -158,10 +149,10 @@ export default function SettingsScreen() {
       );
 
       // Find Inlet Pump
-const inletPumpType = equipmentTypes.find(
-  (item: any) =>
-    item.equipment_type?.name === 'Inlet Pump 1'
-);
+      const inletPumpType = equipmentTypes.find(
+        (item: any) =>
+          item.equipment_type?.name === 'Inlet Pump 1'
+      );
 
       // Motor
       setMotorEquipments(
@@ -211,31 +202,50 @@ const inletPumpType = equipmentTypes.find(
         contactorType?.count || 0
       );
 
+      // Store Contactor Sensor IDs
+      if (contactorType?.equipments?.length > 0) {
+        await AsyncStorage.setItem(
+          'coagulationMixingContactorSensorIds',
+          JSON.stringify(
+            contactorType.equipments.map(
+              (equipment: any) => equipment.id
+            )
+          )
+        );
+
+        console.log(
+          'Coagulation Mixing Contactor Sensor IDs:',
+          contactorType.equipments.map(
+            (equipment: any) => equipment.id
+          )
+        );
+      }
+
       // Inlet Pump
-setInletPumpTypeName(
-  inletPumpType?.equipment_type?.name || ''
-);
+      setInletPumpTypeName(
+        inletPumpType?.equipment_type?.name || ''
+      );
 
-setInletPumpEquipments(
-  inletPumpType?.equipments || []
-);
+      setInletPumpEquipments(
+        inletPumpType?.equipments || []
+      );
 
-setInletPumpCount(
-  inletPumpType?.count || 0
-);
+      setInletPumpCount(
+        inletPumpType?.count || 0
+      );
 
-// Store Inlet Pump ID
-if (inletPumpType?.equipments?.length > 0) {
-  await AsyncStorage.setItem(
-    'coagulationMixingInletPumpId',
-    String(inletPumpType.equipments[0].id)
-  );
+      // Store Inlet Pump ID
+      if (inletPumpType?.equipments?.length > 0) {
+        await AsyncStorage.setItem(
+          'coagulationMixingInletPumpId',
+          String(inletPumpType.equipments[0].id)
+        );
 
-  console.log(
-    'Coagulation Mixing Inlet Pump ID:',
-    inletPumpType.equipments[0].id
-  );
-}
+        console.log(
+          'Coagulation Mixing Inlet Pump ID:',
+          inletPumpType.equipments[0].id
+        );
+      }
 
     } catch (error) {
       console.error('Failed to fetch equipment:', error);
@@ -262,26 +272,26 @@ if (inletPumpType?.equipments?.length > 0) {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-      {/* Merge Button */}
-<TouchableOpacity
-  style={[
-    styles.mergeButton,
-    merging && styles.mergeButtonDisabled,
-  ]}
-  onPress={handleMerge}
-  disabled={merging}
-  activeOpacity={0.8}
->
-  <MaterialCommunityIcons
-    name="merge"
-    size={22}
-    color="#FFFFFF"
-  />
+        {/* Merge Button */}
+        <TouchableOpacity
+          style={[
+            styles.mergeButton,
+            merging && styles.mergeButtonDisabled,
+          ]}
+          onPress={handleMerge}
+          disabled={merging}
+          activeOpacity={0.8}
+        >
+          <MaterialCommunityIcons
+            name="merge"
+            size={22}
+            color="#FFFFFF"
+          />
 
-  <Text style={styles.mergeButtonText}>
-    {merging ? 'MERGING...' : 'MERGE'}
-  </Text>
-</TouchableOpacity>
+          <Text style={styles.mergeButtonText}>
+            {merging ? 'MERGING...' : 'MERGE'}
+          </Text>
+        </TouchableOpacity>
 
         {/* General */}
         <Text style={styles.sectionTitle}>GENERAL</Text>
@@ -314,31 +324,7 @@ if (inletPumpType?.equipments?.length > 0) {
 
         <View style={styles.card}>
 
-          {/* Motor 1 */}
-          <TouchableOpacity
-            style={styles.deviceItem}
-            onPress={() => router.push('/coagulant/mixing/motor1')}
-          >
-            <Image
-              source={require('@/assets/images/motor.png')}
-              style={styles.deviceIcon}
-              resizeMode="contain"
-            />
 
-            {/* <Text style={styles.deviceName}>
-              Motor 1
-            </Text> */}
-
-            <Text style={styles.deviceName}>
-              {motorEquipments[0]?.name || 'Motor'}
-            </Text>
-
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={24}
-              color="#001133"
-            />
-          </TouchableOpacity>
 
           <View style={styles.divider} />
 
@@ -395,50 +381,29 @@ if (inletPumpType?.equipments?.length > 0) {
 
           <View style={styles.divider} />
 
-          {/* Blower 1 */}
-          {/* <TouchableOpacity
-    style={styles.deviceItem}
-    onPress={() => router.push('/coagulant/mixing/blower')}
-  >
-    <Image
-      source={require('@/assets/images/blower.png')}
-      style={styles.deviceIcon}
-      resizeMode="contain"
-    />
 
-    <Text style={styles.deviceName}>
-      Blower 1
-    </Text>
+          <TouchableOpacity
+            style={styles.deviceItem}
+            onPress={() => router.push('/coagulant/mixing/inletpump')}
+          >
+            <Image
+              source={require('@/assets/images/inletpump.png')}
+              style={styles.deviceIconSmall}
+              resizeMode="contain"
+            />
 
-    <MaterialCommunityIcons
-      name="chevron-right"
-      size={24}
-      color="#001133"
-    />
-  </TouchableOpacity> */}
+            <View style={styles.deviceInfo}>
+              <Text style={styles.deviceTitle}>
+                {inletPumpTypeName || 'Loading...'}
+              </Text>
+            </View>
 
-         <TouchableOpacity
-  style={styles.deviceItem}
-  onPress={() => router.push('/coagulant/mixing/inletpump')}
->
-  <Image
-    source={require('@/assets/images/inletpump.png')}
-    style={[styles.deviceIcon, { width: 24, height: 24 }]}
-    resizeMode="contain"
-  />
-
-  <View style={styles.settingTextContainer}>
-    <Text style={styles.settingTitle}>
-      {inletPumpTypeName || 'Loading...'}
-    </Text>
-  </View>
-
-  <MaterialCommunityIcons
-    name="chevron-right"
-    size={24}
-    color="#111827"
-  />
-</TouchableOpacity>
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={24}
+              color="#111827"
+            />
+          </TouchableOpacity>
 
           <View style={styles.divider} />
 
@@ -453,8 +418,6 @@ if (inletPumpType?.equipments?.length > 0) {
             />
 
             <View style={styles.deviceInfo}>
-              {/* <Text style={styles.deviceTitle}>Contactor Sensors</Text>
-    <Text style={styles.deviceSubtitle}>2 Sensors</Text> */}
               <Text style={styles.deviceTitle}>
                 {contactorTypeName}
               </Text>
@@ -468,6 +431,30 @@ if (inletPumpType?.equipments?.length > 0) {
               name="chevron-right"
               size={24}
               color="#111827"
+            />
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          {/* Motor 1 */}
+          <TouchableOpacity
+            style={styles.deviceItem}
+            onPress={() => router.push('/coagulant/mixing/motor1')}
+          >
+            <Image
+              source={require('@/assets/images/motor.png')}
+              style={styles.deviceIcon}
+              resizeMode="contain"
+            />
+
+            <Text style={styles.deviceName}>
+              {motorEquipments[0]?.name || 'Motor'}
+            </Text>
+
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={24}
+              color="#001133"
             />
           </TouchableOpacity>
 
@@ -683,23 +670,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#10B981',
   },
   mergeButton: {
-  backgroundColor: '#14B8A6',
-  borderRadius: 8,
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  paddingVertical: 13,
-  marginBottom: 8,
-},
+    backgroundColor: '#14B8A6',
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 13,
+    marginBottom: 8,
+  },
 
-mergeButtonText: {
-  color: '#FFFFFF',
-  fontSize: 14,
-  fontWeight: '600',
-  marginLeft: 8,
-},
-mergeButtonDisabled: {
-  opacity: 0.6,
-},
+  mergeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  mergeButtonDisabled: {
+    opacity: 0.6,
+  },
 
 });

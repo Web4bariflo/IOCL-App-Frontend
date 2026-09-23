@@ -19,7 +19,7 @@ export default function InletPumpScreen() {
   const [operationLogs, setOperationLogs] = useState<any[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
 
-  const handleStartPump = async () => {
+  const handleStartMotor = async () => {
     try {
       setLoading(true);
 
@@ -73,7 +73,7 @@ export default function InletPumpScreen() {
     }
   };
 
-  const handleStopPump = async () => {
+  const handleStopMotor = async () => {
     try {
       setLoading(true);
 
@@ -189,20 +189,45 @@ export default function InletPumpScreen() {
         <View style={styles.card}>
           <View style={styles.statusCardContent}>
             <Image
-              source={require('@/assets/images/inletpump.png')}
+              source={require('@/assets/images/motor.png')}
               style={styles.pumpLargeIcon}
               resizeMode="contain"
             />
             <View style={styles.statusTextContainer}>
-              <Text style={styles.statusTitle}>Pump Status</Text>
+              <Text style={styles.statusTitle}>Motor Status</Text>
               <View style={styles.statusRow}>
-                <View style={styles.statusDotGreen} />
-                <Text style={styles.statusTextGreen}>Ready</Text>
+                <View
+                  style={[
+                    styles.statusDotGreen,
+                    motorState === 'OFF' && styles.readyDot,
+                  ]}
+                />
+
+                <Text
+                  style={[
+                    styles.statusTextGreen,
+                    motorState === 'OFF' && styles.readyText,
+                  ]}
+                >
+                  {motorState === 'ON' ? 'Running' : 'Ready'}
+                </Text>
               </View>
               <Text style={styles.statusSubtitle}>PLC connection active</Text>
             </View>
-            <View style={styles.offBadge}>
-              <Text style={styles.offBadgeText}>OFF</Text>
+            <View
+              style={[
+                styles.offBadge,
+                motorState === 'ON' && styles.onBadge,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.offBadgeText,
+                  motorState === 'ON' && styles.onBadgeText,
+                ]}
+              >
+                {motorState}
+              </Text>
             </View>
           </View>
         </View>
@@ -213,11 +238,11 @@ export default function InletPumpScreen() {
           <View style={styles.actionButtonsContainer}>
             <TouchableOpacity
               style={styles.startButton}
-              onPress={handleStartPump}
+              onPress={handleStartMotor}
               disabled={loading}
             >
               <MaterialCommunityIcons name="power" size={24} color="#FFFFFF" />
-              <Text style={styles.startButtonText}>START PUMP</Text>
+              <Text style={styles.startButtonText}>START MOTOR</Text>
             </TouchableOpacity>
 
             {/* <TouchableOpacity style={styles.stopButton}>
@@ -228,7 +253,7 @@ export default function InletPumpScreen() {
 
             <TouchableOpacity
               style={styles.stopButton}
-              onPress={handleStopPump}
+              onPress={handleStopMotor}
               disabled={loading}
             >
               <MaterialCommunityIcons
@@ -236,7 +261,7 @@ export default function InletPumpScreen() {
                 size={24}
                 color="#DC2626"
               />
-              <Text style={styles.stopButtonText}>STOP PUMP</Text>
+              <Text style={styles.stopButtonText}>STOP MOTOR</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -352,50 +377,12 @@ export default function InletPumpScreen() {
             </>
           )}
 
-          <TouchableOpacity style={styles.saveButton}>
+          {/* <TouchableOpacity style={styles.saveButton}>
             <Text style={styles.saveButtonText}>SAVE SCHEDULE</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
-        {/* Operation Log Card */}
-        {/* <View style={styles.card}>
-          <View style={styles.logHeader}>
-            <Text style={styles.cardTitle}>Operation Log</Text>
-            <TouchableOpacity style={styles.viewAllRow}>
-              <Text style={styles.viewAllText}>View All</Text>
-              <MaterialCommunityIcons name="chevron-right" size={20} color="#0D9488" />
-            </TouchableOpacity>
-          </View>
 
-          <View style={styles.logRow}>
-            <Text style={styles.logTime}>Today, 08:15 AM</Text>
-            <View style={styles.logStatusContainer}>
-              <Text style={styles.logStatusText}>Pump Started</Text>
-              <View style={[styles.logStatusDot, { backgroundColor: '#10B981' }]} />
-            </View>
-          </View>
-
-          <View style={styles.logDivider} />
-
-          <View style={styles.logRow}>
-            <Text style={styles.logTime}>Yesterday, 06:15 PM</Text>
-            <View style={styles.logStatusContainer}>
-              <Text style={styles.logStatusText}>Pump Stopped</Text>
-              <View style={[styles.logStatusDot, { backgroundColor: '#6B7280' }]} />
-            </View>
-          </View>
-
-          <View style={styles.logDivider} />
-
-          <View style={styles.logRow}>
-            <Text style={styles.logTime}>Yesterday, 08:15 AM</Text>
-            <View style={styles.logStatusContainer}>
-              <Text style={styles.logStatusText}>Pump Started</Text>
-              <View style={[styles.logStatusDot, { backgroundColor: '#10B981' }]} />
-            </View>
-          </View>
-
-        </View> */}
 
         {/* Operation Log Card */}
         <View style={styles.card}>
@@ -430,7 +417,7 @@ export default function InletPumpScreen() {
                       {logDate.toLocaleDateString([], {
                         day: '2-digit',
                         month: 'short',
-                      })}{' '}
+                      })}{', '}
                       {logDate.toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -559,10 +546,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#10B981',
     marginRight: 6,
   },
+
   statusTextGreen: {
     fontSize: 14,
     color: '#10B981',
     fontWeight: '500',
+  },
+
+  readyDot: {
+    backgroundColor: '#6B7280',
+  },
+
+  readyText: {
+    color: '#6B7280',
+  },
+
+  runningDot: {
+    backgroundColor: '#10B981',
   },
   statusSubtitle: {
     fontSize: 12,
@@ -718,5 +718,11 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#F3F4F6',
     marginVertical: 4,
+  },
+  onBadge: {
+    backgroundColor: '#D1FAE5',
+  },
+  onBadgeText: {
+    color: '#059669',
   },
 });

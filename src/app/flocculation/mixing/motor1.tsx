@@ -1,10 +1,208 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { turnOnMotor, turnOffMotor, getEquipmentManualLogs } from '../../../api/flocculationApi';
 
 export default function Motor1Screen() {
+
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [runningTime, setRunningTime] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [motorState, setMotorState] = useState<'ON' | 'OFF'>('OFF');
+
+  const [manualLogs, setManualLogs] = useState<any[]>([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+
+  const fetchManualLogs = async () => {
+    try {
+      setLogsLoading(true);
+
+      const equipmentId = await AsyncStorage.getItem(
+        'flocculationMixingMotorId'
+      );
+
+      const stageId = await AsyncStorage.getItem(
+        'flocluationMixingStageId'
+      );
+
+      if (!equipmentId) {
+        console.log('Flocculation Mixing Inlet Pump ID not found');
+        return;
+      }
+
+      if (!stageId) {
+        console.log('Flocculation Mixing Stage ID not found');
+        return;
+      }
+
+      const response = await getEquipmentManualLogs(
+        Number(equipmentId),
+        Number(stageId)
+      );
+
+      console.log('Motor Manual Logs Response:', response);
+
+      if (response?.success) {
+        // API already returns latest logs first
+        setManualLogs(response?.data?.slice(0, 3) || []);
+      }
+    } catch (error) {
+      console.log('Failed to fetch motor manual logs:', error);
+    } finally {
+      setLogsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchManualLogs();
+  }, []);
+
+  const handleStartMotor = async () => {
+    try {
+      setLoading(true);
+
+      const stageId = await AsyncStorage.getItem(
+        'flocluationMixingStageId'
+      );
+
+      const motorId = await AsyncStorage.getItem(
+        'flocculationMixingMotorId'
+      );
+
+      if (!stageId || !motorId) {
+        console.log('Stage ID or Motor ID not found');
+        return;
+      }
+
+      const response = await turnOnMotor(
+        Number(motorId),
+        Number(stageId)
+      );
+
+      console.log('Motor ON Response:', response);
+
+      if (response?.success) {
+        setMotorState('ON');
+        const startedAt = response?.data?.started_at;
+
+        if (startedAt) {
+          const date = new Date(startedAt);
+
+          const formattedTime = date.toLocaleTimeString('en-IN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          });
+
+          setStartTime(formattedTime);
+
+          // Clear previous stop data
+          setEndTime('');
+          setRunningTime('');
+
+          // Refresh latest logs
+          await fetchManualLogs();
+        }
+      }
+    } catch (error) {
+      console.log('Failed to start motor:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStopMotor = async () => {
+    try {
+      setLoading(true);
+
+      const stageId = await AsyncStorage.getItem(
+        'flocluationMixingStageId'
+      );
+
+      const motorId = await AsyncStorage.getItem(
+        'flocculationMixingMotorId'
+      );
+
+      if (!stageId || !motorId) {
+        console.log('Stage ID or Motor ID not found');
+        return;
+      }
+
+      console.log('Stage ID:', stageId);
+      console.log('Motor ID:', motorId);
+
+      const response = await turnOffMotor(
+        Number(motorId),
+        Number(stageId)
+      );
+
+      console.log('Motor OFF Response:', response);
+
+      if (response?.success) {
+        setMotorState('OFF');
+        const endedAt = response?.data?.ended_at;
+        const durationSeconds = response?.data?.duration_seconds;
+
+        // End Time
+        if (endedAt) {
+          const date = new Date(endedAt);
+
+          const formattedTime = date.toLocaleTimeString('en-IN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          });
+
+          setEndTime(formattedTime);
+        }
+
+        // Running Time
+        if (
+          durationSeconds !== null &&
+          durationSeconds !== undefined
+        ) {
+          const hours = Math.floor(durationSeconds / 3600);
+
+          const minutes = Math.floor(
+            (durationSeconds % 3600) / 60
+          );
+
+          const seconds = durationSeconds % 60;
+
+          let durationText = '';
+
+          if (hours > 0) {
+            durationText += `${hours} hr `;
+          }
+
+          if (minutes > 0) {
+            durationText += `${minutes} min `;
+          }
+
+          if (seconds > 0) {
+            durationText += `${seconds} sec`;
+          }
+
+          setRunningTime(durationText.trim());
+        }
+
+        // Hide Start Time after motor is stopped
+        setStartTime('');
+
+        // Refresh latest logs
+        await fetchManualLogs();
+      }
+    } catch (error) {
+      console.log('Failed to stop motor:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -21,25 +219,50 @@ export default function Motor1Screen() {
       <View style={styles.headerBorder} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        
+
         {/* Motor Status Card */}
         <View style={styles.card}>
           <View style={styles.statusCardContent}>
-            <Image 
-              source={require('@/assets/images/motor.png')} 
-              style={styles.pumpLargeIcon} 
-              resizeMode="contain" 
+            <Image
+              source={require('@/assets/images/motor.png')}
+              style={styles.pumpLargeIcon}
+              resizeMode="contain"
             />
             <View style={styles.statusTextContainer}>
               <Text style={styles.statusTitle}>Motor Status</Text>
               <View style={styles.statusRow}>
-                <View style={styles.statusDotGreen} />
-                <Text style={styles.statusTextGreen}>Ready</Text>
+                <View
+                  style={[
+                    styles.statusDotGreen,
+                    motorState === 'OFF' && styles.readyDot,
+                  ]}
+                />
+
+                <Text
+                  style={[
+                    styles.statusTextGreen,
+                    motorState === 'OFF' && styles.readyText,
+                  ]}
+                >
+                  {motorState === 'ON' ? 'Running' : 'Ready'}
+                </Text>
               </View>
               <Text style={styles.statusSubtitle}>PLC connection active</Text>
             </View>
-            <View style={styles.offBadge}>
-              <Text style={styles.offBadgeText}>OFF</Text>
+            <View
+              style={[
+                styles.offBadge,
+                motorState === 'ON' && styles.onBadge,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.offBadgeText,
+                  motorState === 'ON' && styles.onBadgeText,
+                ]}
+              >
+                {motorState}
+              </Text>
             </View>
           </View>
         </View>
@@ -48,12 +271,20 @@ export default function Motor1Screen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Manual Control</Text>
           <View style={styles.actionButtonsContainer}>
-            <TouchableOpacity style={styles.startButton}>
+            <TouchableOpacity
+              style={styles.startButton}
+              onPress={handleStartMotor}
+              disabled={loading}
+            >
               <MaterialCommunityIcons name="power" size={24} color="#FFFFFF" />
               <Text style={styles.startButtonText}>START MOTOR</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.stopButton}>
+
+            <TouchableOpacity
+              style={styles.stopButton}
+              onPress={handleStopMotor}
+              disabled={loading}
+            >
               <MaterialCommunityIcons name="stop-circle-outline" size={24} color="#DC2626" />
               <Text style={styles.stopButtonText}>STOP MOTOR</Text>
             </TouchableOpacity>
@@ -61,10 +292,10 @@ export default function Motor1Screen() {
         </View>
 
         {/* Operating Schedule Card */}
-        <View style={styles.card}>
+        {/* <View style={styles.card}>
           <Text style={styles.cardTitle}>Operating Schedule</Text>
           <Text style={styles.cardSubtitle}>Set the motor operation window</Text>
-          
+
           <View style={styles.scheduleRow}>
             <View style={styles.scheduleLabelContainer}>
               <MaterialCommunityIcons name="clock-outline" size={22} color="#1A5B9C" />
@@ -122,10 +353,97 @@ export default function Motor1Screen() {
           <TouchableOpacity style={styles.saveButton}>
             <Text style={styles.saveButtonText}>SAVE SCHEDULE</Text>
           </TouchableOpacity>
+        </View> */}
+
+        {/* Operating Schedule Card */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>
+            Operating Schedule
+          </Text>
+
+          <Text style={styles.cardSubtitle}>
+            Set the motor operation window
+          </Text>
+
+          {/* When Motor is Running */}
+          {startTime && !endTime && (
+            <View style={styles.scheduleRow}>
+              <View style={styles.scheduleLabelContainer}>
+                <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={22}
+                  color="#1A5B9C"
+                />
+
+                <Text style={styles.scheduleLabel}>
+                  Start Time
+                </Text>
+              </View>
+
+              <View style={styles.timeInputBox}>
+                <Text style={styles.timeInputText}>
+                  {startTime}
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {/* When Motor is Stopped */}
+          {endTime && (
+            <>
+              <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLabelContainer}>
+                  <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={22}
+                    color="#1A5B9C"
+                  />
+
+                  <Text style={styles.scheduleLabel}>
+                    End Time
+                  </Text>
+                </View>
+
+                <View style={styles.timeInputBox}>
+                  <Text style={styles.timeInputText}>
+                    {endTime}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.divider} />
+
+              <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLabelContainer}>
+                  <MaterialCommunityIcons
+                    name="timer-outline"
+                    size={22}
+                    color="#1A5B9C"
+                  />
+
+                  <Text style={styles.scheduleLabel}>
+                    Running Time
+                  </Text>
+                </View>
+
+                <View style={styles.timeInputBox}>
+                  <Text style={styles.timeInputText}>
+                    {runningTime}
+                  </Text>
+                </View>
+              </View>
+            </>
+          )}
+          {/* 
+          <TouchableOpacity style={styles.saveButton}>
+            <Text style={styles.saveButtonText}>
+              SAVE SCHEDULE
+            </Text>
+          </TouchableOpacity> */}
         </View>
 
         {/* Operation Log Card */}
-        <View style={styles.card}>
+        {/* <View style={styles.card}>
           <View style={styles.logHeader}>
             <Text style={styles.cardTitle}>Operation Log</Text>
             <TouchableOpacity style={styles.viewAllRow}>
@@ -162,6 +480,91 @@ export default function Motor1Screen() {
             </View>
           </View>
 
+        </View> */}
+
+        {/* Operation Log Card */}
+        <View style={styles.card}>
+          <View style={styles.logHeader}>
+            <Text style={styles.cardTitle}>Operation Log</Text>
+
+            <TouchableOpacity style={styles.viewAllRow}>
+              <Text style={styles.viewAllText}>View All</Text>
+
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={20}
+                color="#0D9488"
+              />
+            </TouchableOpacity>
+          </View>
+
+          {logsLoading ? (
+            <Text style={styles.logTime}>
+              Loading logs...
+            </Text>
+          ) : manualLogs.length === 0 ? (
+            <Text style={styles.logTime}>
+              No operation logs available
+            </Text>
+          ) : (
+            manualLogs.map((log, index) => {
+              const logDate = log.created_at || log.started_at;
+
+              const date = logDate
+                ? new Date(logDate)
+                : null;
+
+              const formattedDate = date
+                ? date.toLocaleDateString('en-IN', {
+                  day: '2-digit',
+                  month: 'short',
+                })
+                : '';
+
+              const formattedTime = date
+                ? date.toLocaleTimeString('en-IN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })
+                : '';
+
+              const isStarted = log.action === 'ON';
+
+              return (
+                <React.Fragment key={log.id}>
+                  <View style={styles.logRow}>
+                    <Text style={styles.logTime}>
+                      {formattedDate}, {formattedTime}
+                    </Text>
+
+                    <View style={styles.logStatusContainer}>
+                      <Text style={styles.logStatusText}>
+                        {isStarted
+                          ? 'Motor Started'
+                          : 'Motor Stopped'}
+                      </Text>
+
+                      <View
+                        style={[
+                          styles.logStatusDot,
+                          {
+                            backgroundColor: isStarted
+                              ? '#10B981'
+                              : '#6B7280',
+                          },
+                        ]}
+                      />
+                    </View>
+                  </View>
+
+                  {index < manualLogs.length - 1 && (
+                    <View style={styles.logDivider} />
+                  )}
+                </React.Fragment>
+              );
+            })
+          )}
         </View>
 
       </ScrollView>
@@ -276,6 +679,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#4B5563',
+  },
+  readyDot: {
+    backgroundColor: '#6B7280',
+  },
+
+  readyText: {
+    color: '#6B7280',
+  },
+
+  onBadge: {
+    backgroundColor: '#D1FAE5',
+    borderColor: '#A7F3D0',
+  },
+
+  onBadgeText: {
+    color: '#059669',
   },
   cardTitle: {
     fontSize: 16,

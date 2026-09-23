@@ -1164,13 +1164,17 @@ const handleStartPump = async () => {
       console.log('Stage ID not found');
       return;
     }
+const pumpId = await AsyncStorage.getItem('inletPumpId');
 
-    const motorId = 2;
+if (!pumpId) {
+  console.log('Inlet Pump ID not found');
+  return;
+}
 
-    const response = await turnOnMotor(
-      motorId,
-      Number(stageId)
-    );
+const response = await turnOnMotor(
+  Number(pumpId),
+  Number(stageId)
+);
 
     console.log(
       'Motor ON Response:',
@@ -1389,12 +1393,17 @@ const handleStartPump = async () => {
       return;
     }
 
-    const motorId = 2;
+   const pumpId = await AsyncStorage.getItem('inletPumpId');
 
-    const response = await turnOffMotor(
-      motorId,
-      Number(stageId)
-    );
+if (!pumpId) {
+  console.log('Inlet Pump ID not found');
+  return;
+}
+
+const response = await turnOffMotor(
+  Number(pumpId),
+  Number(stageId)
+);
 
     console.log(
       'Motor OFF Response:',
