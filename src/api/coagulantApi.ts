@@ -253,3 +253,105 @@ export const mergeStageDuration = async (stageId: number) => {
   }
 
 };
+
+
+export const turnOnPump = async (motorId: number, stageId: number) => {
+
+  try {
+
+    const token = await AsyncStorage.getItem('accessToken');
+
+
+    const response = await axios.post(
+
+      `${BASE_URL}/equipment/pump/${motorId}/on/`,
+
+      {
+
+        stage_id: stageId,
+
+      },
+
+      {
+
+        headers: {
+
+          Authorization: `Bearer ${token}`,
+
+        },
+
+      }
+
+    );
+
+
+    console.log('Motor ON API Response:', response.data);
+
+
+    return response.data;
+
+  } catch (error: any) {
+
+    console.log('Motor ON API Status:', error.response?.status);
+
+    console.log('Motor ON API Error:', error.response?.data);
+
+    console.log('Motor ON API Message:', error.message);
+
+
+    throw error;
+
+  }
+
+};
+
+
+export const turnOffPump = async (motorId: number, stageId: number) => {
+
+  try {
+
+    const token = await AsyncStorage.getItem('accessToken');
+
+
+    const response = await axios.post(
+
+      `${BASE_URL}/equipment/pump/${motorId}/off/`,
+
+      {
+
+        stage_id: stageId,
+
+      },
+
+      {
+
+        headers: {
+
+          Authorization: `Bearer ${token}`,
+
+        },
+
+      }
+
+    );
+
+
+    console.log('Motor OFF API Response:', response.data);
+
+
+    return response.data;
+
+  } catch (error: any) {
+
+    console.log('Motor OFF API Status:', error.response?.status);
+
+    console.log('Motor OFF API Error:', error.response?.data);
+
+    console.log('Motor OFF API Message:', error.message);
+
+
+    throw error;
+
+  }
+
+};

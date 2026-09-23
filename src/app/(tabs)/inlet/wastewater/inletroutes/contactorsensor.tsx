@@ -919,123 +919,6 @@ export default function ContactorSensorScreen() {
   const [logsError, setLogsError] = useState<string | null>(null);
 
 
-  // const handlePowerOn = async () => {
-
-  // try {
-
-  // const stageId = await AsyncStorage.getItem('selectedStageId');
-
-
-  // console.log('Selected Stage ID:', stageId);
-
-
-  // if (!stageId) {
-
-  // console.log('Stage ID not found');
-
-  // return;
-
-  // }
-
-
-  // const motorId = 2;
-
-
-  // const response = await turnOnMotor(
-
-  // motorId,
-
-  // Number(stageId)
-
-  // );
-
-
-  // console.log('Motor ON Response:', response);
-
-
-  // if (response.status === 'ACTIVE') {
-
-  // setIsPowerOn(true);
-
-
-  // const sensors = response.sensors || [];
-
-
-  // const sensor1 = sensors.find(
-
-  // (sensor: any) => sensor.id === 3
-
-  // );
-
-
-  // const sensor2 = sensors.find(
-
-  // (sensor: any) => sensor.id === 4
-
-  // );
-
-
-  // setSensor1Status(
-
-  // sensor1?.status || 'INACTIVE'
-
-  // );
-
-
-  // setSensor2Status(
-
-  // sensor2?.status || 'INACTIVE'
-
-  // );
-
-  // }
-
-  // } catch (error) {
-
-  // console.error('Failed to power on:', error);
-
-  // }
-
-  // };
-
-
-  // useFocusEffect(
-
-  // useCallback(() => {
-
-  // const loadSensorStatus = async () => {
-
-  // try {
-
-  // const sensor1 = await AsyncStorage.getItem('sensor1Status');
-
-  // const sensor2 = await AsyncStorage.getItem('sensor2Status');
-
-
-  // console.log('Sensor 1 Status:', sensor1);
-
-  // console.log('Sensor 2 Status:', sensor2);
-
-
-  // setSensor1Status(sensor1 || 'INACTIVE');
-
-  // setSensor2Status(sensor2 || 'INACTIVE');
-
-  // } catch (error) {
-
-  // console.error('Error loading sensor status:', error);
-
-  // }
-
-  // };
-
-
-  // loadSensorStatus();
-
-  // }, [])
-
-  // );
-
 
   const fetchDetectionLogs = async () => {
 
@@ -1062,7 +945,31 @@ export default function ContactorSensorScreen() {
 
       // SENSOR 2 = equipment ID 4
 
-      const equipmentId = activeTab === 'SENSOR 1' ? 3 : 4;
+      const sensorIdsString = await AsyncStorage.getItem(
+        'contactorSensorIds'
+      );
+
+      if (!sensorIdsString) {
+        console.log('Contactor Sensor IDs not found');
+        setDetectionLogs([]);
+        return;
+      }
+
+      const sensorIds = JSON.parse(sensorIdsString);
+
+      const equipmentId =
+        activeTab === 'SENSOR 1'
+          ? sensorIds[0]
+          : sensorIds[1];
+
+      if (!equipmentId) {
+        console.log('Sensor Equipment ID not found');
+        setDetectionLogs([]);
+        return;
+      }
+
+      console.log('Selected Sensor:', activeTab);
+      console.log('Equipment ID:', equipmentId);
 
 
       console.log('Fetching Detection Logs');

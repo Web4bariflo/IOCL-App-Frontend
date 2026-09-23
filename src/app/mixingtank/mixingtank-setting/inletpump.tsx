@@ -22,7 +22,7 @@ export default function InletPumpScreen() {
 
   const [pumpState, setPumpState] = useState<'ON' | 'OFF'>('OFF');
   const [manualLogs, setManualLogs] = useState<any[]>([]);
-const [logsLoading, setLogsLoading] = useState(false);
+  const [logsLoading, setLogsLoading] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -67,45 +67,45 @@ const [logsLoading, setLogsLoading] = useState(false);
   };
 
   const loadManualLogs = async () => {
-  try {
-    if (stageId === null) {
-      return;
+    try {
+      if (stageId === null) {
+        return;
+      }
+
+      const pumpId = getSelectedPumpId();
+
+      if (!pumpId) {
+        return;
+      }
+
+      setLogsLoading(true);
+
+      console.log('Loading logs for Pump ID:', pumpId);
+      console.log('Stage ID:', stageId);
+
+      const response = await getEquipmentManualLogs(
+        pumpId,
+        stageId
+      );
+
+      console.log('Manual Logs:', response);
+
+      if (response.success) {
+        setManualLogs(response.data.slice(0, 3));
+      }
+
+    } catch (error) {
+      console.log('Failed to load manual logs:', error);
+    } finally {
+      setLogsLoading(false);
     }
+  };
 
-    const pumpId = getSelectedPumpId();
-
-    if (!pumpId) {
-      return;
+  useEffect(() => {
+    if (stageId !== null && pumpIds.length > 0) {
+      loadManualLogs();
     }
-
-    setLogsLoading(true);
-
-    console.log('Loading logs for Pump ID:', pumpId);
-    console.log('Stage ID:', stageId);
-
-    const response = await getEquipmentManualLogs(
-      pumpId,
-      stageId
-    );
-
-    console.log('Manual Logs:', response);
-
-    if (response.success) {
-      setManualLogs(response.data.slice(0, 3));
-    }
-
-  } catch (error) {
-    console.log('Failed to load manual logs:', error);
-  } finally {
-    setLogsLoading(false);
-  }
-};
-
-useEffect(() => {
-  if (stageId !== null && pumpIds.length > 0) {
-    loadManualLogs();
-  }
-}, [stageId, pumpIds, activeTab]);
+  }, [stageId, pumpIds, activeTab]);
 
   const handleStartPump = async () => {
     try {
@@ -236,10 +236,10 @@ useEffect(() => {
             </View> */}
 
             <View style={styles.offBadge}>
-  <Text style={styles.offBadgeText}>
-    {pumpState}
-  </Text>
-</View>
+              <Text style={styles.offBadgeText}>
+                {pumpState}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -370,92 +370,92 @@ useEffect(() => {
         </View> */}
 
         <View style={styles.card}>
-  <Text style={styles.cardTitle}>Operating Schedule</Text>
+          <Text style={styles.cardTitle}>Operating Schedule</Text>
 
-  <Text style={styles.cardSubtitle}>
-    Set the pump operation window
-  </Text>
-
-  {/* After START */}
-  {pumpState === 'ON' && (
-    <View style={styles.scheduleRow}>
-      <View style={styles.scheduleLabelContainer}>
-        <MaterialCommunityIcons
-          name="clock-outline"
-          size={22}
-          color="#1A5B9C"
-        />
-
-        <Text style={styles.scheduleLabel}>
-          Start Time
-        </Text>
-      </View>
-
-      <View style={styles.timeInputBox}>
-        <Text style={styles.timeInputText}>
-          {startedAt
-            ? new Date(startedAt).toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-            : '--'}
-        </Text>
-      </View>
-    </View>
-  )}
-
-  {/* After STOP */}
-  {pumpState === 'OFF' && endedAt && (
-    <>
-      <View style={styles.scheduleRow}>
-        <View style={styles.scheduleLabelContainer}>
-          <MaterialCommunityIcons
-            name="clock-outline"
-            size={22}
-            color="#1A5B9C"
-          />
-
-          <Text style={styles.scheduleLabel}>
-            End Time
+          <Text style={styles.cardSubtitle}>
+            Set the pump operation window
           </Text>
+
+          {/* After START */}
+          {pumpState === 'ON' && (
+            <View style={styles.scheduleRow}>
+              <View style={styles.scheduleLabelContainer}>
+                <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={22}
+                  color="#1A5B9C"
+                />
+
+                <Text style={styles.scheduleLabel}>
+                  Start Time
+                </Text>
+              </View>
+
+              <View style={styles.timeInputBox}>
+                <Text style={styles.timeInputText}>
+                  {startedAt
+                    ? new Date(startedAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
+                    : '--'}
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {/* After STOP */}
+          {pumpState === 'OFF' && endedAt && (
+            <>
+              <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLabelContainer}>
+                  <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={22}
+                    color="#1A5B9C"
+                  />
+
+                  <Text style={styles.scheduleLabel}>
+                    End Time
+                  </Text>
+                </View>
+
+                <View style={styles.timeInputBox}>
+                  <Text style={styles.timeInputText}>
+                    {new Date(endedAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.divider} />
+
+              <View style={styles.scheduleRow}>
+                <View style={styles.scheduleLabelContainer}>
+                  <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={22}
+                    color="#1A5B9C"
+                  />
+
+                  <Text style={styles.scheduleLabel}>
+                    Running Time
+                  </Text>
+                </View>
+
+                <View style={styles.timeInputBox}>
+                  <Text style={styles.timeInputText}>
+                    {durationSeconds !== null
+                      ? `${durationSeconds} sec`
+                      : '--'}
+                  </Text>
+                </View>
+              </View>
+            </>
+          )}
         </View>
-
-        <View style={styles.timeInputBox}>
-          <Text style={styles.timeInputText}>
-            {new Date(endedAt).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.divider} />
-
-      <View style={styles.scheduleRow}>
-        <View style={styles.scheduleLabelContainer}>
-          <MaterialCommunityIcons
-            name="clock-outline"
-            size={22}
-            color="#1A5B9C"
-          />
-
-        <Text style={styles.scheduleLabel}>
-          Running Time
-        </Text>
-      </View>
-
-        <View style={styles.timeInputBox}>
-          <Text style={styles.timeInputText}>
-            {durationSeconds !== null
-              ? `${durationSeconds} sec`
-              : '--'}
-          </Text>
-        </View>
-      </View>
-    </>
-  )}
-</View>
 
         {/* Operation Log Card */}
         {/* <View style={styles.card}>
@@ -498,69 +498,69 @@ useEffect(() => {
         </View> */}
 
         <View style={styles.card}>
-  <View style={styles.logHeader}>
-    <Text style={styles.cardTitle}>Operation Log</Text>
+          <View style={styles.logHeader}>
+            <Text style={styles.cardTitle}>Operation Log</Text>
 
-    <TouchableOpacity style={styles.viewAllRow}>
-      <Text style={styles.viewAllText}>View All</Text>
+            <TouchableOpacity style={styles.viewAllRow}>
+              <Text style={styles.viewAllText}>View All</Text>
 
-      <MaterialCommunityIcons
-        name="chevron-right"
-        size={20}
-        color="#0D9488"
-      />
-    </TouchableOpacity>
-  </View>
-
-  {logsLoading ? (
-    <Text style={styles.logTime}>
-      Loading logs...
-    </Text>
-  ) : manualLogs.length === 0 ? (
-    <Text style={styles.logTime}>
-      No operation logs found
-    </Text>
-  ) : (
-    manualLogs.map((log, index) => (
-      <React.Fragment key={log.id}>
-        <View style={styles.logRow}>
-          <Text style={styles.logTime}>
-            {new Date(log.created_at).toLocaleString([], {
-              day: '2-digit',
-              month: 'short',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </Text>
-
-          <View style={styles.logStatusContainer}>
-            <Text style={styles.logStatusText}>
-              {log.action === 'ON'
-                ? 'Pump Started'
-                : 'Pump Stopped'}
-            </Text>
-
-            <View
-              style={[
-                styles.logStatusDot,
-                {
-                  backgroundColor:
-                    log.action === 'ON'
-                      ? '#10B981'
-                      : '#6B7280',
-                },
-              ]}
-            />
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={20}
+                color="#0D9488"
+              />
+            </TouchableOpacity>
           </View>
-        </View>
 
-        {index < manualLogs.length - 1 && (
-          <View style={styles.logDivider} />
-        )}
-      </React.Fragment>
-    ))
-  )}
-</View>
+          {logsLoading ? (
+            <Text style={styles.logTime}>
+              Loading logs...
+            </Text>
+          ) : manualLogs.length === 0 ? (
+            <Text style={styles.logTime}>
+              No operation logs found
+            </Text>
+          ) : (
+            manualLogs.map((log, index) => (
+              <React.Fragment key={log.id}>
+                <View style={styles.logRow}>
+                  <Text style={styles.logTime}>
+                    {new Date(log.created_at).toLocaleString([], {
+                      day: '2-digit',
+                      month: 'short',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </Text>
+
+                  <View style={styles.logStatusContainer}>
+                    <Text style={styles.logStatusText}>
+                      {log.action === 'ON'
+                        ? 'Pump Started'
+                        : 'Pump Stopped'}
+                    </Text>
+
+                    <View
+                      style={[
+                        styles.logStatusDot,
+                        {
+                          backgroundColor:
+                            log.action === 'ON'
+                              ? '#10B981'
+                              : '#6B7280',
+                        },
+                      ]}
+                    />
+                  </View>
+                </View>
+
+                {index < manualLogs.length - 1 && (
+                  <View style={styles.logDivider} />
+                )}
+              </React.Fragment>
+            ))
+          )}
+        </View>
 
       </ScrollView>
     </SafeAreaView>
