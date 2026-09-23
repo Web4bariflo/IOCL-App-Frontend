@@ -2866,62 +2866,6 @@ function PumpRow({
   );
 }
 
-/* ==================== CONTACTOR ROW ==================== */
-
-// function Row({
-//   label,
-//   value,
-//   active,
-//   status,
-// }: any) {
-//   return (
-//     <View
-//       style={styles.row}
-//     >
-
-//       <Text
-//         style={styles.rowLabel}
-//       >
-//         {label}
-//       </Text>
-
-//       <View
-//         style={
-//           styles.rowValueContainer
-//         }
-//       >
-
-//         <Text
-//           style={[
-//             styles.rowValue,
-//             {
-//               color: active
-//                 ? '#10B981'
-//                 : '#6B7280',
-//             },
-//           ]}
-//         >
-//           {value || '--'}
-//         </Text>
-
-//         <View
-//           style={[
-//             styles.dot,
-//             {
-//               backgroundColor:
-//                 active
-//                   ? '#10B981'
-//                   : '#9CA3AF',
-//             },
-//           ]}
-//         />
-
-//       </View>
-
-//     </View>
-//   );
-// }
-
 function Row({
   label,
   value,

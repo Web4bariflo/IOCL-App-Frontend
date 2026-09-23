@@ -71,7 +71,7 @@ export default function ContactorSensorScreen() {
       );
 
       const storedSensorIds = await AsyncStorage.getItem(
-        'desludgingStageId'
+        'desludgingContactorSensorId'
       );
 
       if (!stageId || !storedSensorIds) {

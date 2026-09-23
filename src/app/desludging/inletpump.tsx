@@ -415,8 +415,8 @@ import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
-  turnOnCoagulantMotor,
-  turnOffCoagulantMotor,
+  turnOnPump,
+  turnOffPump,
   getCoagulantManualLogs,
 } from '../../api/coagulantApi';
 
@@ -471,7 +471,7 @@ export default function InletPumpScreen() {
         return;
       }
 
-      const response = await turnOnCoagulantMotor(
+      const response = await turnOnPump(
         Number(equipmentId),
         Number(stageId)
       );
@@ -548,7 +548,7 @@ export default function InletPumpScreen() {
         return;
       }
 
-      const response = await turnOffCoagulantMotor(
+      const response = await turnOffPump(
         Number(equipmentId),
         Number(stageId)
       );

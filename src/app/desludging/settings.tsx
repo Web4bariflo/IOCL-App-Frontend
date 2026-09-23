@@ -1957,7 +1957,7 @@ export default function SettingsScreen() {
         <View style={styles.card}>
 
           {/* ================= MOTOR ================= */}
-
+{/* 
           <TouchableOpacity
             style={styles.deviceItem}
             onPress={() =>
@@ -1988,7 +1988,7 @@ export default function SettingsScreen() {
 
           </TouchableOpacity>
 
-          <View style={styles.divider} />
+          <View style={styles.divider} /> */}
 
           {/* ================= SOLENOID ================= */}
 
@@ -2144,7 +2144,45 @@ export default function SettingsScreen() {
 
           </TouchableOpacity>
 
+             {/* ================= MOTOR ================= */}
+
+          <TouchableOpacity
+            style={styles.deviceItem}
+            onPress={() =>
+              router.push(
+                '/desludging/motor1'
+              )
+            }
+          >
+
+            <Image
+              source={require(
+                '@/assets/images/motor.png'
+              )}
+              style={styles.deviceIcon}
+              resizeMode="contain"
+            />
+
+            <Text style={styles.deviceName}>
+              {motorEquipments[0]?.name ||
+                'Motor'}
+            </Text>
+
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={24}
+              color="#001133"
+            />
+
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
         </View>
+
+        
+
+        
 
         {/* ================= ALERTS ================= */}
 
