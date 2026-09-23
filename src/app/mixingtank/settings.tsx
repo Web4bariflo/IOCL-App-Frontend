@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getStageEquipments } from '../../api/mixingTankApi'
+import { getStageEquipments ,mergeStageDuration} from '../../api/mixingTankApi'
 
 export default function SettingsScreen() {
   // const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('AUTO');
@@ -13,6 +13,65 @@ export default function SettingsScreen() {
 
   const [equipments, setEquipments] = useState<any[]>([]);
   const [loadingEquipments, setLoadingEquipments] = useState(true);
+
+   const [merging, setMerging] = useState(false);
+
+
+   const handleMerge = async () => {
+    try {
+      setMerging(true);
+
+      // Get Desludging Stage ID
+      const stageId = await AsyncStorage.getItem(
+        'mixingTankStageId'
+      );
+
+      console.log(
+        'Mixing Tank Stage ID:',
+        stageId
+      );
+
+      if (!stageId) {
+        console.log(
+          'Mixing Tank Stage ID not found'
+        );
+        return;
+      }
+
+      // Call Merge Duration API
+      const response = await mergeStageDuration(
+        Number(stageId)
+      );
+
+      console.log(
+        'Mixing Tank Merge Duration Response:',
+        JSON.stringify(response, null, 2)
+      );
+
+      if (response?.success) {
+        console.log(
+          'Mixing Tank equipment durations merged successfully'
+        );
+
+        console.log(
+          'Merged Equipment Count:',
+          response.count
+        );
+
+        console.log(
+          'Merged Equipment Data:',
+          response.data
+        );
+      }
+    } catch (error: any) {
+      console.error(
+        'Mixing Tank Merge Duration Failed:',
+        error?.response?.data || error?.message
+      );
+    } finally {
+      setMerging(false);
+    }
+  };
 
   useEffect(() => {
     fetchMixingTankEquipments();
@@ -139,6 +198,32 @@ export default function SettingsScreen() {
       <View style={styles.headerBorder} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
+
+         {/* ================= MERGE ================= */}
+      
+              <TouchableOpacity
+                style={[
+                  styles.mergeButton,
+                  merging &&
+                    styles.mergeButtonDisabled,
+                ]}
+                onPress={handleMerge}
+                disabled={merging}
+                activeOpacity={0.8}
+              >
+                <MaterialCommunityIcons
+                  name="merge"
+                  size={22}
+                  color="#FFFFFF"
+                />
+      
+                <Text style={styles.mergeButtonText}>
+                  {merging
+                    ? 'MERGING...'
+                    : 'MERGE'}
+                </Text>
+              </TouchableOpacity>
+
         {/* General */}
         <Text style={styles.sectionTitle}>GENERAL</Text>
         <View style={styles.card}>
@@ -473,5 +558,25 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#10B981',
     marginLeft: 8,
+  },
+  mergeButton: {
+    backgroundColor: '#14B8A6',
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 13,
+    marginBottom: 8,
+  },
+
+  mergeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+
+  mergeButtonDisabled: {
+    opacity: 0.6,
   },
 });

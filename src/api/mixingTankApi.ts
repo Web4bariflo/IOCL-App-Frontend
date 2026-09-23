@@ -320,3 +320,159 @@ export const turnOffMixTankMotor = async (
     throw error;
   }
 };
+
+export const mergeStageDuration = async (stageId: number) => {
+
+  try {
+
+    const token = await AsyncStorage.getItem('accessToken');
+
+
+    const response = await axios.post(
+
+      `${BASE_URL}/equipment/stages/${stageId}/merge-duration/`,
+
+      {},
+
+      {
+
+        headers: {
+
+          Authorization: `Bearer ${token}`,
+
+          'Content-Type': 'application/json',
+
+        },
+
+      }
+
+    );
+
+
+    console.log(
+
+      'Merge Duration API Response:',
+
+      JSON.stringify(response.data, null, 2)
+
+    );
+
+
+    return response.data;
+
+  } catch (error: any) {
+
+    console.log(
+
+      'Merge Duration API Status:',
+
+      error.response?.status
+
+    );
+
+
+    console.log(
+
+      'Merge Duration API Error:',
+
+      error.response?.data
+
+    );
+
+
+    console.log(
+
+      'Merge Duration API Message:',
+
+      error.message
+
+    );
+
+
+    throw error;
+
+  }
+
+};
+
+//==============================
+//           Automatic
+//==============================
+
+
+export const getStageStatus = async (stageId: number) => {
+
+  try {
+
+    const token = await AsyncStorage.getItem('accessToken');
+
+
+    console.log('API BASE URL:', BASE_URL);
+
+    console.log('Stage ID:', stageId);
+
+    console.log('Token exists:', !!token);
+
+
+    const response = await axios.get(
+
+      `${BASE_URL}/treatment-process/stages/${stageId}/status/`,
+
+      {
+
+        headers: {
+
+          Authorization: `Bearer ${token}`,
+
+        },
+
+      }
+
+    );
+
+
+    console.log(
+
+      'Stage Status API Response:',
+
+      JSON.stringify(response.data, null, 2)
+
+    );
+
+
+    return response.data;
+
+  } catch (error: any) {
+
+    console.log(
+
+      'Stage Status API Status:',
+
+      error.response?.status
+
+    );
+
+
+    console.log(
+
+      'Stage Status API Error:',
+
+      error.response?.data
+
+    );
+
+
+    console.log(
+
+      'Stage Status API Message:',
+
+      error.message
+
+    );
+
+
+    throw error;
+
+  }
+
+};
