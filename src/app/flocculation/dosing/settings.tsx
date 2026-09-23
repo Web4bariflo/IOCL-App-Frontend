@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getStageEquipments } from '../../../api/inletApi';
+import { getStageEquipments,mergeStageDuration } from '../../../api/inletApi';
 
 export default function DosingSettingsScreen() {
   const [operatingMode, setOperatingMode] = useState<'AUTO' | 'MANUAL'>('MANUAL');
@@ -24,7 +24,67 @@ export default function DosingSettingsScreen() {
   const [equipmentData, setEquipmentData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
+   const [merging, setMerging] = useState(false);
+
   // Dynamic fetch on screen focus
+
+   const handleMerge = async () => {
+    try {
+      setMerging(true);
+
+      // Get Desludging Stage ID
+      const stageId = await AsyncStorage.getItem(
+        'flocculationDosingStageId'
+      );
+
+      console.log(
+        'Flocu Stage ID:',
+        stageId
+      );
+
+      if (!stageId) {
+        console.log(
+          'flocculation Dosing Stage ID not found'
+        );
+        return;
+      }
+
+      // Call Merge Duration API
+      const response = await mergeStageDuration(
+        Number(stageId)
+      );
+
+      console.log(
+        'flocculation Dosing Merge Duration Response:',
+        JSON.stringify(response, null, 2)
+      );
+
+      if (response?.success) {
+        console.log(
+          'flocculation Dosing equipment durations merged successfully'
+        );
+
+        console.log(
+          'Merged Equipment Count:',
+          response.count
+        );
+
+        console.log(
+          'Merged Equipment Data:',
+          response.data
+        );
+      }
+    } catch (error: any) {
+      console.error(
+        'flocculation Dosing Merge Duration Failed:',
+        error?.response?.data || error?.message
+      );
+    } finally {
+      setMerging(false);
+    }
+  };
+
+
   useFocusEffect(
     useCallback(() => {
       const loadFlocculationDosingData = async () => {
@@ -208,6 +268,30 @@ export default function DosingSettingsScreen() {
       <View style={styles.headerBorder} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
+
+         <TouchableOpacity
+                        style={[
+                          styles.mergeButton,
+                          merging &&
+                            styles.mergeButtonDisabled,
+                        ]}
+                        onPress={handleMerge}
+                        disabled={merging}
+                        activeOpacity={0.8}
+                      >
+                        <MaterialCommunityIcons
+                          name="merge"
+                          size={22}
+                          color="#FFFFFF"
+                        />
+              
+                        <Text style={styles.mergeButtonText}>
+                          {merging
+                            ? 'MERGING...'
+                            : 'MERGE'}
+                        </Text>
+                      </TouchableOpacity>
+        
         {/* General */}
         <Text style={styles.sectionTitle}>GENERAL</Text>
         <View style={styles.card}>
@@ -549,4 +633,24 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     marginTop: 6,
   },
+  mergeButton: {
+    backgroundColor: '#14B8A6',
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 13,
+    marginBottom: 8,
+  },
+
+  mergeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+
+  mergeButtonDisabled: {
+    opacity: 0.6,
+  }
 });

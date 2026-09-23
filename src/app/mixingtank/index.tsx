@@ -1051,9 +1051,7 @@
 
 
 
-// import { MaterialCommunityIcons } from '@expo/vector-icons';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import React, { useEffect, useState } from 'react';
+
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -1944,82 +1942,83 @@ useFocusEffect(
 
         </Card>
 
+
         {/* =================================================
-            CONTACTOR SENSORS
-        ================================================= */}
+    CONTACTOR SENSORS
+================================================= */}
 
-        <Card
-          title={
-            contactorSensors[0]
-              ?.equipment_type ||
-            'Contactor Sensors'
+<Card
+  title={
+    contactorSensors[0]?.equipment_type ||
+    'Contactor Sensors'
+  }
+  subtitle={`${contactorSensors.length || 2} Sensors`}
+  image={require('../../../assets/images/contactor.png')}
+  active={
+    String(
+      contactorSensors[0]?.status || ''
+    ).toUpperCase() === 'ACTIVE'
+  }
+  status={
+    contactorSensors[0]?.status || '--'
+  }
+>
+  {contactorSensors.length > 0 ? (
+
+    contactorSensors.map(
+      (
+        equipment: any,
+        index: number
+      ) => (
+
+        <Row
+          key={
+            equipment.id ||
+            index
           }
-          subtitle={`${contactorSensors.length || 2} Sensors`}
-          image={require('../../../assets/images/contactor.png')}
-          active={contactorsActive}
-        >
+          label={
+            equipment.name ||
+            `Sensor ${index + 1}`
+          }
+          value={
+            equipment.current_state ||
+            '--'
+          }
+          active={
+            String(
+              equipment.current_state || ''
+            ).toUpperCase() === 'ON'
+          }
+          status={
+            equipment.status ||
+            '--'
+          }
+        />
 
-          {contactorSensors.length > 0 ? (
+      )
+    )
 
-            contactorSensors.map(
-              (
-                equipment: any,
-                index: number
-              ) => (
+  ) : (
 
-                <Row
-                  key={
-                    equipment.id ||
-                    index
-                  }
-                  label={
-                    equipment.name ||
-                    `Contactor ${
-                      index + 1
-                    }`
-                  }
-                  value={
-                    equipment.current_state ||
-                    '--'
-                  }
-                  active={
-                    String(
-                      equipment.current_state
-                    ).toUpperCase() ===
-                    'ON'
-                  }
-                  status={
-                    equipment.status ||
-                    '--'
-                  }
-                />
+    <>
+      <Row
+        label="Sensor 1"
+        value="--"
+        active={false}
+        status="--"
+      />
 
-              )
-            )
+      <Row
+        label="Sensor 2"
+        value="--"
+        active={false}
+        status="--"
+      />
+    </>
 
-          ) : (
+  )}
 
-            <>
-
-              <Row
-                label="Contactor 1"
-                value="--"
-                active={false}
-                status="--"
-              />
-
-              <Row
-                label="Contactor 2"
-                value="--"
-                active={false}
-                status="--"
-              />
-
-            </>
-
-          )}
-
-        </Card>
+</Card>
 
         {/* =================================================
             MOTOR SECTION
@@ -2644,26 +2643,22 @@ useFocusEffect(
    COMPONENTS
 ====================================================== */
 
-/* ==================== CARD ==================== */
 
 function Card({
   title,
   subtitle,
   image,
   active,
+  status,
   children,
   hideStatus = false,
 }: any) {
   return (
     <View style={styles.card}>
 
-      <View
-        style={styles.cardHeader}
-      >
+      <View style={styles.cardHeader}>
 
-        <View
-          style={styles.cardTitleRow}
-        >
+        <View style={styles.cardTitleRow}>
 
           {image && (
             <Image
@@ -2675,20 +2670,12 @@ function Card({
 
           <View>
 
-            <Text
-              style={
-                styles.sectionTitle
-              }
-            >
+            <Text style={styles.sectionTitle}>
               {title}
             </Text>
 
             {subtitle && (
-              <Text
-                style={
-                  styles.cardSubtitle
-                }
-              >
+              <Text style={styles.cardSubtitle}>
                 {subtitle}
               </Text>
             )}
@@ -2702,7 +2689,8 @@ function Card({
           <View
             style={[
               styles.deactiveBtn,
-              active &&
+              String(status || '').toUpperCase() ===
+                'ACTIVE' &&
                 styles.activeBtn,
             ]}
           >
@@ -2710,13 +2698,12 @@ function Card({
             <Text
               style={[
                 styles.deactiveText,
-                active &&
+                String(status || '').toUpperCase() ===
+                  'ACTIVE' &&
                   styles.activeText,
               ]}
             >
-              {active
-                ? 'ACTIVE'
-                : 'DEACTIVE'}
+              {status || '--'}
             </Text>
 
           </View>
@@ -2881,28 +2868,73 @@ function PumpRow({
 
 /* ==================== CONTACTOR ROW ==================== */
 
+// function Row({
+//   label,
+//   value,
+//   active,
+//   status,
+// }: any) {
+//   return (
+//     <View
+//       style={styles.row}
+//     >
+
+//       <Text
+//         style={styles.rowLabel}
+//       >
+//         {label}
+//       </Text>
+
+//       <View
+//         style={
+//           styles.rowValueContainer
+//         }
+//       >
+
+//         <Text
+//           style={[
+//             styles.rowValue,
+//             {
+//               color: active
+//                 ? '#10B981'
+//                 : '#6B7280',
+//             },
+//           ]}
+//         >
+//           {value || '--'}
+//         </Text>
+
+//         <View
+//           style={[
+//             styles.dot,
+//             {
+//               backgroundColor:
+//                 active
+//                   ? '#10B981'
+//                   : '#9CA3AF',
+//             },
+//           ]}
+//         />
+
+//       </View>
+
+//     </View>
+//   );
+// }
+
 function Row({
   label,
   value,
   active,
-  status,
 }: any) {
   return (
-    <View
-      style={styles.row}
-    >
+    <View style={styles.row}>
 
-      <Text
-        style={styles.rowLabel}
-      >
+      <Text style={styles.rowLabel}>
         {label}
       </Text>
 
-      <View
-        style={
-          styles.rowValueContainer
-        }
-      >
+      <View style={styles.rowValueContainer}>
 
         <Text
           style={[
@@ -2921,10 +2953,9 @@ function Row({
           style={[
             styles.dot,
             {
-              backgroundColor:
-                active
-                  ? '#10B981'
-                  : '#9CA3AF',
+              backgroundColor: active
+                ? '#10B981'
+                : '#9CA3AF',
             },
           ]}
         />

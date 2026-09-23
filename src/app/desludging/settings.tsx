@@ -1710,19 +1710,34 @@ export default function SettingsScreen() {
       );
 
       // Store Contactor ID
-      if (
-        contactorType?.equipments?.length > 0
-      ) {
+      // if (
+      //   contactorType?.equipments?.length > 0
+      // ) {
+      //   await AsyncStorage.setItem(
+      //     'desludgingContactorSensorId',
+      //     String(
+      //       contactorType.equipments[0].id
+      //     )
+      //   );
+
+      //   console.log(
+      //     'Desludging Contactor Sensor ID:',
+      //     contactorType.equipments[0].id
+      //   );
+      // }
+       if (contactorType?.equipments?.length > 0) {
+        const sensorIds = contactorType.equipments.map(
+          (equipment: any) => equipment.id
+        );
+
         await AsyncStorage.setItem(
           'desludgingContactorSensorId',
-          String(
-            contactorType.equipments[0].id
-          )
+          JSON.stringify(sensorIds)
         );
 
         console.log(
-          'Desludging Contactor Sensor ID:',
-          contactorType.equipments[0].id
+          'Flocculation Mixing Contactor Sensor IDs:',
+          sensorIds
         );
       }
 

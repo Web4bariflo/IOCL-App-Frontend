@@ -5,8 +5,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import {
   getTreatmentStages,
-  // mergeStageDuration,
 } from '../../../api/flocculationApi';
+import { mergeStageDuration } from '../../../api/inletApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SettingsScreen() {
@@ -30,61 +30,61 @@ export default function SettingsScreen() {
 
   const [merging, setMerging] = useState(false);
 
-  // const handleMerge = async () => {
-  //   try {
-  //     setMerging(true);
+  const handleMerge = async () => {
+    try {
+      setMerging(true);
 
-  //     // Get Coagulation Mixing Stage ID
-  //     const stageId = await AsyncStorage.getItem(
-  //       'coagulationMixingStageId'
-  //     );
+      // Get Coagulation Mixing Stage ID
+      const stageId = await AsyncStorage.getItem(
+        'flocculationMixingStageId'
+      );
 
-  //     console.log(
-  //       'Coagulation Mixing Stage ID:',
-  //       stageId
-  //     );
+      console.log(
+        'Flocculation Mixing Stage ID:',
+        stageId
+      );
 
-  //     if (!stageId) {
-  //       console.log(
-  //         'Coagulation Mixing Stage ID not found'
-  //       );
-  //       return;
-  //     }
+      if (!stageId) {
+        console.log(
+          'Flocculation Mixing Stage ID not found'
+        );
+        return;
+      }
 
-  //     // Call Merge Duration API
-  //     const response = await mergeStageDuration(
-  //       Number(stageId)
-  //     );
+      // Call Merge Duration API
+      const response = await mergeStageDuration(
+        Number(stageId)
+      );
 
-  //     console.log(
-  //       'Merge Duration Response:',
-  //       JSON.stringify(response, null, 2)
-  //     );
+      console.log(
+        'Merge Duration Response:',
+        JSON.stringify(response, null, 2)
+      );
 
-  //     if (response?.success) {
-  //       console.log(
-  //         'Coagulation Mixing equipment durations merged successfully'
-  //       );
+      if (response?.success) {
+        console.log(
+          'Flocculation Mixing equipment durations merged successfully'
+        );
 
-  //       console.log(
-  //         'Merged Equipment Count:',
-  //         response.count
-  //       );
+        console.log(
+          'Merged Equipment Count:',
+          response.count
+        );
 
-  //       console.log(
-  //         'Merged Equipment Data:',
-  //         response.data
-  //       );
-  //     }
-  //   } catch (error: any) {
-  //     console.error(
-  //       'Merge Duration Failed:',
-  //       error?.response?.data || error?.message
-  //     );
-  //   } finally {
-  //     setMerging(false);
-  //   }
-  // }
+        console.log(
+          'Merged Equipment Data:',
+          response.data
+        );
+      }
+    } catch (error: any) {
+      console.error(
+        'Merge Duration Failed:',
+        error?.response?.data || error?.message
+      );
+    } finally {
+      setMerging(false);
+    }
+  }
 
   const handleModeSelect = (mode: 'AUTO' | 'MANUAL') => {
     setOperatingMode(mode);
@@ -267,7 +267,7 @@ export default function SettingsScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* Merge Button */}
-        {/* <TouchableOpacity
+        <TouchableOpacity
           style={[
             styles.mergeButton,
             merging && styles.mergeButtonDisabled,
@@ -285,7 +285,7 @@ export default function SettingsScreen() {
           <Text style={styles.mergeButtonText}>
             {merging ? 'MERGING...' : 'MERGE'}
           </Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
 
         {/* General */}
         <Text style={styles.sectionTitle}>GENERAL</Text>
