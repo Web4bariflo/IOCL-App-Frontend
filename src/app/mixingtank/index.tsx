@@ -2070,7 +2070,7 @@ useFocusEffect(
 
             </View>
 
-            <View
+            {/* <View
               style={
                 styles.motorStatusBadge
               }
@@ -2085,7 +2085,24 @@ useFocusEffect(
                   'DEACTIVE'}
               </Text>
 
-            </View>
+            </View> */}
+            <View
+  style={[
+    styles.deactiveBtn,
+    String(motor?.status || '').toUpperCase() === 'ACTIVE' &&
+      styles.activeBtn,
+  ]}
+>
+  <Text
+    style={[
+      styles.deactiveText,
+      String(motor?.status || '').toUpperCase() === 'ACTIVE' &&
+        styles.activeText,
+    ]}
+  >
+    {motor?.status || '--'}
+  </Text>
+</View>
 
           </View>
 
@@ -2720,50 +2737,121 @@ function Card({
 
 /* ==================== VALVE ROW ==================== */
 
+// function ValveRow({
+//   label,
+//   value,
+//   active,
+//   status,
+// }: any) {
+//   return (
+//     <View
+//       style={styles.valveRow}
+//     >
+
+//       <Text
+//         style={styles.rowLabel}
+//       >
+//         {label}
+//       </Text>
+
+//       <View
+//         style={
+//           styles.valveRightSection
+//         }
+//       >
+
+//         <View
+//           style={
+//             styles.valveDeactiveButton
+//           }
+//         >
+
+//           <Text
+//             style={
+//               styles.valveDeactiveText
+//             }
+//           >
+//             {status || '--'}
+//           </Text>
+
+//         </View>
+
+//         <View
+//           style={
+//             styles.rowValueContainer
+//           }
+//         >
+
+//           <Text
+//             style={[
+//               styles.rowValue,
+//               {
+//                 color: active
+//                   ? '#10B981'
+//                   : '#6B7280',
+//               },
+//             ]}
+//           >
+//             {value || '--'}
+//           </Text>
+
+//           <View
+//             style={[
+//               styles.dot,
+//               {
+//                 backgroundColor:
+//                   active
+//                     ? '#10B981'
+//                     : '#9CA3AF',
+//               },
+//             ]}
+//           />
+
+//         </View>
+
+//       </View>
+
+//     </View>
+//   );
+// }
+
 function ValveRow({
   label,
   value,
   active,
   status,
 }: any) {
-  return (
-    <View
-      style={styles.valveRow}
-    >
+  const isActive =
+    String(status || '').toUpperCase() === 'ACTIVE';
 
-      <Text
-        style={styles.rowLabel}
-      >
+  return (
+    <View style={styles.valveRow}>
+
+      <Text style={styles.rowLabel}>
         {label}
       </Text>
 
-      <View
-        style={
-          styles.valveRightSection
-        }
-      >
+      <View style={styles.valveRightSection}>
 
+        {/* STATUS BUTTON */}
         <View
-          style={
-            styles.valveDeactiveButton
-          }
+          style={[
+            styles.deactiveBtn,
+            isActive && styles.activeBtn,
+          ]}
         >
-
           <Text
-            style={
-              styles.valveDeactiveText
-            }
+            style={[
+              styles.deactiveText,
+              isActive && styles.activeText,
+            ]}
           >
             {status || '--'}
           </Text>
-
         </View>
 
-        <View
-          style={
-            styles.rowValueContainer
-          }
-        >
+        {/* CURRENT STATE */}
+        <View style={styles.rowValueContainer}>
 
           <Text
             style={[
@@ -2782,10 +2870,9 @@ function ValveRow({
             style={[
               styles.dot,
               {
-                backgroundColor:
-                  active
-                    ? '#10B981'
-                    : '#9CA3AF',
+                backgroundColor: active
+                  ? '#10B981'
+                  : '#9CA3AF',
               },
             ]}
           />
@@ -2800,6 +2887,72 @@ function ValveRow({
 
 /* ==================== PUMP ROW ==================== */
 
+// function PumpRow({
+//   label,
+//   status,
+//   time,
+//   active,
+//   equipmentStatus,
+// }: any) {
+//   return (
+//     <View
+//       style={styles.pumpRow}
+//     >
+
+//       <Text
+//         style={styles.pumpLabel}
+//       >
+//         {label}
+//       </Text>
+
+//       <View
+//         style={
+//           styles.pumpRightSection
+//         }
+//       >
+
+//         <View
+//           style={
+//             styles.pumpDeactiveButton
+//           }
+//         >
+
+//           <Text
+//             style={
+//               styles.pumpDeactiveText
+//             }
+//           >
+//             {equipmentStatus ||
+//               '--'}
+//           </Text>
+
+//         </View>
+
+//         <Text
+//           style={[
+//             styles.pumpStatusText,
+//             {
+//               color: active
+//                 ? '#10B981'
+//                 : '#EF4444',
+//             },
+//           ]}
+//         >
+//           {status || '--'}
+//         </Text>
+
+//         <Text
+//           style={styles.pumpTime}
+//         >
+//           {time || '--'}
+//         </Text>
+
+//       </View>
+
+//     </View>
+//   );
+// }
+
 function PumpRow({
   label,
   status,
@@ -2807,40 +2960,36 @@ function PumpRow({
   active,
   equipmentStatus,
 }: any) {
-  return (
-    <View
-      style={styles.pumpRow}
-    >
+  const isActive =
+    String(equipmentStatus || '').toUpperCase() === 'ACTIVE';
 
-      <Text
-        style={styles.pumpLabel}
-      >
+  return (
+    <View style={styles.pumpRow}>
+
+      <Text style={styles.pumpLabel}>
         {label}
       </Text>
 
-      <View
-        style={
-          styles.pumpRightSection
-        }
-      >
+      <View style={styles.pumpRightSection}>
 
+        {/* STATUS BUTTON */}
         <View
-          style={
-            styles.pumpDeactiveButton
-          }
+          style={[
+            styles.deactiveBtn,
+            isActive && styles.activeBtn,
+          ]}
         >
-
           <Text
-            style={
-              styles.pumpDeactiveText
-            }
+            style={[
+              styles.deactiveText,
+              isActive && styles.activeText,
+            ]}
           >
-            {equipmentStatus ||
-              '--'}
+            {equipmentStatus || '--'}
           </Text>
-
         </View>
 
+        {/* ON / OFF */}
         <Text
           style={[
             styles.pumpStatusText,
@@ -2854,9 +3003,8 @@ function PumpRow({
           {status || '--'}
         </Text>
 
-        <Text
-          style={styles.pumpTime}
-        >
+        {/* TIME */}
+        <Text style={styles.pumpTime}>
           {time || '--'}
         </Text>
 
